@@ -514,7 +514,7 @@ python_files = ["test_*.py"]
 | A2 | QueryParams default values matching LightRAG upstream (TOP_K=40, etc.) are correct for this project | Standard Stack | Low — values are configurable via .env; defaults serve as starting point |
 | A3 | `env_prefix` on sub-models works with `nested_model_default_partial_update` — the official docs show them together but do not explicitly document the interaction | Architecture Patterns | Medium — if interaction causes issues, sub-models can use `validation_alias` instead of `env_prefix` |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **RerankerConfig: should `binding=""` mean "rerank disabled"?**
    - What we know: LightRAG upstream uses `RERANK_BINDING=null` to disable. In pydantic, `None` vs `""` have different semantics. Empty string is easier to set in `.env` but less semantically clear.
