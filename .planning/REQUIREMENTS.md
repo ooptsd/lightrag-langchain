@@ -37,11 +37,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CONF — 配置
 
-- [ ] **CONF-01**: .env 配置 PostgreSQL 连接（PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE）
-- [ ] **CONF-02**: .env 配置 LLM（LLM_BINDING, LLM_BINDING_HOST, LLM_BINDING_API_KEY, LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS）
-- [ ] **CONF-03**: .env 配置 Embedding（EMBEDDING_BINDING, EMBEDDING_BINDING_HOST, EMBEDDING_BINDING_API_KEY, EMBEDDING_MODEL, EMBEDDING_DIM）
-- [ ] **CONF-04**: .env 配置 Reranker（RERANK_BINDING, RERANK_BINDING_HOST, RERANK_BINDING_API_KEY, RERANK_MODEL, MIN_RERANK_SCORE）
-- [ ] **CONF-05**: .env 配置查询参数（TOP_K, CHUNK_TOP_K, MAX_ENTITY_TOKENS, MAX_RELATION_TOKENS, MAX_TOTAL_TOKENS, COSINE_THRESHOLD, KG_CHUNK_PICK_METHOD）
+- [x] **CONF-01**: .env 配置 PostgreSQL 连接（PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE）
+- [x] **CONF-02**: .env 配置 LLM（LLM_BINDING, LLM_BINDING_HOST, LLM_BINDING_API_KEY, LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS）
+- [x] **CONF-03**: .env 配置 Embedding（EMBEDDING_BINDING, EMBEDDING_BINDING_HOST, EMBEDDING_BINDING_API_KEY, EMBEDDING_MODEL, EMBEDDING_DIM）
+- [x] **CONF-04**: .env 配置 Reranker（RERANK_BINDING, RERANK_BINDING_HOST, RERANK_BINDING_API_KEY, RERANK_MODEL, MIN_RERANK_SCORE）
+- [x] **CONF-05**: .env 配置查询参数（TOP_K, CHUNK_TOP_K, MAX_ENTITY_TOKENS, MAX_RELATION_TOKENS, MAX_TOTAL_TOKENS, COSINE_THRESHOLD, KG_CHUNK_PICK_METHOD）
 
 ### LLM — LLM / Embedding / Reranker 集成
 
@@ -84,11 +84,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONF-01 | Phase 1: Configuration | Pending |
-| CONF-02 | Phase 1: Configuration | Pending |
-| CONF-03 | Phase 1: Configuration | Pending |
-| CONF-04 | Phase 1: Configuration | Pending |
-| CONF-05 | Phase 1: Configuration | Pending |
+| CONF-01 | Phase 1: Configuration | Complete |
+| CONF-02 | Phase 1: Configuration | Complete |
+| CONF-03 | Phase 1: Configuration | Complete |
+| CONF-04 | Phase 1: Configuration | Complete |
+| CONF-05 | Phase 1: Configuration | Complete |
 | STOR-01 | Phase 2: Data Layer | Pending |
 | STOR-02 | Phase 2: Data Layer | Pending |
 | STOR-03 | Phase 2: Data Layer | Pending |

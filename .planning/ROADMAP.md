@@ -32,7 +32,7 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Project scaffolding: pyproject.toml, package structure, .gitignore, .env.example, test fixtures
+- [x] 01-01-PLAN.md — Project scaffolding: pyproject.toml, package structure, .gitignore, .env.example, test fixtures
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -120,7 +120,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Configuration | 0/2 | Planned | - |
+| 1. Configuration | 1/2 | In Progress|  |
 | 2. Data Layer | 0/0 | Not started | - |
 | 3. LLM Integration | 0/0 | Not started | - |
 | 4. Query Strategies | 0/0 | Not started | - |
