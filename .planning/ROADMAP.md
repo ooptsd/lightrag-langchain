@@ -6,7 +6,7 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
 
 ## Phases
 
-- [ ] **Phase 1: Configuration** - .env-based configuration for all services (PG, LLM, Embedding, Reranker, QueryParams)
+- [ ] **Phase 1: Configuration** (Planned) - .env-based configuration for all services (PG, LLM, Embedding, Reranker, QueryParams)
 - [ ] **Phase 2: Data Layer** - Read-only PostgreSQL access layer for LightRAG's PGVector and Apache AGE graph stores
 - [ ] **Phase 3: LLM Integration** - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control
 - [ ] **Phase 4: Query Strategies** - All 6 LightRAG query modes: naive, local, global, hybrid, mix, bypass
@@ -24,7 +24,11 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
   2. `.env` file is parsed and all config values are accessible through a configuration API with typed fields
   3. Missing required configuration raises a clear, actionable validation error indicating which key is missing
   4. Each of the 5 config groups (PostgreSQL, LLM, Embedding, Reranker, QueryParams) is independently loadable and testable in isolation
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Project scaffolding: pyproject.toml, package structure, .gitignore, .env.example, test fixtures
+- [ ] 01-02-PLAN.md — Configuration implementation: 5 sub-models, Settings singleton, fail-fast validation, comprehensive test suite (TDD)
 
 ### Phase 2: Data Layer
 **Goal**: All LightRAG PostgreSQL data (entities, relationships, chunks, graph nodes/edges) is readable through a clean abstraction layer.
@@ -93,7 +97,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Configuration | 0/0 | Not started | - |
+| 1. Configuration | 0/2 | Planned | - |
 | 2. Data Layer | 0/0 | Not started | - |
 | 3. LLM Integration | 0/0 | Not started | - |
 | 4. Query Strategies | 0/0 | Not started | - |
