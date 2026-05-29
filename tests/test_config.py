@@ -7,15 +7,14 @@ and decisions D-07, D-08, D-12, plus SecretStr masking.
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
 import pytest
 from pydantic import SecretStr, ValidationError
 
-
 # ---------------------------------------------------------------------------
 # CONF-01: PostgreSQL config
 # ---------------------------------------------------------------------------
+
 
 class TestPgConfig:
     """CONF-01 tests — PostgreSQL connection settings."""
@@ -53,6 +52,7 @@ class TestPgConfig:
 # ---------------------------------------------------------------------------
 # CONF-02: LLM config
 # ---------------------------------------------------------------------------
+
 
 class TestLlmConfig:
     """CONF-02 tests — LLM provider settings."""
@@ -94,6 +94,7 @@ class TestLlmConfig:
 # CONF-03: Embedding config
 # ---------------------------------------------------------------------------
 
+
 class TestEmbeddingConfig:
     """CONF-03 tests — Embedding provider settings."""
 
@@ -128,6 +129,7 @@ class TestEmbeddingConfig:
 # ---------------------------------------------------------------------------
 # CONF-04: Reranker config
 # ---------------------------------------------------------------------------
+
 
 class TestRerankerConfig:
     """CONF-04 tests — Reranker provider settings."""
@@ -165,6 +167,7 @@ class TestRerankerConfig:
 # CONF-05: Query params config
 # ---------------------------------------------------------------------------
 
+
 class TestQueryParamsConfig:
     """CONF-05 tests — Query behaviour defaults matching LightRAG upstream."""
 
@@ -199,6 +202,7 @@ class TestQueryParamsConfig:
 # ---------------------------------------------------------------------------
 # D-08: Token budget cross-field invariant
 # ---------------------------------------------------------------------------
+
 
 class TestTokenBudgetInvariant:
     """D-08 tests — cross-field token budget validation."""
@@ -243,6 +247,7 @@ class TestTokenBudgetInvariant:
 # SC #4: Independent sub-model instantiation
 # ---------------------------------------------------------------------------
 
+
 class TestIndependentSubmodelInstantiation:
     """SC #4 — Each sub-model can be instantiated independently."""
 
@@ -256,14 +261,10 @@ class TestIndependentSubmodelInstantiation:
             RerankerConfig,
         )
 
-        pg = PgConfig(
-            host="h", user="u", password=SecretStr("p"), database="d"
-        )
+        pg = PgConfig(host="h", user="u", password=SecretStr("p"), database="d")
         assert pg.host == "h"
 
-        llm = LlmConfig(
-            binding="b", binding_host="h", binding_api_key=SecretStr("k"), model="m"
-        )
+        llm = LlmConfig(binding="b", binding_host="h", binding_api_key=SecretStr("k"), model="m")
         assert llm.binding == "b"
 
         emb = EmbeddingConfig(
@@ -282,6 +283,7 @@ class TestIndependentSubmodelInstantiation:
 # D-12: Frozen immutability
 # ---------------------------------------------------------------------------
 
+
 class TestFrozenImmutability:
     """D-12 tests — frozen=True prevents runtime mutation."""
 
@@ -289,9 +291,7 @@ class TestFrozenImmutability:
         """Setting a field on a frozen PgConfig raises ValidationError."""
         from lightrag_langchain.config import PgConfig
 
-        cfg = PgConfig(
-            host="h", user="u", password=SecretStr("p"), database="d"
-        )
+        cfg = PgConfig(host="h", user="u", password=SecretStr("p"), database="d")
         with pytest.raises(ValidationError):
             cfg.host = "new"
 
@@ -300,15 +300,17 @@ class TestFrozenImmutability:
         from lightrag_langchain.config import LlmConfig
 
         cfg = LlmConfig(
-            binding="b", binding_host="h",
-            binding_api_key=SecretStr("k"), model="m",
+            binding="b",
+            binding_host="h",
+            binding_api_key=SecretStr("k"),
+            model="m",
         )
         with pytest.raises(ValidationError):
             cfg.model = "other"
 
     def test_frozen_prevents_mutation_settings(self, temp_env_file):
         """Settings instance is frozen — field mutation raises."""
-        from lightrag_langchain.config import PgConfig, Settings, SettingsError
+        from lightrag_langchain.config import PgConfig, Settings
 
         env = temp_env_file(
             **{
@@ -336,6 +338,7 @@ class TestFrozenImmutability:
 # SecretStr masking (Claude's Discretion)
 # ---------------------------------------------------------------------------
 
+
 class TestSecretStrMasking:
     """SecretStr auto-masking — raw values never leak via str/repr."""
 
@@ -343,9 +346,7 @@ class TestSecretStrMasking:
         """repr() of a config model does not expose raw secret values."""
         from lightrag_langchain.config import PgConfig
 
-        cfg = PgConfig(
-            host="h", user="u", password=SecretStr("secret"), database="d"
-        )
+        cfg = PgConfig(host="h", user="u", password=SecretStr("secret"), database="d")
         r = repr(cfg)
         assert "secret" not in r
 
@@ -353,9 +354,7 @@ class TestSecretStrMasking:
         """str() of a config model does not expose raw secret values."""
         from lightrag_langchain.config import PgConfig
 
-        cfg = PgConfig(
-            host="h", user="u", password=SecretStr("MySecretPass!"), database="d"
-        )
+        cfg = PgConfig(host="h", user="u", password=SecretStr("MySecretPass!"), database="d")
         s = str(cfg)
         assert "MySecretPass" not in s
 
@@ -373,6 +372,7 @@ class TestSecretStrMasking:
 # ---------------------------------------------------------------------------
 # Settings integration tests
 # ---------------------------------------------------------------------------
+
 
 class TestSettingsIntegration:
     """SC #2 & SC #3 — .env parsing with typed access and error handling."""
@@ -506,7 +506,7 @@ class TestSettingsIntegration:
 
     def test_settings_default_sets_correctly(self, temp_env_file):
         """Verify that all default values are correct."""
-        from lightrag_langchain.config import RerankerConfig, QueryParamsConfig
+        from lightrag_langchain.config import QueryParamsConfig, RerankerConfig
 
         rerank = RerankerConfig()
         assert rerank.min_rerank_score == 0.0
@@ -518,6 +518,7 @@ class TestSettingsIntegration:
 # ---------------------------------------------------------------------------
 # SC #1: Module import
 # ---------------------------------------------------------------------------
+
 
 class TestModuleImport:
     """SC #1 — The project module is importable when .env is valid."""
@@ -585,7 +586,6 @@ class TestModuleImport:
             PgConfig,
             QueryParamsConfig,
             RerankerConfig,
-            Settings,
             SettingsError,
             settings,
         )

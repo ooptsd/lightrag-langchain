@@ -18,7 +18,6 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 # ---------------------------------------------------------------------------
 # Exception
 # ---------------------------------------------------------------------------
@@ -172,7 +171,7 @@ class Settings(BaseSettings):
     reranker: RerankerConfig = RerankerConfig()
     query_params: QueryParamsConfig = QueryParamsConfig()
 
-    def __init__(__pydantic_self__, **data: Any) -> None:  # type: ignore[valid-type]
+    def __init__(__pydantic_self__, **data: Any) -> None:  # noqa: N805
         try:
             super().__init__(**data)
         except ValidationError as exc:
@@ -191,7 +190,7 @@ def _format_validation_error(exc: ValidationError) -> str:
     """
     groups: dict[str, list[str]] = defaultdict(list)
 
-    GROUP_MAP = {
+    group_map = {
         "pg": "PostgreSQL",
         "llm": "LLM",
         "embedding": "Embedding",
@@ -202,7 +201,7 @@ def _format_validation_error(exc: ValidationError) -> str:
     for err in exc.errors():
         loc = err.get("loc", ())
         group_key = str(loc[0]) if loc else "unknown"
-        group_name = GROUP_MAP.get(group_key, group_key)
+        group_name = group_map.get(group_key, group_key)
         field_path = ".".join(str(p) for p in loc[1:]) if len(loc) > 1 else str(group_key)
         msg = err.get("msg", "unknown error")
         groups[group_name].append(f"  - {field_path}: {msg}")
