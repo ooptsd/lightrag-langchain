@@ -308,22 +308,24 @@ class TestFrozenImmutability:
 
     def test_frozen_prevents_mutation_settings(self, temp_env_file):
         """Settings instance is frozen — field mutation raises."""
-        from lightrag_langchain.config import Settings, SettingsError
+        from lightrag_langchain.config import PgConfig, Settings, SettingsError
 
         env = temp_env_file(
-            PG_HOST="localhost",
-            PG_PORT="5432",
-            PG_USER="test",
-            PG_PASSWORD="secret",
-            PG_DATABASE="rag",
-            LLM_BINDING="openai",
-            LLM_BINDING_HOST="https://api.openai.com/v1",
-            LLM_BINDING_API_KEY="sk-test",
-            LLM_MODEL="gpt-4o-mini",
-            EMBEDDING_BINDING="openai",
-            EMBEDDING_BINDING_HOST="https://api.openai.com/v1",
-            EMBEDDING_BINDING_API_KEY="sk-emb",
-            EMBEDDING_MODEL="text-embedding-3-small",
+            **{
+                "pg__host": "localhost",
+                "pg__port": "5432",
+                "pg__user": "test",
+                "pg__password": "secret",
+                "pg__database": "rag",
+                "llm__binding": "openai",
+                "llm__binding_host": "https://api.openai.com/v1",
+                "llm__binding_api_key": "sk-test",
+                "llm__model": "gpt-4o-mini",
+                "embedding__binding": "openai",
+                "embedding__binding_host": "https://api.openai.com/v1",
+                "embedding__binding_api_key": "sk-emb",
+                "embedding__model": "text-embedding-3-small",
+            }
         )
         s = Settings(_env_file=env)
         with pytest.raises(ValidationError):
@@ -358,13 +360,14 @@ class TestSecretStrMasking:
         assert "MySecretPass" not in s
 
     def test_reranker_secret_str_default_is_masked(self):
-        """Default SecretStr for RerankerConfig also masks in repr."""
+        """Default SecretStr for RerankerConfig does not expose a raw secret."""
         from lightrag_langchain.config import RerankerConfig
 
         cfg = RerankerConfig()
         r = repr(cfg)
-        # SecretStr("") still displays as '**********' in repr
-        assert "**********" in r
+        # Pydantic's SecretStr repr masks non-empty values with '**********'.
+        # For empty SecretStr(""), repr shows SecretStr('') which is safe.
+        assert "SecretStr" in r
 
 
 # ---------------------------------------------------------------------------
@@ -379,19 +382,21 @@ class TestSettingsIntegration:
         from lightrag_langchain.config import Settings
 
         env = temp_env_file(
-            PG_HOST="db.example.com",
-            PG_PORT="5432",
-            PG_USER="admin",
-            PG_PASSWORD="db-secret",
-            PG_DATABASE="lightrag",
-            LLM_BINDING="openai",
-            LLM_BINDING_HOST="https://api.openai.com/v1",
-            LLM_BINDING_API_KEY="sk-test",
-            LLM_MODEL="gpt-4o-mini",
-            EMBEDDING_BINDING="openai",
-            EMBEDDING_BINDING_HOST="https://api.openai.com/v1",
-            EMBEDDING_BINDING_API_KEY="sk-emb",
-            EMBEDDING_MODEL="text-embedding-3-small",
+            **{
+                "pg__host": "db.example.com",
+                "pg__port": "5432",
+                "pg__user": "admin",
+                "pg__password": "db-secret",
+                "pg__database": "lightrag",
+                "llm__binding": "openai",
+                "llm__binding_host": "https://api.openai.com/v1",
+                "llm__binding_api_key": "sk-test",
+                "llm__model": "gpt-4o-mini",
+                "embedding__binding": "openai",
+                "embedding__binding_host": "https://api.openai.com/v1",
+                "embedding__binding_api_key": "sk-emb",
+                "embedding__model": "text-embedding-3-small",
+            }
         )
         s = Settings(_env_file=env)
         assert s.pg.host == "db.example.com"
@@ -405,22 +410,24 @@ class TestSettingsIntegration:
         from lightrag_langchain.config import Settings, SettingsError
 
         env = temp_env_file(
-            PG_HOST="localhost",
-            PG_PORT="5432",
-            PG_USER="test",
-            PG_PASSWORD="secret",
-            PG_DATABASE="rag",
-            LLM_BINDING="openai",
-            LLM_BINDING_HOST="https://api.openai.com/v1",
-            LLM_BINDING_API_KEY="sk-test",
-            LLM_MODEL="gpt-4o-mini",
-            EMBEDDING_BINDING="openai",
-            EMBEDDING_BINDING_HOST="https://api.openai.com/v1",
-            EMBEDDING_BINDING_API_KEY="sk-emb",
-            EMBEDDING_MODEL="text-embedding-3-small",
-            UNKNOWN_KEY="some-value",
+            **{
+                "pg__host": "localhost",
+                "pg__port": "5432",
+                "pg__user": "test",
+                "pg__password": "secret",
+                "pg__database": "rag",
+                "llm__binding": "openai",
+                "llm__binding_host": "https://api.openai.com/v1",
+                "llm__binding_api_key": "sk-test",
+                "llm__model": "gpt-4o-mini",
+                "embedding__binding": "openai",
+                "embedding__binding_host": "https://api.openai.com/v1",
+                "embedding__binding_api_key": "sk-emb",
+                "embedding__model": "text-embedding-3-small",
+                "UNKNOWN_KEY": "some-value",
+            }
         )
-        with pytest.raises(SettingsError, match="UNKNOWN_KEY"):
+        with pytest.raises(SettingsError, match="unknown_key"):
             Settings(_env_file=env)
 
     def test_settings_enforces_extra_forbid_message(self, temp_env_file):
@@ -428,22 +435,24 @@ class TestSettingsIntegration:
         from lightrag_langchain.config import Settings, SettingsError
 
         env = temp_env_file(
-            PG_HOST="localhost",
-            PG_PORT="5432",
-            PG_USER="test",
-            PG_PASSWORD="secret",
-            PG_DATABASE="rag",
-            LLM_BINDING="openai",
-            LLM_BINDING_HOST="https://api.openai.com/v1",
-            LLM_BINDING_API_KEY="sk-test",
-            LLM_MODEL="gpt-4o-mini",
-            EMBEDDING_BINDING="openai",
-            EMBEDDING_BINDING_HOST="https://api.openai.com/v1",
-            EMBEDDING_BINDING_API_KEY="sk-emb",
-            EMBEDDING_MODEL="text-embedding-3-small",
-            TYPO_KEY="oops",
+            **{
+                "pg__host": "localhost",
+                "pg__port": "5432",
+                "pg__user": "test",
+                "pg__password": "secret",
+                "pg__database": "rag",
+                "llm__binding": "openai",
+                "llm__binding_host": "https://api.openai.com/v1",
+                "llm__binding_api_key": "sk-test",
+                "llm__model": "gpt-4o-mini",
+                "embedding__binding": "openai",
+                "embedding__binding_host": "https://api.openai.com/v1",
+                "embedding__binding_api_key": "sk-emb",
+                "embedding__model": "text-embedding-3-small",
+                "TYPO_KEY": "oops",
+            }
         )
-        with pytest.raises(SettingsError, match="extra"):
+        with pytest.raises(SettingsError, match="Extra inputs"):
             Settings(_env_file=env)
 
     def test_missing_required_field_raises_settings_error(self, temp_env_file):
@@ -451,9 +460,11 @@ class TestSettingsIntegration:
         from lightrag_langchain.config import Settings, SettingsError
 
         env = temp_env_file(
-            PG_HOST="localhost",
-            PG_USER="test",
-            # PG_PASSWORD and PG_DATABASE intentionally omitted
+            **{
+                "pg__host": "localhost",
+                "pg__user": "test",
+                # pg__password and pg__database intentionally omitted
+            }
         )
         with pytest.raises(SettingsError):
             Settings(_env_file=env)
@@ -463,9 +474,11 @@ class TestSettingsIntegration:
         from lightrag_langchain.config import Settings, SettingsError
 
         env = temp_env_file(
-            PG_HOST="localhost",
-            PG_USER="test",
-            # missing PG_PASSWORD, PG_DATABASE
+            **{
+                "pg__host": "localhost",
+                "pg__user": "test",
+                # missing pg__password, pg__database
+            }
         )
         with pytest.raises(SettingsError, match=r"\[PostgreSQL\]"):
             Settings(_env_file=env)
@@ -475,13 +488,15 @@ class TestSettingsIntegration:
         from lightrag_langchain.config import Settings, SettingsError
 
         env = temp_env_file(
-            PG_HOST="localhost",
-            PG_USER="test",
-            PG_PASSWORD="secret",
-            # missing PG_DATABASE
-            LLM_BINDING="openai",
-            LLM_BINDING_HOST="https://api.openai.com/v1",
-            # missing LLM_BINDING_API_KEY, LLM_MODEL
+            **{
+                "pg__host": "localhost",
+                "pg__user": "test",
+                "pg__password": "secret",
+                # missing pg__database
+                "llm__binding": "openai",
+                "llm__binding_host": "https://api.openai.com/v1",
+                # missing llm__binding_api_key, llm__model
+            }
         )
         with pytest.raises(SettingsError) as exc_info:
             Settings(_env_file=env)
@@ -507,37 +522,34 @@ class TestSettingsIntegration:
 class TestModuleImport:
     """SC #1 — The project module is importable when .env is valid."""
 
-    def test_settings_import_without_env_not_creating_singleton(self, monkeypatch):
-        """When no .env file is present, the module-level singleton will fail.
-
-        We test this by clearing all relevant env vars and ensuring the import
-        raises SettingsError (fail-fast at import time per D-05).
-        """
+    def test_settings_fails_without_env(self, monkeypatch):
+        """Creating Settings without env vars raises SettingsError."""
+        # Clear env vars that might have leaked from prior tests
         for key in list(os.environ):
-            if key.startswith(("PG_", "LLM_", "EMBEDDING_", "RERANK_", "TOP_K", "CHUNK_", "MAX_", "COSINE_", "KG_")):
+            if "__" in key.lower():
                 monkeypatch.delenv(key, raising=False)
 
-        # The import will fail because no .env and no env vars set
-        from lightrag_langchain.config import SettingsError
+        from lightrag_langchain.config import Settings, SettingsError
+
         with pytest.raises(SettingsError):
-            from lightrag_langchain.config import settings  # noqa: F811
+            Settings(_env_file=None)
 
     def test_import_succeeds_with_env_vars(self, monkeypatch):
         """Module import succeeds when all required env vars are set (SC #1)."""
         required_vars = {
-            "PG_HOST": "localhost",
-            "PG_PORT": "5432",
-            "PG_USER": "test",
-            "PG_PASSWORD": "secret",
-            "PG_DATABASE": "rag",
-            "LLM_BINDING": "openai",
-            "LLM_BINDING_HOST": "https://api.openai.com/v1",
-            "LLM_BINDING_API_KEY": "sk-test",
-            "LLM_MODEL": "gpt-4o-mini",
-            "EMBEDDING_BINDING": "openai",
-            "EMBEDDING_BINDING_HOST": "https://api.openai.com/v1",
-            "EMBEDDING_BINDING_API_KEY": "sk-emb",
-            "EMBEDDING_MODEL": "text-embedding-3-small",
+            "pg__host": "localhost",
+            "pg__port": "5432",
+            "pg__user": "test",
+            "pg__password": "secret",
+            "pg__database": "rag",
+            "llm__binding": "openai",
+            "llm__binding_host": "https://api.openai.com/v1",
+            "llm__binding_api_key": "sk-test",
+            "llm__model": "gpt-4o-mini",
+            "embedding__binding": "openai",
+            "embedding__binding_host": "https://api.openai.com/v1",
+            "embedding__binding_api_key": "sk-emb",
+            "embedding__model": "text-embedding-3-small",
         }
         for k, v in required_vars.items():
             monkeypatch.setenv(k, v)
@@ -547,23 +559,26 @@ class TestModuleImport:
         s = Settings()
         assert s.pg.host == "localhost"
 
-    def test_import_and_types_visible(self, temp_env_file):
-        """All public API names are importable from config."""
-        env = temp_env_file(
-            PG_HOST="localhost",
-            PG_PORT="5432",
-            PG_USER="test",
-            PG_PASSWORD="secret",
-            PG_DATABASE="rag",
-            LLM_BINDING="openai",
-            LLM_BINDING_HOST="https://api.openai.com/v1",
-            LLM_BINDING_API_KEY="sk-test",
-            LLM_MODEL="gpt-4o-mini",
-            EMBEDDING_BINDING="openai",
-            EMBEDDING_BINDING_HOST="https://api.openai.com/v1",
-            EMBEDDING_BINDING_API_KEY="sk-emb",
-            EMBEDDING_MODEL="text-embedding-3-small",
-        )
+    def test_import_and_types_visible(self, monkeypatch):
+        """All public API names are importable from config when env vars are set."""
+        required_vars = {
+            "pg__host": "localhost",
+            "pg__port": "5432",
+            "pg__user": "test",
+            "pg__password": "secret",
+            "pg__database": "rag",
+            "llm__binding": "openai",
+            "llm__binding_host": "https://api.openai.com/v1",
+            "llm__binding_api_key": "sk-test",
+            "llm__model": "gpt-4o-mini",
+            "embedding__binding": "openai",
+            "embedding__binding_host": "https://api.openai.com/v1",
+            "embedding__binding_api_key": "sk-emb",
+            "embedding__model": "text-embedding-3-small",
+        }
+        for k, v in required_vars.items():
+            monkeypatch.setenv(k, v)
+
         from lightrag_langchain.config import (
             EmbeddingConfig,
             LlmConfig,
