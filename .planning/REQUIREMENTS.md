@@ -84,38 +84,38 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STOR-01 | — | Pending |
-| STOR-02 | — | Pending |
-| STOR-03 | — | Pending |
-| STOR-04 | — | Pending |
-| QUERY-01 | — | Pending |
-| QUERY-02 | — | Pending |
-| QUERY-03 | — | Pending |
-| QUERY-04 | — | Pending |
-| QUERY-05 | — | Pending |
-| QUERY-06 | — | Pending |
-| RETR-01 | — | Pending |
-| RETR-02 | — | Pending |
-| RETR-03 | — | Pending |
-| CHAIN-01 | — | Pending |
-| CHAIN-02 | — | Pending |
-| CHAIN-03 | — | Pending |
-| CONF-01 | — | Pending |
-| CONF-02 | — | Pending |
-| CONF-03 | — | Pending |
-| CONF-04 | — | Pending |
-| CONF-05 | — | Pending |
-| LLM-01 | — | Pending |
-| LLM-02 | — | Pending |
-| LLM-03 | — | Pending |
-| LLM-04 | — | Pending |
-| LLM-05 | — | Pending |
+| CONF-01 | Phase 1: Configuration | Pending |
+| CONF-02 | Phase 1: Configuration | Pending |
+| CONF-03 | Phase 1: Configuration | Pending |
+| CONF-04 | Phase 1: Configuration | Pending |
+| CONF-05 | Phase 1: Configuration | Pending |
+| STOR-01 | Phase 2: Data Layer | Pending |
+| STOR-02 | Phase 2: Data Layer | Pending |
+| STOR-03 | Phase 2: Data Layer | Pending |
+| STOR-04 | Phase 2: Data Layer | Pending |
+| LLM-01 | Phase 3: LLM Integration | Pending |
+| LLM-02 | Phase 3: LLM Integration | Pending |
+| LLM-03 | Phase 3: LLM Integration | Pending |
+| LLM-04 | Phase 3: LLM Integration | Pending |
+| LLM-05 | Phase 3: LLM Integration | Pending |
+| QUERY-01 | Phase 4: Query Strategies | Pending |
+| QUERY-02 | Phase 4: Query Strategies | Pending |
+| QUERY-03 | Phase 4: Query Strategies | Pending |
+| QUERY-04 | Phase 4: Query Strategies | Pending |
+| QUERY-05 | Phase 4: Query Strategies | Pending |
+| QUERY-06 | Phase 4: Query Strategies | Pending |
+| RETR-01 | Phase 5: Retriever Interfaces | Pending |
+| RETR-02 | Phase 5: Retriever Interfaces | Pending |
+| RETR-03 | Phase 5: Retriever Interfaces | Pending |
+| CHAIN-01 | Phase 6: QA Chain | Pending |
+| CHAIN-02 | Phase 6: QA Chain | Pending |
+| CHAIN-03 | Phase 6: QA Chain | Pending |
 
 **Coverage:**
 - v1 requirements: 25 total
-- Mapped to phases: 0
-- Unmapped: 25 ⚠️
+- Mapped to phases: 25
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-29*
-*Last updated: 2026-05-29 after initial definition*
+*Last updated: 2026-05-29 after roadmap creation*
