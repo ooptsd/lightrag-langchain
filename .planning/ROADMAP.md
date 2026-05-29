@@ -6,7 +6,7 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
 
 ## Phases
 
-- [ ] **Phase 1: Configuration** (Planned) - .env-based configuration for all services (PG, LLM, Embedding, Reranker, QueryParams)
+- [x] **Phase 1: Configuration** (Planned) - .env-based configuration for all services (PG, LLM, Embedding, Reranker, QueryParams) (completed 2026-05-29)
 - [ ] **Phase 2: Data Layer** - Read-only PostgreSQL access layer for LightRAG's PGVector and Apache AGE graph stores
 - [ ] **Phase 3: LLM Integration** - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control
 - [ ] **Phase 4: Query Strategies** - All 6 LightRAG query modes: naive, local, global, hybrid, mix, bypass
@@ -36,7 +36,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Configuration implementation: 5 sub-models, Settings singleton, fail-fast validation, comprehensive test suite (TDD)
+- [x] 01-02-PLAN.md — Configuration implementation: 5 sub-models, Settings singleton, fail-fast validation, comprehensive test suite (TDD)
 
 ### Phase 2: Data Layer
 
@@ -120,7 +120,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Configuration | 1/2 | In Progress|  |
+| 1. Configuration | 2/2 | Complete   | 2026-05-29 |
 | 2. Data Layer | 0/0 | Not started | - |
 | 3. LLM Integration | 0/0 | Not started | - |
 | 4. Query Strategies | 0/0 | Not started | - |
