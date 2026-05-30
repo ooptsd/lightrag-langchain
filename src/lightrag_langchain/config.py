@@ -33,10 +33,17 @@ class SettingsError(Exception):
 
 
 class PgConfig(BaseModel):
-    """PostgreSQL connection settings.
+    """PostgreSQL connection and pool settings.
 
     Env vars are routed via the top-level ``Settings`` field name ``pg``.
     ``PG_HOST`` → ``pg.host``, ``PG_PORT`` → ``pg.port``, etc.
+
+    Pool fields:
+    - ``workspace``: isolation namespace for multi-tenant LightRAG databases
+      (D-05 single-workspace strategy, default ``"default"``).
+    - ``pool_min_size`` / ``pool_max_size``: asyncpg connection pool sizing
+      (D-03, default 2 / 10).
+    - ``pool_timeout``: command timeout in seconds (default 30.0).
     """
 
     model_config = ConfigDict(frozen=True)
@@ -46,6 +53,10 @@ class PgConfig(BaseModel):
     user: str
     password: SecretStr
     database: str
+    workspace: str = "default"
+    pool_min_size: int = 2
+    pool_max_size: int = 10
+    pool_timeout: float = 30.0
 
 
 # ---------------------------------------------------------------------------

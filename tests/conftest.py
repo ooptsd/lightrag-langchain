@@ -25,3 +25,41 @@ def temp_env_file(tmp_path: Path):
         return env_path
 
     return _write
+
+
+@pytest.fixture
+def mock_pool():
+    """Return an AsyncMock wrapping asyncpg.Pool for unit testing data layer classes.
+
+    Usage::
+
+        async def test_something(mock_pool):
+            mock_pool.acquire.return_value.__aenter__.return_value = mock_conn
+            store = PGVectorStore(pool=mock_pool)
+    """
+    from unittest.mock import AsyncMock
+
+    pool = AsyncMock()
+    # Simulate async context manager behavior for pool.acquire()
+    pool.acquire.return_value.__aenter__ = AsyncMock()
+    pool.acquire.return_value.__aexit__ = AsyncMock()
+    return pool
+
+
+@pytest.fixture
+def mock_conn():
+    """Return an AsyncMock wrapping asyncpg.Connection with configurable fetch().
+
+    Usage::
+
+        async def test_something(mock_pool, mock_conn):
+            mock_pool.acquire.return_value.__aenter__.return_value = mock_conn
+            mock_conn.fetch.return_value = [{"col": "val"}]
+    """
+    from unittest.mock import AsyncMock
+
+    conn = AsyncMock()
+    conn.fetch = AsyncMock()
+    conn.fetchrow = AsyncMock()
+    conn.fetchval = AsyncMock()
+    return conn
