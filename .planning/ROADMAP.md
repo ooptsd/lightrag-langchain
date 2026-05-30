@@ -7,7 +7,7 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
 ## Phases
 
 - [x] **Phase 1: Configuration** (Planned) - .env-based configuration for all services (PG, LLM, Embedding, Reranker, QueryParams) (completed 2026-05-29)
-- [ ] **Phase 2: Data Layer** - Read-only PostgreSQL access layer for LightRAG's PGVector and Apache AGE graph stores
+- [x] **Phase 2: Data Layer** - Read-only PostgreSQL access layer for LightRAG's PGVector and Apache AGE graph stores (completed 2026-05-30)
 - [ ] **Phase 3: LLM Integration** - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control
 - [ ] **Phase 4: Query Strategies** - All 6 LightRAG query modes: naive, local, global, hybrid, mix, bypass
 - [ ] **Phase 5: Retriever Interfaces** - Langchain BaseRetriever subclasses wrapping each query mode with sync/async support
@@ -61,8 +61,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-03-PLAN.md — PGVectorStore: entities/relationships/chunks vector similarity search with table auto-discovery (STOR-01, STOR-02, STOR-03)
-- [ ] 02-04-PLAN.md — PGGraphStore: AGE graph node/edge query, batch lookup, and neighbor traversal (STOR-04)
+- [x] 02-03-PLAN.md — PGVectorStore: entities/relationships/chunks vector similarity search with table auto-discovery (STOR-01, STOR-02, STOR-03)
+- [x] 02-04-PLAN.md — PGGraphStore: AGE graph node/edge query, batch lookup, and neighbor traversal (STOR-04)
 
 ### Phase 3: LLM Integration
 
@@ -132,7 +132,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Configuration | 2/2 | Complete   | 2026-05-29 |
-| 2. Data Layer | 2/4 | In Progress|  |
+| 2. Data Layer | 4/4 | Complete   | 2026-05-30 |
 | 3. LLM Integration | 0/0 | Not started | - |
 | 4. Query Strategies | 0/0 | Not started | - |
 | 5. Retriever Interfaces | 0/0 | Not started | - |
