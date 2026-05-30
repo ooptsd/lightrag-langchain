@@ -20,8 +20,18 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from lightrag_langchain.data.graph import PGGraphStore
 from lightrag_langchain.data.models import GraphEdge, GraphNode
+
+
+def _graph_cls():
+    """Return the PGGraphStore class.
+
+    Lazy import — called inside test bodies so Settings is not instantiated
+    until pytest fixtures have monkeypatched the environment.
+    """
+    from lightrag_langchain.data.graph import PGGraphStore
+
+    return PGGraphStore
 
 # ---------------------------------------------------------------------------
 # Auto-use fixture: env vars for Settings instantiation
@@ -100,7 +110,7 @@ class TestGetNode:
             }
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         node = await store.get_node("n1")
 
         assert node is not None
@@ -116,7 +126,7 @@ class TestGetNode:
         _wire_mocks(mock_pool, mock_conn)
         mock_conn.fetch.return_value = []
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         node = await store.get_node("nonexistent")
 
         assert node is None
@@ -127,7 +137,7 @@ class TestGetNode:
         _wire_mocks(mock_pool, mock_conn)
         mock_conn.fetch.return_value = [{"props": ""}]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         node = await store.get_node("n1")
 
         assert node is None
@@ -164,7 +174,7 @@ class TestGetNodesBatch:
             },
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         result = await store.get_nodes_batch(["n1", "n2"])
 
         assert isinstance(result, dict)
@@ -181,7 +191,7 @@ class TestGetNodesBatch:
         """Returns empty dict without any database call when node_ids is empty."""
         _wire_mocks(mock_pool, mock_conn)
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         result = await store.get_nodes_batch([])
 
         assert result == {}
@@ -201,7 +211,7 @@ class TestGetNodesBatch:
             }
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         result = await store.get_nodes_batch(["n1", "n2"])
 
         assert len(result) == 1
@@ -221,7 +231,7 @@ class TestGetNodesBatch:
             }
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         result = await store.get_nodes_batch(["entity-with-quotes"])
 
         assert "entity-with-quotes" in result
@@ -253,7 +263,7 @@ class TestGetEdge:
             }
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         edge = await store.get_edge("a", "b")
 
         assert edge is not None
@@ -270,7 +280,7 @@ class TestGetEdge:
         _wire_mocks(mock_pool, mock_conn)
         mock_conn.fetch.return_value = []
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         edge = await store.get_edge("a", "c")
 
         assert edge is None
@@ -281,7 +291,7 @@ class TestGetEdge:
         _wire_mocks(mock_pool, mock_conn)
         mock_conn.fetch.return_value = [{"props": ""}]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         edge = await store.get_edge("a", "b")
 
         assert edge is None
@@ -294,7 +304,7 @@ class TestGetEdge:
             {"props": json.dumps({"description": "linked"})}
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         edge = await store.get_edge("x", "y")
 
         assert edge is not None
@@ -316,7 +326,7 @@ class TestGetEdgesBatch:
         """Returns empty dict without any database call when pairs is empty."""
         _wire_mocks(mock_pool, mock_conn)
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         result = await store.get_edges_batch([])
 
         assert result == {}
@@ -334,7 +344,7 @@ class TestGetEdgesBatch:
             }
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         pairs = [{"src": "a", "tgt": "b"}, {"src": "c", "tgt": "d"}]
         result = await store.get_edges_batch(pairs)
 
@@ -365,7 +375,7 @@ class TestGetEdgesBatch:
             },
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         pairs = [{"src": f"e{i}", "tgt": f"f{i}"} for i in range(15)]
         result = await store.get_edges_batch(pairs)
 
@@ -391,7 +401,7 @@ class TestGetNodeEdges:
             {"source_id": "n1", "connected_id": "n3"},
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         edges = await store.get_node_edges("n1")
 
         assert isinstance(edges, list)
@@ -407,7 +417,7 @@ class TestGetNodeEdges:
             {"source_id": "n1", "connected_id": None}
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         edges = await store.get_node_edges("n1")
 
         assert edges == []
@@ -418,7 +428,7 @@ class TestGetNodeEdges:
         _wire_mocks(mock_pool, mock_conn)
         mock_conn.fetch.return_value = []
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         edges = await store.get_node_edges("isolated_node")
 
         assert edges == []
@@ -434,47 +444,47 @@ class TestAgtypeParsing:
 
     def test_parse_agtype_plain_json(self):
         """Plain JSON string (no type suffix) is parsed as-is."""
-        result = PGGraphStore._parse_agtype('{"key": "val"}')
+        result = _graph_cls()._parse_agtype('{"key": "val"}')
         assert result == {"key": "val"}
 
     def test_parse_agtype_vertex_suffix(self):
         """``::vertex`` suffix is stripped before JSON parsing."""
-        result = PGGraphStore._parse_agtype('{"entity_type": "Person"}::vertex')
+        result = _graph_cls()._parse_agtype('{"entity_type": "Person"}::vertex')
         assert result == {"entity_type": "Person"}
 
     def test_parse_agtype_edge_suffix(self):
         """``::edge`` suffix is stripped before JSON parsing."""
-        result = PGGraphStore._parse_agtype('{"weight": 0.9}::edge')
+        result = _graph_cls()._parse_agtype('{"weight": 0.9}::edge')
         assert result == {"weight": 0.9}
 
     def test_parse_agtype_empty_string(self):
         """Empty string returns None."""
-        result = PGGraphStore._parse_agtype("")
+        result = _graph_cls()._parse_agtype("")
         assert result is None
 
     def test_parse_agtype_whitespace_only(self):
         """Whitespace-only string returns None."""
-        result = PGGraphStore._parse_agtype("   ")
+        result = _graph_cls()._parse_agtype("   ")
         assert result is None
 
     def test_parse_agtype_invalid_json(self):
         """Unparseable JSON (even with suffix stripped) returns None."""
-        result = PGGraphStore._parse_agtype("not valid json::vertex")
+        result = _graph_cls()._parse_agtype("not valid json::vertex")
         assert result is None
 
     def test_parse_agtype_none_input(self):
         """None input returns None."""
-        result = PGGraphStore._parse_agtype(None)
+        result = _graph_cls()._parse_agtype(None)
         assert result is None
 
     def test_parse_agtype_non_string_input(self):
         """Non-string input (e.g. int) returns None."""
-        result = PGGraphStore._parse_agtype(42)
+        result = _graph_cls()._parse_agtype(42)
         assert result is None
 
     def test_parse_agtype_multiple_colons(self):
         """Only the last ``::`` is treated as the type suffix separator."""
-        result = PGGraphStore._parse_agtype(
+        result = _graph_cls()._parse_agtype(
             '{"url": "http://example.com"}::vertex'
         )
         assert result == {"url": "http://example.com"}
@@ -490,7 +500,7 @@ class TestDollarQuote:
 
     def test_dollar_quote_generates_wrapper(self):
         """Generates a dollar-quoted string with ``$AGE1$`` tags."""
-        result = PGGraphStore._dollar_quote("hello")
+        result = _graph_cls()._dollar_quote("hello")
         assert result.startswith("$AGE1$")
         assert result.endswith("$AGE1$")
         assert "hello" in result
@@ -498,7 +508,7 @@ class TestDollarQuote:
 
     def test_dollar_quote_avoids_collision(self):
         """When content contains ``$AGE1$``, the next tag (``$AGE2$``) is used."""
-        result = PGGraphStore._dollar_quote("$AGE1$content$AGE1$")
+        result = _graph_cls()._dollar_quote("$AGE1$content$AGE1$")
         # Should NOT use AGE1 (would collide); uses AGE2 instead
         assert "$AGE2$" in result
         assert "content" in result
@@ -506,12 +516,12 @@ class TestDollarQuote:
 
     def test_dollar_quote_empty_string(self):
         """Empty string is wrapped: ``$AGE1$$AGE1$``."""
-        result = PGGraphStore._dollar_quote("")
+        result = _graph_cls()._dollar_quote("")
         assert result == "$AGE1$$AGE1$"
 
     def test_dollar_quote_custom_tag_prefix(self):
         """Custom ``tag_prefix`` is respected."""
-        result = PGGraphStore._dollar_quote("hello", tag_prefix="CUSTOM")
+        result = _graph_cls()._dollar_quote("hello", tag_prefix="CUSTOM")
         assert result.startswith("$CUSTOM1$")
         assert result == "$CUSTOM1$hello$CUSTOM1$"
 
@@ -540,7 +550,7 @@ class TestReadOnly:
             }
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         await store.get_node("x")
 
         mock_conn.fetch.assert_called()
@@ -565,7 +575,7 @@ class TestGraphNameResolution:
 
         cfg._settings = None
 
-        store = PGGraphStore(workspace="default")
+        store = _graph_cls()(workspace="default")
         name = await store._resolve_graph_name()
         assert name == "lightrag_graph"
 
@@ -577,7 +587,7 @@ class TestGraphNameResolution:
 
         cfg._settings = None
 
-        store = PGGraphStore(workspace="my_project")
+        store = _graph_cls()(workspace="my_project")
         name = await store._resolve_graph_name()
         assert "my_project" in name
         assert name.endswith("_lightrag_graph")
@@ -591,21 +601,21 @@ class TestGraphNameResolution:
 
         cfg._settings = None
 
-        store = PGGraphStore(workspace="my-project")
+        store = _graph_cls()(workspace="my-project")
         name = await store._resolve_graph_name()
         assert name == "my_project_lightrag_graph"
 
     @pytest.mark.asyncio
     async def test_graph_name_explicit_override(self):
         """Explicit ``graph_name`` parameter bypasses workspace resolution."""
-        store = PGGraphStore(graph_name="custom_graph")
+        store = _graph_cls()(graph_name="custom_graph")
         name = await store._resolve_graph_name()
         assert name == "custom_graph"
 
     @pytest.mark.asyncio
     async def test_graph_name_cached(self):
         """Resolution result is cached — second call returns same value."""
-        store = PGGraphStore(workspace="default")
+        store = _graph_cls()(workspace="default")
         name1 = await store._resolve_graph_name()
         name2 = await store._resolve_graph_name()
         assert name1 == name2
@@ -636,7 +646,7 @@ class TestCypherParameterization:
             }
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         await store.get_node("entity-123")
 
         # The second argument to fetch() should be JSON string with entity_id
@@ -663,7 +673,7 @@ class TestCypherParameterization:
             }
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         await store.get_node("malicious'; DROP TABLE--")
 
         # The Cypher string passed to conn.fetch() should contain the parameter
@@ -682,7 +692,7 @@ class TestCypherParameterization:
             {"props": json.dumps({"description": "edge", "keywords": "k", "weight": 1.0})}
         ]
 
-        store = PGGraphStore(pool=mock_pool, graph_name="test_graph")
+        store = _graph_cls()(pool=mock_pool, graph_name="test_graph")
         await store.get_edge("src-node", "tgt-node")
 
         call_args = mock_conn.fetch.call_args

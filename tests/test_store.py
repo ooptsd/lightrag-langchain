@@ -12,13 +12,24 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from lightrag_langchain.data.models import ChunkRecord, EntityRecord, RelationshipRecord
-from lightrag_langchain.data.store import PGVectorStore
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 _EMBEDDING_1024: list[float] = [0.1] * 1024
+
+
+def _store_cls():
+    """Return the PGVectorStore class.
+
+    Lazy import — called inside test bodies, not at module level — so that
+    Settings is not instantiated until pytest fixtures have monkeypatched
+    the environment variables.
+    """
+    from lightrag_langchain.data.store import PGVectorStore
+
+    return PGVectorStore
 
 
 def _wire_pool_for_acquire_with_retry(mock_pool, mock_conn):
@@ -57,7 +68,7 @@ class TestEntitySearch:
             ]
         )
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         results = await store.search_entities(_EMBEDDING_1024)
@@ -78,7 +89,7 @@ class TestEntitySearch:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         results = await store.search_entities(_EMBEDDING_1024)
@@ -90,7 +101,7 @@ class TestEntitySearch:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         await store.search_entities(_EMBEDDING_1024, top_k=10)
@@ -107,7 +118,7 @@ class TestEntitySearch:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         await store.search_entities(_EMBEDDING_1024)  # top_k not passed
@@ -144,7 +155,7 @@ class TestRelationSearch:
             ]
         )
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"RELATION": "LIGHTRAG_VDB_RELATION"}
 
         results = await store.search_relationships(_EMBEDDING_1024)
@@ -176,7 +187,7 @@ class TestRelationSearch:
             ]
         )
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"RELATION": "LIGHTRAG_VDB_RELATION"}
 
         results = await store.search_relationships(_EMBEDDING_1024)
@@ -209,7 +220,7 @@ class TestChunkSearch:
             ]
         )
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"CHUNKS": "LIGHTRAG_VDB_CHUNKS"}
 
         results = await store.search_chunks(_EMBEDDING_1024)
@@ -239,7 +250,7 @@ class TestChunkSearch:
             ]
         )
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"CHUNKS": "LIGHTRAG_VDB_CHUNKS"}
 
         results = await store.search_chunks(_EMBEDDING_1024)
@@ -260,7 +271,7 @@ class TestWorkspaceFilter:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="ws_custom")
+        store = _store_cls()(pool=mock_pool, workspace="ws_custom")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         await store.search_entities(_EMBEDDING_1024)
@@ -298,7 +309,7 @@ class TestTableDiscovery:
             ]
         )
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         # _tables is None — _ensure_tables will query
         assert store._tables is None
 
@@ -320,7 +331,7 @@ class TestTableDiscovery:
             ]
         )
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
 
         with pytest.raises(RuntimeError) as exc_info:
             await store._ensure_tables()
@@ -336,7 +347,7 @@ class TestTableDiscovery:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
 
         with pytest.raises(RuntimeError) as exc_info:
             await store._ensure_tables()
@@ -360,7 +371,7 @@ class TestReadOnly:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         await store.search_entities(_EMBEDDING_1024)
@@ -370,10 +381,11 @@ class TestReadOnly:
 
     def test_no_write_methods_on_class(self):
         """PGVectorStore class does not expose any write-oriented method names."""
+        cls = _store_cls()
         method_names = [
             name
-            for name in dir(PGVectorStore)
-            if callable(getattr(PGVectorStore, name, None))
+            for name in dir(cls)
+            if callable(getattr(cls, name, None))
             and not name.startswith("_")
         ]
         write_methods = {"insert", "update", "delete", "create", "upsert", "execute"}
@@ -395,7 +407,7 @@ class TestPoolInjection:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         await store.search_entities(_EMBEDDING_1024)
@@ -409,7 +421,7 @@ class TestPoolInjection:
         with patch(
             "lightrag_langchain.data.pool._pool", mock_pool
         ):
-            store = PGVectorStore(pool=None, workspace="default")
+            store = _store_cls()(pool=None, workspace="default")
             # The property should return the patched module-level pool
             assert store.pool is mock_pool
 
@@ -428,7 +440,7 @@ class TestVectorParameters:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         await store.search_entities(_EMBEDDING_1024)
@@ -448,7 +460,7 @@ class TestVectorParameters:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(return_value=[])
 
-        store = PGVectorStore(pool=mock_pool, workspace="default")
+        store = _store_cls()(pool=mock_pool, workspace="default")
         store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
 
         await store.search_entities(_EMBEDDING_1024)

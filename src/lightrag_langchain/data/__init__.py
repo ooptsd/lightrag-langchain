@@ -7,7 +7,6 @@ from lightrag_langchain.data.models import (
     GraphNode,
     RelationshipRecord,
 )
-from lightrag_langchain.data.store import PGVectorStore
 
 __all__ = [
     "EntityRecord",
@@ -15,5 +14,19 @@ __all__ = [
     "ChunkRecord",
     "GraphNode",
     "GraphEdge",
-    "PGVectorStore",
 ]
+
+
+def __getattr__(name: str):
+    """Lazy import PGVectorStore and PGGraphStore to avoid triggering Settings
+    instantiation at import time (before pytest fixtures can monkeypatch env vars).
+    """
+    if name == "PGVectorStore":
+        from lightrag_langchain.data.store import PGVectorStore
+
+        return PGVectorStore
+    if name == "PGGraphStore":
+        from lightrag_langchain.data.graph import PGGraphStore
+
+        return PGGraphStore
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
