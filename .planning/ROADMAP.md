@@ -56,8 +56,8 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Data models: EntityRecord, RelationshipRecord, ChunkRecord, GraphNode, GraphEdge (Pydantic frozen)
-- [ ] 02-02-PLAN.md — Config extension (workspace, pool params) + Connection pool manager (asyncpg lazy init, retry, read-only)
+- [x] 02-01-PLAN.md — Data models: EntityRecord, RelationshipRecord, ChunkRecord, GraphNode, GraphEdge (Pydantic frozen)
+- [x] 02-02-PLAN.md — Config extension (workspace, pool params) + Connection pool manager (asyncpg lazy init, retry, read-only)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -132,7 +132,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Configuration | 2/2 | Complete   | 2026-05-29 |
-| 2. Data Layer | 0/4 | Planned | - |
+| 2. Data Layer | 2/4 | In Progress|  |
 | 3. LLM Integration | 0/0 | Not started | - |
 | 4. Query Strategies | 0/0 | Not started | - |
 | 5. Retriever Interfaces | 0/0 | Not started | - |
