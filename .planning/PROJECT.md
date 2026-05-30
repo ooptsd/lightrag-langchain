@@ -18,10 +18,9 @@
 - [x] 保留 Rerank 重排序能力（Phase 3: LLM Integration, LLM-03） — Reranker Protocol + 3 种后端（aliyun/cohere/jina）+ LightRAGReranker
 - [x] 关键词提取（Phase 3: LLM Integration, LLM-04） — KeywordsSchema + extract_keywords() + upstream prompt templates
 - [x] Token 预算控制（Phase 3: LLM Integration, LLM-05） — truncate_entities/relations + chunk budget via tiktoken
+- [x] 实现 6 种查询模式各自的检索策略（Phase 4: Query Strategies） — 6 async strategy functions + GraphTriple + QueryResult, 168 tests pass
 
 ### Active
-
-- [ ] 实现 6 种查询模式各自的检索策略（naive / local / global / hybrid / mix / bypass）
 - [ ] 实现 Langchain BaseRetriever 接口，每种模式对应一个 Retriever
 - [ ] 实现完整的 Langchain Chain，端到端：查询 → 检索 → 上下文拼装 → LLM生成
 - [ ] 引用来源返回
