@@ -16,12 +16,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### QUERY — 查询模式
 
-- [ ] **QUERY-01**: Naive 模式 — 纯向量相似度搜索 chunks_vdb，KG_CHUNK_PICK_METHOD 选择 VECTOR/WEIGHT，不做图遍历
-- [ ] **QUERY-02**: Local 模式 — entities_vdb 向量搜索 Top-K 实体 → AGE 图扩展获取关联边和邻居实体
-- [ ] **QUERY-03**: Global 模式 — relationships_vdb 向量搜索 Top-K 关系 → AGE 图查找关联实体
-- [ ] **QUERY-04**: Hybrid 模式 — local + global 并行检索，round-robin 交错合并结果
-- [ ] **QUERY-05**: Mix 模式 — hybrid 检索 + chunks_vdb 向量搜索，混合图知识和原始文本块
-- [ ] **QUERY-06**: Bypass 模式 — 无检索，直接将查询 + conversation_history 发送给 LLM 生成回答
+- [x] **QUERY-01**: Naive 模式 — 纯向量相似度搜索 chunks_vdb，KG_CHUNK_PICK_METHOD 选择 VECTOR/WEIGHT，不做图遍历
+- [x] **QUERY-02**: Local 模式 — entities_vdb 向量搜索 Top-K 实体 → AGE 图扩展获取关联边和邻居实体
+- [x] **QUERY-03**: Global 模式 — relationships_vdb 向量搜索 Top-K 关系 → AGE 图查找关联实体
+- [x] **QUERY-04**: Hybrid 模式 — local + global 并行检索，round-robin 交错合并结果
+- [x] **QUERY-05**: Mix 模式 — hybrid 检索 + chunks_vdb 向量搜索，混合图知识和原始文本块
+- [x] **QUERY-06**: Bypass 模式 — 无检索，直接将查询 + conversation_history 发送给 LLM 生成回答
 
 ### RETR — Retriever 接口
 
@@ -98,12 +98,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LLM-03 | Phase 3: LLM Integration | Complete |
 | LLM-04 | Phase 3: LLM Integration | Complete |
 | LLM-05 | Phase 3: LLM Integration | Complete |
-| QUERY-01 | Phase 4: Query Strategies | Pending |
-| QUERY-02 | Phase 4: Query Strategies | Pending |
-| QUERY-03 | Phase 4: Query Strategies | Pending |
-| QUERY-04 | Phase 4: Query Strategies | Pending |
-| QUERY-05 | Phase 4: Query Strategies | Pending |
-| QUERY-06 | Phase 4: Query Strategies | Pending |
+| QUERY-01 | Phase 4: Query Strategies | Complete |
+| QUERY-02 | Phase 4: Query Strategies | Complete |
+| QUERY-03 | Phase 4: Query Strategies | Complete |
+| QUERY-04 | Phase 4: Query Strategies | Complete |
+| QUERY-05 | Phase 4: Query Strategies | Complete |
+| QUERY-06 | Phase 4: Query Strategies | Complete |
 | RETR-01 | Phase 5: Retriever Interfaces | Pending |
 | RETR-02 | Phase 5: Retriever Interfaces | Pending |
 | RETR-03 | Phase 5: Retriever Interfaces | Pending |
