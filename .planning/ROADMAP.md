@@ -105,7 +105,20 @@ Plans:
   5. Mix mode executes hybrid retrieval and additionally searches chunks_vdb, merging graph knowledge with raw text chunks into a single ranked result set
   6. Bypass mode returns an empty retrieval result (no documents retrieved), delegating entirely to the LLM for answer generation
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 04-01-PLAN.md — QueryResult + GraphTriple Pydantic models (D-01, D-02, D-04) + test scaffold
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 04-02-PLAN.md — Leaf strategies: naive_strategy (QUERY-01), local_strategy (QUERY-02), global_strategy (QUERY-03) + graph traversal helpers
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 04-03-PLAN.md — Composite strategies: hybrid_strategy (QUERY-04), mix_strategy (QUERY-05), bypass_strategy (QUERY-06) + round-robin merge helpers + __init__.py lazy exports + full test suite
 
 ### Phase 5: Retriever Interfaces
 
@@ -146,6 +159,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Configuration | 2/2 | Complete   | 2026-05-29 |
 | 2. Data Layer | 4/4 | Complete   | 2026-05-30 |
 | 3. LLM Integration | 5/5 | Complete   | 2026-05-30 |
-| 4. Query Strategies | 0/0 | Not started | - |
+| 4. Query Strategies | 0/3 | Planned | - |
 | 5. Retriever Interfaces | 0/0 | Not started | - |
 | 6. QA Chain | 0/0 | Not started | - |
