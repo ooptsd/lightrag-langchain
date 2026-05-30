@@ -12,18 +12,18 @@
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] .env 全配置（Phase 1: Configuration） — Pydantic Settings + SecretStr + 5 个子模型
+- [x] 直接读取 PostgreSQL 中的 LightRAG 数据（Phase 2: Data Layer） — PGVectorStore + PGGraphStore + asyncpg pool
+- [x] LLM/Embedding 工厂 + provider-agnostic（Phase 3: LLM Integration, LLM-01/LLM-02） — create_llm()/create_embedding() lazy proxies
+- [x] 保留 Rerank 重排序能力（Phase 3: LLM Integration, LLM-03） — Reranker Protocol + 3 种后端（aliyun/cohere/jina）+ LightRAGReranker
+- [x] 关键词提取（Phase 3: LLM Integration, LLM-04） — KeywordsSchema + extract_keywords() + upstream prompt templates
+- [x] Token 预算控制（Phase 3: LLM Integration, LLM-05） — truncate_entities/relations + chunk budget via tiktoken
 
 ### Active
 
 - [ ] 实现 6 种查询模式各自的检索策略（naive / local / global / hybrid / mix / bypass）
 - [ ] 实现 Langchain BaseRetriever 接口，每种模式对应一个 Retriever
 - [ ] 实现完整的 Langchain Chain，端到端：查询 → 检索 → 上下文拼装 → LLM生成
-- [ ] 直接读取 PostgreSQL 中的 LightRAG 数据（entities_vdb / relationships_vdb / chunks_vdb / graph nodes & edges）
-- [ ] .env 全配置：LLM provider/model/API key、Embedding provider/model/API key、PostgreSQL 连接、Reranker
-- [ ] 保留 Rerank 重排序能力
-- [ ] 关键词提取（LLM 从查询中提取 local/global keywords，支持可选的预提供关键词）
-- [ ] Token 预算控制（max_entity_tokens / max_relation_tokens / max_total_tokens）
 - [ ] 引用来源返回
 
 ### Out of Scope
@@ -67,13 +67,13 @@
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| 直接读 PostgreSQL，不依赖 LightRAG 运行时 | 用户要求脱离 LightRAG 部署 | — Pending |
-| 全部 6 种查询模式各自实现检索策略 | 用户要求"全部的召回策略" | — Pending |
-| Langchain Retriever + Chain 双层接口 | 既提供可组合的 Retriever 也提供端到端 Chain | — Pending |
-| .env 全配置 | 用户要求，灵活切换 provider | — Pending |
-| 保留 Rerank 能力 | 提升检索质量，用户要求保留 | — Pending |
-| Python >= 3.12 | 用户指定 | — Pending |
-| langchain >= 1.2.3 | 用户指定 | — Pending |
+| 直接读 PostgreSQL，不依赖 LightRAG 运行时 | 用户要求脱离 LightRAG 部署 | ✓ Validated (Phase 2) |
+| 全部 6 种查询模式各自实现检索策略 | 用户要求"全部的召回策略" | — Pending (Phase 4) |
+| Langchain Retriever + Chain 双层接口 | 既提供可组合的 Retriever 也提供端到端 Chain | — Pending (Phase 5/6) |
+| .env 全配置 | 用户要求，灵活切换 provider | ✓ Validated (Phase 1) |
+| 保留 Rerank 能力 | 提升检索质量，用户要求保留 | ✓ Validated (Phase 3: Reranker Protocol + 3 backends) |
+| Python >= 3.12 | 用户指定 | ✓ Adopted |
+| langchain >= 1.2.3 | 用户指定 | ✓ Adopted |
 
 ## Evolution
 
@@ -93,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-29 after initialization*
+*Last updated: 2026-05-30 after Phase 3 (LLM Integration) completion*
