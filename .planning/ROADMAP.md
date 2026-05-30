@@ -8,7 +8,7 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
 
 - [x] **Phase 1: Configuration** (Planned) - .env-based configuration for all services (PG, LLM, Embedding, Reranker, QueryParams) (completed 2026-05-29)
 - [x] **Phase 2: Data Layer** - Read-only PostgreSQL access layer for LightRAG's PGVector and Apache AGE graph stores (completed 2026-05-30)
-- [ ] **Phase 3: LLM Integration** - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control
+- [ ] **Phase 3: LLM Integration** (Planned) - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control
 - [ ] **Phase 4: Query Strategies** - All 6 LightRAG query modes: naive, local, global, hybrid, mix, bypass
 - [ ] **Phase 5: Retriever Interfaces** - Langchain BaseRetriever subclasses wrapping each query mode with sync/async support
 - [ ] **Phase 6: QA Chain** - Full LCEL Chain: query to retrieval to context assembly to LLM generation
@@ -77,7 +77,19 @@ Plans:
   4. High-level keywords (macro themes) and low-level keywords (specific entities) are extracted from user queries via LLM with a structured output prompt
   5. Token budget is enforced: entity tokens + relation tokens do not exceed max_total_tokens, and remaining token capacity is dynamically allocated to chunk content
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Config extension (pyproject.toml deps, KEYWORD_LANGUAGE, conftest fixtures)
+- [ ] 03-02-PLAN.md — LLM factory: create_llm() + create_embedding() lazy proxies (LLM-01, LLM-02)
+- [ ] 03-03-PLAN.md — Reranker Integration: Reranker Protocol, 3 adapters, create_reranker(), LightRAGReranker (LLM-03)
+- [ ] 03-04-PLAN.md — Token Budget: truncate functions + chunk budget calculator (LLM-05)
+
+**Wave 2** *(blocked on 03-01 + 03-02)*
+
+- [ ] 03-05-PLAN.md — Keyword Extraction + Module Export: KeywordsSchema, extract_keywords(), __init__.py lazy exports (LLM-04)
 
 ### Phase 4: Query Strategies
 
@@ -133,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Configuration | 2/2 | Complete   | 2026-05-29 |
 | 2. Data Layer | 4/4 | Complete   | 2026-05-30 |
-| 3. LLM Integration | 0/0 | Not started | - |
+| 3. LLM Integration | 0/5 | Planned | - |
 | 4. Query Strategies | 0/0 | Not started | - |
 | 5. Retriever Interfaces | 0/0 | Not started | - |
 | 6. QA Chain | 0/0 | Not started | - |
