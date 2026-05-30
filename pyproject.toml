@@ -8,6 +8,8 @@ version = "0.1.0"
 description = "LangChain-based read-only query layer for LightRAG knowledge graph"
 requires-python = ">=3.12"
 dependencies = [
+    "asyncpg>=0.31,<1.0",
+    "pgvector>=0.4,<1.0",
     "pydantic>=2.13,<3.0",
     "pydantic-settings>=2.14,<3.0",
 ]
