@@ -63,3 +63,90 @@ def mock_conn():
     conn.fetchrow = AsyncMock()
     conn.fetchval = AsyncMock()
     return conn
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 fixtures: LLM / Embedding / Reranker / QueryParams / httpx
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def mock_llm_config():
+    """Return a LlmConfig instance with test values for LLM integration tests.
+
+    Constructed directly (not via Settings), so tests do not need a real .env file.
+    """
+    from pydantic import SecretStr
+
+    from lightrag_langchain.config import LlmConfig
+
+    return LlmConfig(
+        binding="test_llm",
+        binding_host="https://test-llm.example.com/v1",
+        binding_api_key=SecretStr("test-llm-key"),
+        model="test-model",
+    )
+
+
+@pytest.fixture
+def mock_embedding_config():
+    """Return an EmbeddingConfig instance with test values for embedding tests.
+
+    Constructed directly (not via Settings), so tests do not need a real .env file.
+    """
+    from pydantic import SecretStr
+
+    from lightrag_langchain.config import EmbeddingConfig
+
+    return EmbeddingConfig(
+        binding="test_emb",
+        binding_host="https://test-emb.example.com/v1",
+        binding_api_key=SecretStr("test-emb-key"),
+        model="test-emb-model",
+        dim=1024,
+    )
+
+
+@pytest.fixture
+def mock_reranker_config():
+    """Return a RerankerConfig instance with test values for reranker tests.
+
+    Constructed directly (not via Settings), so tests do not need a real .env file.
+    """
+    from pydantic import SecretStr
+
+    from lightrag_langchain.config import RerankerConfig
+
+    return RerankerConfig(
+        binding="cohere",
+        binding_host="https://api.cohere.com/v2/rerank",
+        binding_api_key=SecretStr("test-rerank-key"),
+        model="rerank-v3.5",
+        min_rerank_score=0.0,
+    )
+
+
+@pytest.fixture
+def mock_query_params_config():
+    """Return a QueryParamsConfig instance with defaults + keyword_language.
+
+    Token budget invariant: 4000 + 5000 = 9000 < 20000.
+    """
+    from lightrag_langchain.config import QueryParamsConfig
+
+    return QueryParamsConfig(
+        max_entity_tokens=4000,
+        max_relation_tokens=5000,
+        max_total_tokens=20000,
+        keyword_language="Chinese",
+    )
+
+
+@pytest.fixture
+def mock_httpx_client():
+    """Return an AsyncMock wrapping httpx.AsyncClient for reranker HTTP tests."""
+    from unittest.mock import AsyncMock
+
+    client = AsyncMock()
+    client.post = AsyncMock()
+    return client
