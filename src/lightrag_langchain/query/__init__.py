@@ -24,7 +24,16 @@ from __future__ import annotations
 
 from lightrag_langchain.query.results import GraphTriple, QueryResult
 
-__all__ = ["QueryResult", "GraphTriple"]
+__all__ = [
+    "QueryResult",
+    "GraphTriple",
+    "naive_strategy",
+    "local_strategy",
+    "global_strategy",
+    "hybrid_strategy",
+    "mix_strategy",
+    "bypass_strategy",
+]
 
 
 def __getattr__(name: str):
@@ -34,6 +43,29 @@ def __getattr__(name: str):
     Pattern matches :file:`lightrag_langchain/__init__.py` (L:18-68) and
     :file:`data/__init__.py` (L:20-32).
     """
-    # -- Strategy functions (added in Plan 03) --------------------------------
+    if name == "naive_strategy":
+        from lightrag_langchain.query.strategies import naive_strategy
+
+        return naive_strategy
+    if name == "local_strategy":
+        from lightrag_langchain.query.strategies import local_strategy
+
+        return local_strategy
+    if name == "global_strategy":
+        from lightrag_langchain.query.strategies import global_strategy
+
+        return global_strategy
+    if name == "hybrid_strategy":
+        from lightrag_langchain.query.strategies import hybrid_strategy
+
+        return hybrid_strategy
+    if name == "mix_strategy":
+        from lightrag_langchain.query.strategies import mix_strategy
+
+        return mix_strategy
+    if name == "bypass_strategy":
+        from lightrag_langchain.query.strategies import bypass_strategy
+
+        return bypass_strategy
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

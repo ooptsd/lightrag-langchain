@@ -8,9 +8,11 @@ Strategy mapping:
 - ``naive_strategy`` (QUERY-01): Pure vector similarity on chunks_vdb, no graph traversal
 - ``local_strategy`` (QUERY-02): Entities_vdb search + AGE graph expansion
 - ``global_strategy`` (QUERY-03): Relationships_vdb search + AGE entity lookup
+- ``hybrid_strategy`` (QUERY-04): Parallel local+global + round-robin merge
+- ``mix_strategy`` (QUERY-05): Hybrid + chunk vector search + chunk merge
+- ``bypass_strategy`` (QUERY-06): No retrieval, returns empty QueryResult
 
 All strategies are async and receive ``query_embedding: list[float]``.
-The remaining strategies (hybrid, mix, bypass) are implemented in subsequent plans.
 """
 
 from __future__ import annotations
@@ -384,3 +386,306 @@ async def local_strategy(
     triples = _build_graph_triples(entities, nodes_dict, edges_dict, neighbor_nodes)
 
     return QueryResult(entities=entities, graph_triples=triples)
+
+
+# ===========================================================================
+# Round-robin merge helpers (Plan 03 — used by hybrid and mix strategies)
+#
+# Source: upstream LightRAG _perform_kg_search (operate.py lines 3512-3566)
+# ===========================================================================
+
+
+def _round_robin_merge_entities(
+    local_entities: list[EntityRecord],
+    global_entities: list[EntityRecord],
+) -> list[EntityRecord]:
+    """Round-robin interleave entities from local and global strategies.
+
+    Alternates: local[0], global[0], local[1], global[1], ...
+    Deduplicates by *entity_name*.
+    Matches upstream ``_perform_kg_search`` lines 3512-3566.
+
+    Args:
+        local_entities: Entities from the local strategy.
+        global_entities: Entities from the global strategy.
+
+    Returns:
+        Deduplicated, round-robin interleaved entity list.
+    """
+    merged: list[EntityRecord] = []
+    seen: set[str] = set()
+    max_len = max(len(local_entities), len(global_entities))
+    for i in range(max_len):
+        if i < len(local_entities):
+            entity = local_entities[i]
+            if entity.entity_name not in seen:
+                merged.append(entity)
+                seen.add(entity.entity_name)
+        if i < len(global_entities):
+            entity = global_entities[i]
+            if entity.entity_name not in seen:
+                merged.append(entity)
+                seen.add(entity.entity_name)
+    return merged
+
+
+def _round_robin_merge_relations(
+    local_relations: list[RelationshipRecord],
+    global_relations: list[RelationshipRecord],
+) -> list[RelationshipRecord]:
+    """Round-robin interleave relations from local and global strategies.
+
+    Alternates: local[0], global[0], local[1], global[1], ...
+    Deduplicates by ``tuple(sorted((src_id, tgt_id)))``.
+    Matches upstream ``_perform_kg_search`` lines 3542-3564.
+
+    Args:
+        local_relations: Relations from the local strategy (usually empty).
+        global_relations: Relations from the global strategy.
+
+    Returns:
+        Deduplicated, round-robin interleaved relation list.
+    """
+    merged: list[RelationshipRecord] = []
+    seen: set[tuple[str, str]] = set()
+    max_len = max(len(local_relations), len(global_relations))
+    for i in range(max_len):
+        if i < len(local_relations):
+            relation = local_relations[i]
+            key = tuple(sorted((relation.src_id, relation.tgt_id)))
+            if key not in seen:
+                merged.append(relation)
+                seen.add(key)
+        if i < len(global_relations):
+            relation = global_relations[i]
+            key = tuple(sorted((relation.src_id, relation.tgt_id)))
+            if key not in seen:
+                merged.append(relation)
+                seen.add(key)
+    return merged
+
+
+def _round_robin_merge_chunks(
+    vector_chunks: list[ChunkRecord],
+    kg_chunks: list[ChunkRecord],
+) -> list[ChunkRecord]:
+    """Round-robin interleave vector chunks and KG (entity) chunks.
+
+    Alternates: vector_chunks[0], kg_chunks[0], vector_chunks[1], kg_chunks[1], ...
+    Deduplicates by *chunk_id*.
+    Matches upstream ``_merge_all_chunks`` lines 3804-3845.
+
+    Args:
+        vector_chunks: Chunks from vector similarity search.
+        kg_chunks: Pseudo-chunks constructed from entity content.
+
+    Returns:
+        Deduplicated, round-robin interleaved chunk list.
+    """
+    merged: list[ChunkRecord] = []
+    seen: set[str] = set()
+    max_len = max(len(vector_chunks), len(kg_chunks))
+    for i in range(max_len):
+        if i < len(vector_chunks):
+            chunk = vector_chunks[i]
+            if chunk.chunk_id not in seen:
+                merged.append(chunk)
+                seen.add(chunk.chunk_id)
+        if i < len(kg_chunks):
+            chunk = kg_chunks[i]
+            if chunk.chunk_id not in seen:
+                merged.append(chunk)
+                seen.add(chunk.chunk_id)
+    return merged
+
+
+# ---------------------------------------------------------------------------
+# Strategy 4: Hybrid — parallel local + global + round-robin merge (QUERY-04)
+# ---------------------------------------------------------------------------
+
+
+async def hybrid_strategy(
+    query_embedding: list[float],
+    *,
+    vector_store: PGVectorStore,
+    graph_store: PGGraphStore,
+    top_k: int | None = None,
+) -> QueryResult:
+    """QUERY-04: Run local and global strategies in parallel then round-robin merge.
+
+    Step 1: :func:`asyncio.gather` runs ``local_strategy()`` and
+            ``global_strategy()`` concurrently.
+    Step 2: Entities and relations are merged using round-robin interleaving
+            with deduplication by entity_name (entities) and sorted
+            (src_id, tgt_id) tuple (relations).
+    Step 3: Graph triples from both results are merged with deduplication by
+            ``(src.entity_id, sorted((edge.source_id, edge.target_id)), tgt.entity_id)``
+            per upstream ``_perform_kg_search`` lines 3512-3566.
+
+    Args:
+        query_embedding: Pre-computed query embedding vector (D-03).
+        vector_store: Configured PGVectorStore instance.
+        graph_store: Configured PGGraphStore instance.
+        top_k: Override for :attr:`.QueryParamsConfig.top_k`.
+            If ``None`` the setting default (40) is used.
+
+    Returns:
+        QueryResult with ``entities``, ``relations``, and ``graph_triples``
+        populated from the merged local+global results.
+    """
+    from lightrag_langchain.config import settings
+
+    _top_k = top_k if top_k is not None else settings.query_params.top_k
+
+    # Step 1: Run local and global strategies in parallel
+    local_result, global_result = await asyncio.gather(
+        local_strategy(
+            query_embedding,
+            vector_store=vector_store,
+            graph_store=graph_store,
+            top_k=_top_k,
+        ),
+        global_strategy(
+            query_embedding,
+            vector_store=vector_store,
+            graph_store=graph_store,
+            top_k=_top_k,
+        ),
+    )
+
+    # Step 2: Round-robin merge entities
+    merged_entities = _round_robin_merge_entities(
+        local_result.entities, global_result.entities
+    )
+
+    # Step 3: Round-robin merge relations
+    merged_relations = _round_robin_merge_relations(
+        local_result.relations, global_result.relations
+    )
+
+    # Step 4: Merge graph_triples from both results with dedup
+    merged_triples: list[GraphTriple] = []
+    seen_triple_keys: set[tuple[str, tuple[str, str], str]] = set()
+
+    # Append from local first, then global (interleave order matches upstream)
+    for triples_source in (local_result.graph_triples, global_result.graph_triples):
+        for triple in triples_source:
+            triple_key = (
+                triple.src_entity.entity_id,
+                tuple(sorted((triple.relation.source_id, triple.relation.target_id))),
+                triple.tgt_entity.entity_id,
+            )
+            if triple_key not in seen_triple_keys:
+                seen_triple_keys.add(triple_key)
+                merged_triples.append(triple)
+
+    # Step 5: Return merged result
+    return QueryResult(
+        entities=merged_entities,
+        relations=merged_relations,
+        graph_triples=merged_triples,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Strategy 5: Bypass — no retrieval, empty result (QUERY-06)
+# ---------------------------------------------------------------------------
+
+
+async def bypass_strategy() -> QueryResult:
+    """QUERY-06: No retrieval — returns an empty :class:`QueryResult`.
+
+    Takes no parameters and performs zero database queries.  All four
+    fields (entities, relations, chunks, graph_triples) default to empty
+    lists.  Phase 6 Chain detects the empty result and skips context
+    assembly, passing the query directly to the LLM.
+
+    Matches upstream LightRAG bypass mode handling (lightrag.py lines 2845-2855).
+
+    Returns:
+        Empty QueryResult with all fields as empty lists.
+    """
+    return QueryResult()
+
+
+# ---------------------------------------------------------------------------
+# Strategy 6: Mix — hybrid + chunk vector search + chunk merge (QUERY-05)
+# ---------------------------------------------------------------------------
+
+
+async def mix_strategy(
+    query_embedding: list[float],
+    *,
+    vector_store: PGVectorStore,
+    graph_store: PGGraphStore,
+    top_k: int | None = None,
+    chunk_top_k: int | None = None,
+) -> QueryResult:
+    """QUERY-05: Hybrid retrieval plus chunk vector search, merged into one result.
+
+    Step 1: :func:`asyncio.gather` runs ``hybrid_strategy()`` for graph
+            knowledge and ``vector_store.search_chunks()`` for raw text chunks
+            concurrently.
+    Step 2: Entity content strings are converted to :class:`ChunkRecord`
+            pseudo-chunks so they can be interleaved with vector-retrieved text
+            chunks.
+    Step 3: Vector chunks and entity chunks are merged via
+            :func:`_round_robin_merge_chunks` to produce the final chunk list.
+
+    Args:
+        query_embedding: Pre-computed query embedding vector (D-03).
+        vector_store: Configured PGVectorStore instance.
+        graph_store: Configured PGGraphStore instance.
+        top_k: Override for :attr:`.QueryParamsConfig.top_k`.
+            If ``None`` the setting default (40) is used.
+        chunk_top_k: Override for :attr:`.QueryParamsConfig.chunk_top_k`.
+            If ``None`` the setting default (20) is used.
+
+    Returns:
+        QueryResult with all four fields (entities, relations, chunks,
+        graph_triples) populated.
+    """
+    from lightrag_langchain.config import settings
+
+    _top_k = top_k if top_k is not None else settings.query_params.top_k
+    _chunk_top_k = chunk_top_k if chunk_top_k is not None else settings.query_params.chunk_top_k
+
+    # Step 1: Run hybrid strategy and chunk vector search in parallel
+    hybrid_result, vector_chunks = await asyncio.gather(
+        hybrid_strategy(
+            query_embedding,
+            vector_store=vector_store,
+            graph_store=graph_store,
+            top_k=_top_k,
+        ),
+        vector_store.search_chunks(query_embedding, top_k=_chunk_top_k),
+    )
+
+    # Step 2: Extract hybrid results
+    entities = hybrid_result.entities
+    relations = hybrid_result.relations
+    graph_triples = hybrid_result.graph_triples
+
+    # Step 3: Convert entity content to pseudo-chunks for merging
+    entity_chunks: list[ChunkRecord] = []
+    for entity in entities:
+        entity_chunks.append(
+            ChunkRecord(
+                chunk_id=entity.source_id,
+                content=entity.content,
+                full_doc_id=None,
+                chunk_order_index=None,
+                file_path=entity.file_path,
+            )
+        )
+
+    # Step 4: Merge vector chunks and entity chunks via round-robin
+    merged_chunks = _round_robin_merge_chunks(vector_chunks, entity_chunks)
+
+    # Step 5: Return complete result
+    return QueryResult(
+        entities=entities,
+        relations=relations,
+        chunks=merged_chunks,
+        graph_triples=graph_triples,
+    )
