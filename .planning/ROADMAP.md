@@ -85,7 +85,7 @@ Plans:
 - [x] 03-01-PLAN.md — Config extension (pyproject.toml deps, KEYWORD_LANGUAGE, conftest fixtures)
 - [x] 03-02-PLAN.md — LLM factory: create_llm() + create_embedding() lazy proxies (LLM-01, LLM-02)
 - [x] 03-03-PLAN.md — Reranker Integration: Reranker Protocol, 3 adapters, create_reranker(), LightRAGReranker (LLM-03)
-- [ ] 03-04-PLAN.md — Token Budget: truncate functions + chunk budget calculator (LLM-05)
+- [x] 03-04-PLAN.md — Token Budget: truncate functions + chunk budget calculator (LLM-05)
 
 **Wave 2** *(blocked on 03-01 + 03-02)*
 
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Configuration | 2/2 | Complete   | 2026-05-29 |
 | 2. Data Layer | 4/4 | Complete   | 2026-05-30 |
-| 3. LLM Integration | 3/5 | In Progress|  |
+| 3. LLM Integration | 4/5 | In Progress|  |
 | 4. Query Strategies | 0/0 | Not started | - |
 | 5. Retriever Interfaces | 0/0 | Not started | - |
 | 6. QA Chain | 0/0 | Not started | - |
