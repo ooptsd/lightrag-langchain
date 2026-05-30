@@ -600,17 +600,15 @@ async def discover_tables(
 | A4 | LightRAG 默认 workspace = `"default"` 对应 AGE 图名 = `"{namespace}"`（不含 `{workspace}_{namespace}` 前缀）；`.env` 中 PG_WORKSPACE 可覆盖 | Architecture | 低 -- 直接来自 CONTEXT.md D-05 和 LightRAG `_get_workspace_graph_name()` |
 | A5 | PostgreSQL 数据库已包含 pgvector 和 Apache AGE 扩展，且表已由 LightRAG 初始化创建 | Environment | 高 -- 如果数据库未初始化，所有查询都会失败；需要明确的 error message 告知用户 |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **STOR-02 `keywords`/`weight` 字段来源**
+1. **STOR-02 `keywords`/`weight` 字段来源** — RESOLVED: VDB_RELATION DDL 中不存在 `keywords` 和 `weight` 列。Plan 02-03 (PGVectorStore) 在 PGVector 查询中返回 `keywords=NULL, weight=NULL`；实际值来自 Plan 02-04 (PGGraphStore) 的 AGE 图边 properties 查询。两个 plan 协同覆盖 STOR-02 的完整需求。
    - What we know: LIGHTRAG_VDB_RELATION 表 DDL 不包含 `keywords` 或 `weight` 列。这些字段存储在 AGE 图边的 properties 中。LightRAG 的 SQL_TEMPLATES 中 `relationships` 查询只返回 `source_id`, `target_id`, `created_at`，不返回 `keywords`/`weight`/`content`。
-   - What's unclear: STOR-02 要求 `keywords` 和 `weight` 字段从 PGVector 读取。是需求文档预期有偏差，还是 LightRAG 的 VDB_RELATION 实际存储逻辑与 DDL 不同？
-   - Recommendation: Phase 2 实现时，从 VDB_RELATION 表返回 `content` 全文，并从 AGE 图边 properties 中同步查询 `keywords`/`weight`（如果 PHASE2 有图谱访问能力）。或者，如果仅限 PGVector 查询，返回 `keywords=None, weight=None` 并标注为待实现。
+   - Decision: PGVector 查询返回 `NULL`；AGE 查询从图边 properties 获取实际值。两者结合满足 STOR-02 的字段要求。
 
-2. **STOR-01 `source_id` 字段映射**
+2. **STOR-01 `source_id` 字段映射** — RESOLVED: 将 VDB_ENTITY 的 `id` 列映射为 `source_id`（`SELECT id AS source_id`）。LightRAG 中 `id` 是 `entity_name` 的 SHA256 hash 值，作为实体的来源标识符。Plan 02-01 EntityRecord 模型和 Plan 02-03 PGVectorStore 查询均已采用此映射。
    - What we know: VDB_ENTITY 表的 `id` 列是实体的唯一标识。表中没有独立的 `source_id` 列。
-   - What's unclear: 需求中的 `source_id` 是指 `id` 列的重命名（即实体自身的标识），还是指原始文档的来源 ID（需要从其他表 join）？
-   - Recommendation: 将 `id` 映射为 `source_id`，因为 LightRAG 中 `id` 就是 `entity_name` 的 hash 值，用于标识实体来源。
+   - Decision: `id` → `source_id` 重命名映射，与 LightRAG 上游语义一致。
 
 ## Environment Availability
 
