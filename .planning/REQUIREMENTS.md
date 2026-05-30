@@ -47,7 +47,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **LLM-01**: ChatOpenAI 兼容接口接入 — 支持所有 OpenAI API 格式的 LLM provider（DeepSeek, MiniMax, OpenAI, vLLM 等）
 - [x] **LLM-02**: OpenAIEmbeddings 兼容接口接入 — 支持 OpenAI 格式的 embedding provider
-- [ ] **LLM-03**: 多 Reranker 支持 — aliyun dashscope (gte-rerank-v2) / cohere / jina，通过 `RERANK_BINDING` 切换
+- [x] **LLM-03**: 多 Reranker 支持 — aliyun dashscope (gte-rerank-v2) / cohere / jina，通过 `RERANK_BINDING` 切换
 - [ ] **LLM-04**: LLM 关键词提取 — 从用户查询中提取 high-level keywords（宏观主题）和 low-level keywords（具体实体）
 - [ ] **LLM-05**: Token 预算控制 — 动态分配 entity/relation/chunk 的 token 配额，max_entity_tokens + max_relation_tokens < max_total_tokens，剩余 token 分配给 chunks
 
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOR-04 | Phase 2: Data Layer | Pending |
 | LLM-01 | Phase 3: LLM Integration | Complete |
 | LLM-02 | Phase 3: LLM Integration | Complete |
-| LLM-03 | Phase 3: LLM Integration | Pending |
+| LLM-03 | Phase 3: LLM Integration | Complete |
 | LLM-04 | Phase 3: LLM Integration | Pending |
 | LLM-05 | Phase 3: LLM Integration | Pending |
 | QUERY-01 | Phase 4: Query Strategies | Pending |
