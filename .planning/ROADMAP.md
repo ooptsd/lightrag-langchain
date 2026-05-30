@@ -8,7 +8,7 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
 
 - [x] **Phase 1: Configuration** (Planned) - .env-based configuration for all services (PG, LLM, Embedding, Reranker, QueryParams) (completed 2026-05-29)
 - [x] **Phase 2: Data Layer** - Read-only PostgreSQL access layer for LightRAG's PGVector and Apache AGE graph stores (completed 2026-05-30)
-- [ ] **Phase 3: LLM Integration** (Planned) - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control
+- [x] **Phase 3: LLM Integration** (Planned) - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control (completed 2026-05-30)
 - [ ] **Phase 4: Query Strategies** - All 6 LightRAG query modes: naive, local, global, hybrid, mix, bypass
 - [ ] **Phase 5: Retriever Interfaces** - Langchain BaseRetriever subclasses wrapping each query mode with sync/async support
 - [ ] **Phase 6: QA Chain** - Full LCEL Chain: query to retrieval to context assembly to LLM generation
@@ -89,7 +89,7 @@ Plans:
 
 **Wave 2** *(blocked on 03-01 + 03-02)*
 
-- [ ] 03-05-PLAN.md — Keyword Extraction + Module Export: KeywordsSchema, extract_keywords(), __init__.py lazy exports (LLM-04)
+- [x] 03-05-PLAN.md — Keyword Extraction + Module Export: KeywordsSchema, extract_keywords(), __init__.py lazy exports (LLM-04)
 
 ### Phase 4: Query Strategies
 
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Configuration | 2/2 | Complete   | 2026-05-29 |
 | 2. Data Layer | 4/4 | Complete   | 2026-05-30 |
-| 3. LLM Integration | 4/5 | In Progress|  |
+| 3. LLM Integration | 5/5 | Complete   | 2026-05-30 |
 | 4. Query Strategies | 0/0 | Not started | - |
 | 5. Retriever Interfaces | 0/0 | Not started | - |
 | 6. QA Chain | 0/0 | Not started | - |
