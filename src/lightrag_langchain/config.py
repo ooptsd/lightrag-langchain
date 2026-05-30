@@ -142,6 +142,7 @@ class QueryParamsConfig(BaseModel):
     max_total_tokens: int = 30000
     cosine_threshold: float = 0.2
     kg_chunk_pick_method: str = "VECTOR"
+    keyword_language: str = "Chinese"
 
     @model_validator(mode="after")
     def check_token_budget(self) -> QueryParamsConfig:
