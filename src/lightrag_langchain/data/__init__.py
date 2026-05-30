@@ -7,6 +7,7 @@ from lightrag_langchain.data.models import (
     GraphNode,
     RelationshipRecord,
 )
+from lightrag_langchain.data.store import PGVectorStore
 
 __all__ = [
     "EntityRecord",
@@ -14,4 +15,5 @@ __all__ = [
     "ChunkRecord",
     "GraphNode",
     "GraphEdge",
+    "PGVectorStore",
 ]
