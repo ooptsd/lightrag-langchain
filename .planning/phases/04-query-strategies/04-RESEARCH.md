@@ -522,21 +522,15 @@ async def bypass_strategy() -> QueryResult:
 
 **Confidence note on A3:** If profiling shows `get_node_edges()` latency is a bottleneck, the PLAN should include a task to add a `get_nodes_edges_batch()` method to PGGraphStore. This is noted in Open Questions.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Do we need `get_nodes_edges_batch()` on PGGraphStore?**
-   - What we know: Current `get_node_edges(entity_id)` handles one entity per call. Local mode with top_k=40 requires up to 40 graph queries.
-   - What's unclear: Whether 40 concurrent `get_node_edges()` calls (via `asyncio.gather()`) are fast enough, or if a batch Cypher query is needed.
+1. **Do we need `get_nodes_edges_batch()` on PGGraphStore?** RESOLVED: Start with `asyncio.gather()` for Phase 4. The plans use concurrent single-entity `get_node_edges()` calls with `return_exceptions=True`. If profiling reveals a bottleneck, a follow-up task can add `get_nodes_edges_batch()` to PGGraphStore.
    - Recommendation: Start with `asyncio.gather()` for Phase 4 MVP. If performance is unacceptable, add a plan task to implement `get_nodes_edges_batch()` using a single `UNWIND` Cypher query.
 
-2. **Should we implement multi-embedding support for local/global modes?**
-   - What we know: Upstream `_perform_kg_search` (lines 3400-3453) batches query, ll_keywords, and hl_keywords embeddings into a single API call. Phase 4 receives a single `query_embedding: list[float]` (D-03).
-   - What's unclear: Whether Phase 5/6 will generate separate embeddings for `hl_keywords` and `ll_keywords` and pass them as separate parameters, or whether a single query embedding is used for all vector searches.
+2. **Should we implement multi-embedding support for local/global modes?** RESOLVED: No — single `query_embedding` parameter only. Phase 4 strategy signatures use one embedding parameter. If Phase 5/6 later supports separate hl_keywords/ll_keywords embeddings, optional parameters can be added without breaking the existing interface.
    - Recommendation: Start with single `query_embedding` parameter. If Phase 5/6 design evolves to support separate keyword embeddings, add optional `ll_embedding` and `hl_embedding` parameters to local/global/hybrid/mix strategy functions.
 
-3. **What is the exact `source_id` format for chunk_id extraction?**
-   - What we know: Upstream `_find_related_text_unit_from_entities` uses `split_string_by_multi_markers(entity["source_id"], [GRAPH_FIELD_SEP])` to extract chunk IDs. This is for entity-related chunk retrieval from KV store.
-   - What's unclear: Whether we need to parse `source_id` in Phase 4 at all. Given no KV store, the answer is likely no.
+3. **What is the exact `source_id` format for chunk_id extraction?** RESOLVED: Not applicable to Phase 4. `source_id` parsing is not needed since Phase 4 has no KV store and returns graph triples + raw chunk records. This is a Phase 6 concern when assembling context and reference lists.
    - Recommendation: Do not parse `source_id` in Phase 4. This is a Phase 6 concern when assembling context and reference lists.
 
 ## Environment Availability
