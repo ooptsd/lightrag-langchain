@@ -24,7 +24,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class SettingsError(Exception):
-    """Raised when configuration validation fails with categorized summary."""
+    """Raised when configuration validation fails with categorized summary.
+
+    Example:
+        ```python
+        from lightrag_langchain.config import SettingsError
+
+        try:
+            from lightrag_langchain.config import settings
+        except SettingsError as e:
+            print(f"Configuration error: {e}")
+        ```
+    """
 
 
 # ---------------------------------------------------------------------------
@@ -44,6 +55,14 @@ class PgConfig(BaseModel):
     - ``pool_min_size`` / ``pool_max_size``: asyncpg connection pool sizing
       (D-03, default 2 / 10).
     - ``pool_timeout``: command timeout in seconds (default 30.0).
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+
+        pg_config = settings.pg
+        print(pg_config.host, pg_config.database)
+        ```
     """
 
     model_config = ConfigDict(frozen=True)
@@ -69,6 +88,14 @@ class LlmConfig(BaseModel):
 
     Required: binding, binding_host, binding_api_key, model.
     Optional: temperature (default 0.0), max_tokens (default 9000).
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+
+        llm_config = settings.llm
+        print(llm_config.model, llm_config.temperature)
+        ```
     """
 
     model_config = ConfigDict(frozen=True)
@@ -90,6 +117,14 @@ class EmbeddingConfig(BaseModel):
     """Embedding provider settings.
 
     ``dim`` defaults to 1024 per D-06 (matches upstream aliyun text-embedding-v4).
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+
+        emb_config = settings.embedding
+        print(emb_config.model, emb_config.dim)
+        ```
     """
 
     model_config = ConfigDict(frozen=True)
@@ -110,6 +145,15 @@ class RerankerConfig(BaseModel):
     """Reranker settings.
 
     All fields defaulted — empty binding string means rerank is disabled.
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+
+        rerank_config = settings.reranker
+        if rerank_config.binding:
+            print(f"Reranker enabled: {rerank_config.model}")
+        ```
     """
 
     model_config = ConfigDict(frozen=True)
@@ -131,6 +175,14 @@ class QueryParamsConfig(BaseModel):
 
     Token budget invariant (D-08):
     ``max_entity_tokens + max_relation_tokens < max_total_tokens``.
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+
+        qp = settings.query_params
+        print(qp.top_k, qp.chunk_top_k, qp.max_total_tokens)
+        ```
     """
 
     model_config = ConfigDict(frozen=True)
@@ -166,6 +218,18 @@ class Settings(BaseSettings):
 
     All instantiation failures (direct or through the singleton) raise
     ``SettingsError`` with a categorized summary, never raw ``ValidationError``.
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+
+        # Access sub-configs through the singleton
+        pg = settings.pg
+        llm = settings.llm
+        embedding = settings.embedding
+        reranker = settings.reranker
+        query_params = settings.query_params
+        ```
     """
 
     model_config = SettingsConfigDict(

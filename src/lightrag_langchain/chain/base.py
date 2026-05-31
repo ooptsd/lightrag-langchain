@@ -60,7 +60,21 @@ class LightRAGBaseChain(BaseModel):
         Override chunk_top_k. When None, uses retriever's existing chunk_top_k.
     mode:
         Query mode identifier — subclasses override with a concrete string
-        (e.g. ``"naive"``, ``"local"``, ``"bypass"``).
+        (e.g. ``\"naive\"``, ``\"local\"``, ``\"bypass\"``).
+
+    Example:
+        ```python
+        from lightrag_langchain.chain import NaiveChain
+        from lightrag_langchain.retriever import NaiveRetriever
+        from lightrag_langchain.llm import create_llm
+        from lightrag_langchain.config import settings
+
+        retriever = NaiveRetriever(vector_store=..., embedding_config=settings.embedding)
+        llm = create_llm(settings.llm)
+        chain = NaiveChain(retriever=retriever, llm=llm)
+        result = await chain.ainvoke("your question")
+        print(result["answer"])
+        ```
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

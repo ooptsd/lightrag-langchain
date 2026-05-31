@@ -308,6 +308,15 @@ def create_reranker(config: RerankerConfig) -> Reranker:
         * ``"aliyun"`` / ``"dashscope"`` → ``_AliyunReranker``
 
     Raises ``ValueError`` for any unrecognized binding value.
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+        from lightrag_langchain.reranker import create_reranker
+
+        reranker = create_reranker(settings.reranker)
+        print(reranker)
+        ```
     """
     binding = config.binding.lower()
     if binding == "cohere":
@@ -335,6 +344,15 @@ class LightRAGReranker(BaseDocumentCompressor):
     top_n:
         Maximum number of documents to return after reranking (forwarded to
         the underlying reranker call).
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+        from lightrag_langchain.reranker import create_reranker, LightRAGReranker
+
+        reranker = create_reranker(settings.reranker)
+        compressor = LightRAGReranker(reranker, top_n=5)
+        ```
     """
 
     def __init__(self, reranker: Reranker, top_n: int | None = None) -> None:

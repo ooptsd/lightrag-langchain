@@ -45,6 +45,14 @@ class NaiveChain(LightRAGBaseChain):
 
     Uses NaiveRetriever for pure vector chunk search.
     Context assembled with NAIVE_QUERY_CONTEXT_TEMPLATE + NAIVE_RAG_RESPONSE_PROMPT.
+
+    Example:
+        ```python
+        from lightrag_langchain.chain import NaiveChain
+
+        chain = NaiveChain(retriever=naive_retriever, llm=llm)
+        result = await chain.ainvoke("What is this document about?")
+        ```
     """
 
     mode: str = "naive"
@@ -60,6 +68,14 @@ class LocalChain(LightRAGBaseChain):
 
     Uses LocalRetriever for entity-centric graph traversal.
     Context assembled with KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT.
+
+    Example:
+        ```python
+        from lightrag_langchain.chain import LocalChain
+
+        chain = LocalChain(retriever=local_retriever, llm=llm)
+        result = await chain.ainvoke("Which entities relate to flood control?")
+        ```
     """
 
     mode: str = "local"
@@ -75,6 +91,14 @@ class GlobalChain(LightRAGBaseChain):
 
     Uses GlobalRetriever for relation-centric graph traversal.
     Context assembled with KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT.
+
+    Example:
+        ```python
+        from lightrag_langchain.chain import GlobalChain
+
+        chain = GlobalChain(retriever=global_retriever, llm=llm)
+        result = await chain.ainvoke("What relationships exist between these entities?")
+        ```
     """
 
     mode: str = "global"
@@ -90,6 +114,14 @@ class HybridChain(LightRAGBaseChain):
 
     Uses HybridRetriever for parallel local+global with round-robin merge.
     Context assembled with KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT.
+
+    Example:
+        ```python
+        from lightrag_langchain.chain import HybridChain
+
+        chain = HybridChain(retriever=hybrid_retriever, llm=llm)
+        result = await chain.ainvoke("Give me a comprehensive analysis of this topic")
+        ```
     """
 
     mode: str = "hybrid"
@@ -105,6 +137,14 @@ class MixChain(LightRAGBaseChain):
 
     Uses MixRetriever for hybrid + chunk search merge.
     Context assembled with KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT.
+
+    Example:
+        ```python
+        from lightrag_langchain.chain import MixChain
+
+        chain = MixChain(retriever=mix_retriever, llm=llm)
+        result = await chain.ainvoke("Find everything relevant to this query")
+        ```
     """
 
     mode: str = "mix"
@@ -120,6 +160,14 @@ class BypassChain(LightRAGBaseChain):
 
     No keyword extraction, no retrieval, no token budget.
     Calls LLM directly with RAG_RESPONSE_PROMPT (empty context_data).
+
+    Example:
+        ```python
+        from lightrag_langchain.chain import BypassChain
+
+        chain = BypassChain(retriever=bypass_retriever, llm=llm)
+        result = await chain.ainvoke("Tell me a joke")
+        ```
     """
 
     mode: str = "bypass"

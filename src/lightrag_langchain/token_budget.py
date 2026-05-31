@@ -95,6 +95,15 @@ def truncate_entities_by_tokens(
         Prefix of *entities* whose serialized token count <= *max_tokens*.
         Empty list when *max_tokens* <= 0 or when the first entity alone
         already exceeds the limit (no partial entities).
+
+    Example:
+        ```python
+        from lightrag_langchain.token_budget import truncate_entities_by_tokens
+
+        entities = [{"entity_name": "东莞", "content": "..."}]
+        truncated = truncate_entities_by_tokens(entities, max_tokens=6000)
+        print(len(truncated))
+        ```
     """
     if max_tokens <= 0:
         return []
@@ -136,6 +145,15 @@ def truncate_relations_by_tokens(
         Prefix of *relations* whose serialized token count <= *max_tokens*.
         Empty list when *max_tokens* <= 0 or when the first relation alone
         already exceeds the limit.
+
+    Example:
+        ```python
+        from lightrag_langchain.token_budget import truncate_relations_by_tokens
+
+        relations = [{"src_id": "1", "tgt_id": "2", "description": "..."}]
+        truncated = truncate_relations_by_tokens(relations, max_tokens=8000)
+        print(len(truncated))
+        ```
     """
     if max_tokens <= 0:
         return []
@@ -187,6 +205,20 @@ def compute_chunk_token_budget(
     Returns:
         Non-negative integer — the remaining token budget for chunk content.
         Returns 0 when the budget is exhausted (never negative).
+
+    Example:
+        ```python
+        from lightrag_langchain.token_budget import compute_chunk_token_budget
+
+        budget = compute_chunk_token_budget(
+            total_tokens=30000,
+            sys_prompt_tokens=500,
+            query_tokens=50,
+            entity_tokens_used=4000,
+            relation_tokens_used=6000,
+        )
+        print(f"Chunk budget: {budget} tokens")
+        ```
     """
     kg_tokens = entity_tokens_used + relation_tokens_used
     remaining = total_tokens - (sys_prompt_tokens + query_tokens + kg_tokens + buffer_tokens)

@@ -126,6 +126,15 @@ def create_llm(config: LlmConfig) -> ChatOpenAI:  # type: ignore[return-value]
     The returned object looks like a ``ChatOpenAI`` instance but construction
     is deferred to first attribute access.  No network call, no .env required
     at import time.
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+        from lightrag_langchain.llm import create_llm
+
+        llm = create_llm(settings.llm)
+        print(llm.model_name)
+        ```
     """
     return _LazyLLM(config)  # type: ignore[return-value]
 
@@ -136,5 +145,14 @@ def create_embedding(config: EmbeddingConfig) -> OpenAIEmbeddings:  # type: igno
     The returned object looks like an ``OpenAIEmbeddings`` instance but
     construction is deferred to first attribute access.  No network call,
     no .env required at import time.
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+        from lightrag_langchain.llm import create_embedding
+
+        embedding = create_embedding(settings.embedding)
+        print(embedding.model)
+        ```
     """
     return _LazyEmbedding(config)  # type: ignore[return-value]

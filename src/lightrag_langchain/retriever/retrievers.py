@@ -56,6 +56,17 @@ class NaiveRetriever(LightRAGBaseRetriever):
     No graph traversal — returns chunk Documents only.
 
     RETR-01 (naive mode).  ``graph_store`` is not used (always ``None``).
+
+    Example:
+        ```python
+        from lightrag_langchain.retriever import NaiveRetriever
+
+        retriever = NaiveRetriever(
+            vector_store=vector_store,
+            embedding_config=settings.embedding,
+        )
+        docs = await retriever.ainvoke("your query")
+        ```
     """
 
     async def _aget_relevant_documents(
@@ -94,6 +105,18 @@ class LocalRetriever(LightRAGBaseRetriever):
     to discover edges/neighbors, and returns entity + GraphTriple Documents.
 
     RETR-01 (local mode).  Requires both ``vector_store`` and ``graph_store``.
+
+    Example:
+        ```python
+        from lightrag_langchain.retriever import LocalRetriever
+
+        retriever = LocalRetriever(
+            vector_store=vector_store,
+            embedding_config=settings.embedding,
+            graph_store=graph_store,
+        )
+        docs = await retriever.ainvoke("your query")
+        ```
     """
 
     async def _aget_relevant_documents(
@@ -154,6 +177,18 @@ class GlobalRetriever(LightRAGBaseRetriever):
     data from the AGE graph, and returns relation + GraphTriple Documents.
 
     RETR-01 (global mode).  Requires both ``vector_store`` and ``graph_store``.
+
+    Example:
+        ```python
+        from lightrag_langchain.retriever import GlobalRetriever
+
+        retriever = GlobalRetriever(
+            vector_store=vector_store,
+            embedding_config=settings.embedding,
+            graph_store=graph_store,
+        )
+        docs = await retriever.ainvoke("your query")
+        ```
     """
 
     async def _aget_relevant_documents(
@@ -215,6 +250,18 @@ class HybridRetriever(LightRAGBaseRetriever):
     entities and relations.  Returns entity + relation + GraphTriple Documents.
 
     RETR-01 (hybrid mode).  Requires both ``vector_store`` and ``graph_store``.
+
+    Example:
+        ```python
+        from lightrag_langchain.retriever import HybridRetriever
+
+        retriever = HybridRetriever(
+            vector_store=vector_store,
+            embedding_config=settings.embedding,
+            graph_store=graph_store,
+        )
+        docs = await retriever.ainvoke("your query")
+        ```
     """
 
     async def _aget_relevant_documents(
@@ -296,6 +343,18 @@ class MixRetriever(LightRAGBaseRetriever):
     entity + relation + chunk + GraphTriple Documents.
 
     RETR-01 (mix mode).  Requires both ``vector_store`` and ``graph_store``.
+
+    Example:
+        ```python
+        from lightrag_langchain.retriever import MixRetriever
+
+        retriever = MixRetriever(
+            vector_store=vector_store,
+            embedding_config=settings.embedding,
+            graph_store=graph_store,
+        )
+        docs = await retriever.ainvoke("your query")
+        ```
     """
 
     async def _aget_relevant_documents(
@@ -383,6 +442,17 @@ class BypassRetriever(LightRAGBaseRetriever):
     generation, no strategy call, no database I/O.
 
     RETR-01 (bypass mode).  ``vector_store`` and ``graph_store`` are unused.
+
+    Example:
+        ```python
+        from lightrag_langchain.retriever import BypassRetriever
+
+        retriever = BypassRetriever(
+            vector_store=vector_store,
+            embedding_config=settings.embedding,
+        )
+        docs = await retriever.ainvoke("your query")  # always returns []
+        ```
     """
 
     async def _aget_relevant_documents(

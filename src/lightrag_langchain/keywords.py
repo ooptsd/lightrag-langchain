@@ -38,6 +38,16 @@ class KeywordsSchema(BaseModel):
     """Structured output for keyword extraction from user queries.
 
     Frozen to prevent accidental mutation after extraction.
+
+    Example:
+        ```python
+        from lightrag_langchain.keywords import extract_keywords, KeywordsSchema
+
+        # result is a KeywordsSchema instance with high_level_keywords
+        # and low_level_keywords fields
+        result: KeywordsSchema = await extract_keywords(query, llm, language="Chinese")
+        print(result.high_level_keywords, result.low_level_keywords)
+        ```
     """
 
     model_config = ConfigDict(frozen=True)
@@ -152,6 +162,21 @@ async def extract_keywords(
     - No json_repair fallback (D-14) — structured output failures propagate.
     - ``method="function_calling"`` is explicit for provider compatibility
       (DeepSeek, vLLM, etc. per RESEARCH.md Pitfall 1).
+
+    Example:
+        ```python
+        from lightrag_langchain.config import settings
+        from lightrag_langchain.llm import create_llm
+        from lightrag_langchain.keywords import extract_keywords
+
+        llm = create_llm(settings.llm)
+        result = await extract_keywords(
+            query="启动东莞市防风Ⅰ级应急响应",
+            llm=llm,
+            language=settings.query_params.keyword_language,
+        )
+        print(result.high_level_keywords, result.low_level_keywords)
+        ```
     """
     # Assemble examples into a single formatted string.
     examples_str = "\n".join(KEYWORDS_EXTRACTION_EXAMPLES)

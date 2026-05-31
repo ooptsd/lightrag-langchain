@@ -53,6 +53,18 @@ class LightRAGBaseRetriever(BaseRetriever):
     chunk_top_k:
         Override global chunk_top_k.  When ``None`` the retriever uses the
         Settings-level default (D-03).
+
+    Example:
+        ```python
+        from lightrag_langchain.retriever import NaiveRetriever
+        from lightrag_langchain.config import settings
+
+        retriever = NaiveRetriever(
+            vector_store=vector_store,
+            embedding_config=settings.embedding,
+        )
+        docs = await retriever.ainvoke("your query")
+        ```
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
