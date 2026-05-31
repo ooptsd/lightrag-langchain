@@ -193,7 +193,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — Documentation infrastructure: dev deps (mkdocs-material, mkdocstrings, mkdocstrings-python), mkdocs.yml config, CI deployment workflow, docs/ directory scaffolding (D-01, D-02, D-06)
+- [x] 07-01-PLAN.md — Documentation infrastructure: dev deps (mkdocs-material, mkdocstrings, mkdocstrings-python), mkdocs.yml config, CI deployment workflow, docs/ directory scaffolding (D-01, D-02, D-06)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -213,4 +213,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
 | 5. Retriever Interfaces | 3/3 | Complete    | 2026-05-30 |
 | 6. QA Chain | 3/3 | Complete   | 2026-05-31 |
-| 7. Samples & Docs + README | 0/3 | Planned   | -- |
+| 7. Samples & Docs + README | 1/3 | In Progress|  |
