@@ -132,7 +132,20 @@ Plans:
   3. Retrieved Document metadata consistently includes source_id, file_path, and mode-specific attribution (entity names for local/global, relation descriptions for global, chunk_order_index for naive/mix)
   4. Retrievers are composable with standard Langchain patterns -- they work correctly when used as standalone retrievers and when passed to Langchain chain constructors
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 05-01-PLAN.md — Foundation: retriever/ package with lazy __init__.py (D-09), LightRAGBaseRetriever base class (D-06), and Document conversion utilities (D-04, D-05)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-02-PLAN.md — 6 Retriever subclasses: NaiveRetriever, LocalRetriever, GlobalRetriever, HybridRetriever, MixRetriever, BypassRetriever (RETR-01, RETR-02, RETR-03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 05-03-PLAN.md — Test suite (mock store fixtures, 20+ tests for sync/async, D-04/D-05 validation) + top-level __init__.py lazy exports (D-09)
 
 ### Phase 6: QA Chain
 
@@ -160,5 +173,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Data Layer | 4/4 | Complete   | 2026-05-30 |
 | 3. LLM Integration | 5/5 | Complete   | 2026-05-30 |
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
-| 5. Retriever Interfaces | 0/0 | Not started | - |
+| 5. Retriever Interfaces | 0/3 | Planned | - |
 | 6. QA Chain | 0/0 | Not started | - |
