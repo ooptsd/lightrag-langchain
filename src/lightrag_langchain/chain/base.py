@@ -484,7 +484,7 @@ class LightRAGBaseChain(BaseModel):
         for chunk in chunks:
             c = chunk.copy()
             fp = c.get("file_path", "")
-            c["reference_id"] = fp_to_id.get(fp, "")
+            c["reference_id"] = fp_to_id.get(fp, None)
             chunks_with_ids.append(c)
 
         return reference_list, chunks_with_ids
@@ -538,11 +538,11 @@ class LightRAGBaseChain(BaseModel):
             json.dumps(tu, ensure_ascii=False) for tu in text_units
         )
 
-        # Format reference list string
+        # Format reference list string (WR-02: explicit None check, not truthiness)
         reference_list_str = "\n".join(
             f"[{ref['reference_id']}] {ref['file_path']}"
             for ref in reference_list
-            if ref.get("reference_id")
+            if ref.get("reference_id") is not None
         )
 
         # Template dispatch by mode
