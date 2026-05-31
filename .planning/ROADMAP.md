@@ -137,15 +137,15 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Foundation: retriever/ package with lazy __init__.py (D-09), LightRAGBaseRetriever base class (D-06), and Document conversion utilities (D-04, D-05)
+- [x] 05-01-PLAN.md — Foundation: retriever/ package with lazy __init__.py (D-09), LightRAGBaseRetriever base class (D-06), and Document conversion utilities (D-04, D-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02-PLAN.md — 6 Retriever subclasses: NaiveRetriever, LocalRetriever, GlobalRetriever, HybridRetriever, MixRetriever, BypassRetriever (RETR-01, RETR-02, RETR-03)
+- [x] 05-02-PLAN.md — 6 Retriever subclasses: NaiveRetriever, LocalRetriever, GlobalRetriever, HybridRetriever, MixRetriever, BypassRetriever (RETR-01, RETR-02, RETR-03)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 05-03-PLAN.md — Test suite (mock store fixtures, 20+ tests for sync/async, D-04/D-05 validation) + top-level __init__.py lazy exports (D-09)
+- [x] 05-03-PLAN.md — Test suite (mock store fixtures, 20+ tests for sync/async, D-04/D-05 validation) + top-level __init__.py lazy exports (D-09)
 
 ### Phase 6: QA Chain
 
