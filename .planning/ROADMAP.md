@@ -188,3 +188,13 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
 | 5. Retriever Interfaces | 3/3 | Complete    | 2026-05-30 |
 | 6. QA Chain | 3/3 | Complete   | 2026-05-31 |
+
+### Phase 7: samples和docs文档+README.md
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 6
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 7 to break down)
