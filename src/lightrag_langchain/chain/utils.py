@@ -26,8 +26,11 @@ Notes:
 from __future__ import annotations
 
 import json
+import logging
 
 from langchain_core.documents import Document
+
+logger = logging.getLogger(__name__)
 
 
 def doc_to_entity_dict(doc: Document) -> dict:
@@ -140,6 +143,7 @@ def classify_and_convert(
     entities: list[dict] = []
     relations: list[dict] = []
     chunks: list[dict] = []
+    _unknown_warned: set[str] = set()
 
     for doc in docs:
         dtype = doc.metadata.get("document_type", "")
@@ -149,7 +153,14 @@ def classify_and_convert(
             relations.append(doc_to_relation_dict(doc))
         elif dtype == "chunk":
             chunks.append(doc_to_chunk_dict(doc))
-        # graph_triple: skip — data already in entity/relation dicts
-        # Unknown type: skip silently
+        elif dtype == "graph_triple":
+            pass  # data already in entity/relation dicts
+        else:
+            if dtype not in _unknown_warned:
+                _unknown_warned.add(dtype)
+                logger.warning(
+                    "classify_and_convert: unrecognized document_type=%r, document skipped",
+                    dtype or "<missing>",
+                )
 
     return entities, relations, chunks
