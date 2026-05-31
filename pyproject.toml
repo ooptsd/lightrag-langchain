@@ -40,5 +40,8 @@ python_files = ["test_*.py"]
 
 [dependency-groups]
 dev = [
+    "mkdocs-material>=9.7.6",
+    "mkdocstrings>=1.0.4",
+    "mkdocstrings-python>=2.0.3",
     "pytest-asyncio>=1.4.0",
 ]
