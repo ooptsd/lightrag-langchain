@@ -137,16 +137,37 @@ class BypassChain(LightRAGBaseChain):
         ll_keywords: list[str] | None = None,
         **kwargs,
     ) -> dict:
-        """Synchronous bypass — calls LLM directly."""
-        return asyncio.run(
-            self.ainvoke(
-                query,
-                system_prompt=system_prompt,
-                hl_keywords=hl_keywords,
-                ll_keywords=ll_keywords,
-                **kwargs,
+        """Synchronous bypass — calls LLM directly.
+
+        Uses ``asyncio.run`` when no event loop is running.  Falls back to
+        a thread-pool executor when called from within a running event loop.
+        """
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(
+                self.ainvoke(
+                    query,
+                    system_prompt=system_prompt,
+                    hl_keywords=hl_keywords,
+                    ll_keywords=ll_keywords,
+                    **kwargs,
+                )
             )
-        )
+        else:
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(
+                    asyncio.run,
+                    self.ainvoke(
+                        query,
+                        system_prompt=system_prompt,
+                        hl_keywords=hl_keywords,
+                        ll_keywords=ll_keywords,
+                        **kwargs,
+                    ),
+                )
+                return future.result()
 
     async def ainvoke(
         self,

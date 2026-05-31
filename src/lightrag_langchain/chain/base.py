@@ -105,20 +105,38 @@ class LightRAGBaseChain(BaseModel):
         ll_keywords: list[str] | None = None,
         **kwargs,
     ) -> dict:
-        """Synchronous path — uses ``asyncio.run`` to bridge to async implementation.
+        """Synchronous path — bridges to async implementation.
 
-        Matches :class:`LightRAGBaseRetriever._get_relevant_documents` pattern
-        (:file:`retriever/base.py` line 110-121).
+        Uses ``asyncio.run`` when no event loop is running.  Falls back to
+        a thread-pool executor when called from within a running event loop
+        (e.g. FastAPI route, Jupyter notebook).
         """
-        return asyncio.run(
-            self.ainvoke(
-                query,
-                system_prompt=system_prompt,
-                hl_keywords=hl_keywords,
-                ll_keywords=ll_keywords,
-                **kwargs,
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(
+                self.ainvoke(
+                    query,
+                    system_prompt=system_prompt,
+                    hl_keywords=hl_keywords,
+                    ll_keywords=ll_keywords,
+                    **kwargs,
+                )
             )
-        )
+        else:
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(
+                    asyncio.run,
+                    self.ainvoke(
+                        query,
+                        system_prompt=system_prompt,
+                        hl_keywords=hl_keywords,
+                        ll_keywords=ll_keywords,
+                        **kwargs,
+                    ),
+                )
+                return future.result()
 
     async def ainvoke(
         self,
