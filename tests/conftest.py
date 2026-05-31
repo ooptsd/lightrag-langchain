@@ -198,3 +198,116 @@ def mock_graph_store():
     store.get_edges_batch = AsyncMock(return_value={})
     store.get_node_edges = AsyncMock(return_value=[])
     return store
+
+
+# ---------------------------------------------------------------------------
+# Phase 6: Chain test fixtures
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def mock_llm():
+    """Return an AsyncMock wrapping ChatOpenAI for chain unit tests.
+
+    ``ainvoke`` returns an AIMessage-like mock with ``.content`` attribute.
+    ``astream`` is an async generator yielding nothing by default.
+    Individual tests override ``return_value`` / ``side_effect`` as needed.
+    """
+    from unittest.mock import AsyncMock, MagicMock
+
+    llm = AsyncMock()
+    # Default ainvoke: returns mock AIMessage with empty content
+    mock_response = MagicMock()
+    mock_response.content = ""
+    llm.ainvoke = AsyncMock(return_value=mock_response)
+    # Default astream: empty async generator
+    async def _empty_stream(*args, **kwargs):
+        return
+        yield  # pragma: no cover  -- makes it an async generator
+    llm.astream = MagicMock(side_effect=_empty_stream)
+    return llm
+
+
+@pytest.fixture
+def mock_retriever():
+    """Return an AsyncMock wrapping LightRAGBaseRetriever for chain unit tests.
+
+    Uses ``spec=LightRAGBaseRetriever`` so ``isinstance(mock, LightRAGBaseRetriever)``
+    returns True, satisfying Pydantic v2 field validation for LightRAGBaseChain.retriever.
+
+    ``ainvoke`` returns empty list by default; tests override ``return_value``.
+    """
+    from unittest.mock import AsyncMock
+
+    from lightrag_langchain.retriever.base import LightRAGBaseRetriever
+
+    retriever = AsyncMock(spec=LightRAGBaseRetriever)
+    retriever.ainvoke = AsyncMock(return_value=[])
+    return retriever
+
+
+@pytest.fixture
+def make_entity_doc():
+    """Fixture returning a callable that creates a Document with entity page_content.
+
+    Produces Documents matching :func:`retriever.utils.entity_to_document` JSON format.
+    """
+    import json
+
+    from langchain_core.documents import Document
+
+    def _make(
+        entity_name="e1",
+        entity_type="",
+        description="",
+        source_id="src-1",
+        file_path="test/file.txt",
+    ):
+        obj = {
+            "entity_name": entity_name,
+            "entity_type": entity_type,
+            "description": description,
+            "source_id": source_id,
+            "file_path": file_path,
+        }
+        metadata = {
+            "source_id": source_id,
+            "file_path": file_path,
+            "retrieval_mode": "local",
+            "document_type": "entity",
+            "entity_name": entity_name,
+            "entity_type": entity_type,
+        }
+        return Document(page_content=json.dumps(obj), metadata=metadata)
+
+    return _make
+
+
+@pytest.fixture
+def make_chunk_doc():
+    """Fixture returning a callable that creates a Document with chunk page_content.
+
+    Produces Documents matching :func:`retriever.utils.chunk_to_document` JSON format.
+    """
+    import json
+
+    from langchain_core.documents import Document
+
+    def _make(chunk_id="c1", content="chunk text", file_path="test/file.txt"):
+        obj = {
+            "reference_id": "",
+            "content": content,
+            "file_path": file_path,
+            "chunk_id": chunk_id,
+        }
+        metadata = {
+            "source_id": "",
+            "file_path": file_path,
+            "retrieval_mode": "naive",
+            "document_type": "chunk",
+            "chunk_id": chunk_id,
+            "chunk_order_index": 0,
+        }
+        return Document(page_content=json.dumps(obj), metadata=metadata)
+
+    return _make
