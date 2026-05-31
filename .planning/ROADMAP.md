@@ -165,7 +165,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 06-01-PLAN.md — Chain foundation: upstream prompt templates, Document-to-dict conversion utilities, conftest.py test fixtures
+- [x] 06-01-PLAN.md — Chain foundation: upstream prompt templates, Document-to-dict conversion utilities, conftest.py test fixtures
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -187,4 +187,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. LLM Integration | 5/5 | Complete   | 2026-05-30 |
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
 | 5. Retriever Interfaces | 3/3 | Complete    | 2026-05-30 |
-| 6. QA Chain | 0/3 | Planned | - |
+| 6. QA Chain | 1/3 | In Progress|  |
