@@ -150,3 +150,15 @@ class LightRAGBaseRetriever(BaseRetriever):
             searches and Phase 4 strategy function calls.
         """
         return self.embedding.embed_query(query)
+
+
+# ------------------------------------------------------------------
+# Resolve Pydantic v2 forward references from TYPE_CHECKING imports
+# ------------------------------------------------------------------
+
+from langchain_openai import OpenAIEmbeddings  # noqa: E402
+from lightrag_langchain.config import EmbeddingConfig  # noqa: E402
+from lightrag_langchain.data.graph import PGGraphStore  # noqa: E402
+from lightrag_langchain.data.store import PGVectorStore  # noqa: E402
+
+LightRAGBaseRetriever.model_rebuild()

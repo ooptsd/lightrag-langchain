@@ -396,3 +396,21 @@ class BypassRetriever(LightRAGBaseRetriever):
     ) -> list[Document]:
         """Sync bypass — returns empty list.  Skips ``asyncio.run`` overhead."""
         return []
+
+
+# ------------------------------------------------------------------
+# Resolve Pydantic v2 forward references from TYPE_CHECKING imports
+# ------------------------------------------------------------------
+
+from lightrag_langchain.data.graph import PGGraphStore  # noqa: E402
+from lightrag_langchain.data.store import PGVectorStore  # noqa: E402
+
+for _cls in (
+    NaiveRetriever,
+    LocalRetriever,
+    GlobalRetriever,
+    HybridRetriever,
+    MixRetriever,
+    BypassRetriever,
+):
+    _cls.model_rebuild()

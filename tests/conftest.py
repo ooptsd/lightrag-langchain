@@ -159,12 +159,17 @@ def mock_httpx_client():
 def mock_vector_store():
     """Return an AsyncMock wrapping PGVectorStore for retriever unit tests.
 
+    Uses ``spec=PGVectorStore`` so ``isinstance(mock, PGVectorStore)``
+    returns True, which satisfies Pydantic v2 field validation.
+
     Three search methods return empty lists by default; individual tests
     override return_value to provide test data.
     """
     from unittest.mock import AsyncMock
 
-    store = AsyncMock()
+    from lightrag_langchain.data.store import PGVectorStore
+
+    store = AsyncMock(spec=PGVectorStore)
     store.search_entities = AsyncMock(return_value=[])
     store.search_relationships = AsyncMock(return_value=[])
     store.search_chunks = AsyncMock(return_value=[])
@@ -175,13 +180,18 @@ def mock_vector_store():
 def mock_graph_store():
     """Return an AsyncMock wrapping PGGraphStore for retriever unit tests.
 
+    Uses ``spec=PGGraphStore`` so ``isinstance(mock, PGGraphStore)``
+    returns True, which satisfies Pydantic v2 field validation.
+
     get_nodes_batch returns dict[str, GraphNode]; get_edges_batch returns
     dict[tuple[str,str], GraphEdge]; get_node_edges returns list[tuple[str,str]].
     All default to empty; tests override as needed.
     """
     from unittest.mock import AsyncMock
 
-    store = AsyncMock()
+    from lightrag_langchain.data.graph import PGGraphStore
+
+    store = AsyncMock(spec=PGGraphStore)
     store.get_node = AsyncMock(return_value=None)
     store.get_nodes_batch = AsyncMock(return_value={})
     store.get_edge = AsyncMock(return_value=None)
