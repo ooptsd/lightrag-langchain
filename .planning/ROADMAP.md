@@ -169,7 +169,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 06-02-PLAN.md — Core implementation: LightRAGBaseChain with full pipeline, 6 mode-specific subclasses (NaiveChain through BypassChain), lazy export wiring
+- [x] 06-02-PLAN.md — Core implementation: LightRAGBaseChain with full pipeline, 6 mode-specific subclasses (NaiveChain through BypassChain), lazy export wiring
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -187,4 +187,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. LLM Integration | 5/5 | Complete   | 2026-05-30 |
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
 | 5. Retriever Interfaces | 3/3 | Complete    | 2026-05-30 |
-| 6. QA Chain | 1/3 | In Progress|  |
+| 6. QA Chain | 2/3 | In Progress|  |

@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 6 context gathered
-last_updated: "2026-05-31T13:40:05.996Z"
+last_updated: "2026-05-31T13:46:18.386Z"
 last_activity: 2026-05-31
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 20
-  completed_plans: 18
+  completed_plans: 19
   percent: 83
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-29)
 ## Current Position
 
 Phase: 6 (qa-chain) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-05-31
 
-Progress: [█████████░] 90%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [█████████░] 90%
 | Phase 03 P04 | 81s | 2 tasks | 2 files |
 | Phase 03-llm-integration P05 | 3m5s | 3 tasks | 3 files |
 | Phase 06-qa-chain P06-01 | 96s | 3 tasks | 4 files |
+| Phase 06-qa-chain P02 | 200 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,12 @@ Recent decisions affecting current work:
 - [Phase ?]: Lazy __getattr__ pattern in __init__.py matches data/__init__.py — import lightrag_langchain succeeds without .env or network
 - [Phase ?]: Upstream LightRAG prompt templates embedded verbatim as module-level string constants with .format()-compatible placeholders preserved in chain/prompt.py
 - [Phase ?]: chain/__init__.py created as minimal placeholder — full lazy __getattr__ exports deferred to Plan 06-02
+- [Phase ?]: Chain architecture: Pydantic BaseModel with constructor injection for retriever+llm
+- [Phase ?]: Chain bypass: BypassChain independently implements invoke/ainvoke/astream with direct LLM call
+- [Phase ?]: Chain token budget: strict entities→relations→chunk_budget→truncate_chunks execution order
+- [Phase ?]: Chain templates: mode-based dispatch in base class; correct placeholder names per template (Pitfall 1 avoided)
+- [Phase ?]: Chain imports: lazy Phase 3 imports ensure import lightrag_langchain succeeds without .env
+- [Phase ?]: Chain LLM: messages=[SystemMessage, HumanMessage] pattern for all LLM calls (Pitfall 3 avoided)
 
 ### Pending Todos
 
@@ -101,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-31T13:40:00.624Z
+Last session: 2026-05-31T13:45:50.084Z
 Stopped at: Phase 6 context gathered
 Resume file: None

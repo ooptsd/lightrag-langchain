@@ -32,8 +32,8 @@ Requirements for initial release. Each maps to roadmap phases.
 ### CHAIN — Chain 接口
 
 - [x] **CHAIN-01**: 实现完整问答 LCEL Chain：查询 → 关键词提取 → 检索 → 上下文拼装（含 token 预算控制）→ LLM 生成
-- [ ] **CHAIN-02**: 支持 `invoke` / `ainvoke` / `astream` 三种调用方式
-- [ ] **CHAIN-03**: 支持在 QueryParam 中直接传入 `hl_keywords` / `ll_keywords` 跳过 LLM 关键词提取
+- [x] **CHAIN-02**: 支持 `invoke` / `ainvoke` / `astream` 三种调用方式
+- [x] **CHAIN-03**: 支持在 QueryParam 中直接传入 `hl_keywords` / `ll_keywords` 跳过 LLM 关键词提取
 
 ### CONF — 配置
 
@@ -108,8 +108,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RETR-02 | Phase 5: Retriever Interfaces | Pending |
 | RETR-03 | Phase 5: Retriever Interfaces | Pending |
 | CHAIN-01 | Phase 6: QA Chain | Complete |
-| CHAIN-02 | Phase 6: QA Chain | Pending |
-| CHAIN-03 | Phase 6: QA Chain | Pending |
+| CHAIN-02 | Phase 6: QA Chain | Complete |
+| CHAIN-03 | Phase 6: QA Chain | Complete |
 
 **Coverage:**
 - v1 requirements: 25 total
