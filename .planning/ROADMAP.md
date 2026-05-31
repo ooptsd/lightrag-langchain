@@ -175,10 +175,35 @@ Plans:
 
 - [x] 06-03-PLAN.md — Test suite: core pipeline integration tests, CHAIN-03 keyword resolution tests, subclass dispatch tests, astream contract verification (D-09/D-10)
 
+### Phase 7: Samples & Docs + README.md
+
+**Goal**: 交付所有面向开发者的文档和示例 — README.md, MkDocs + Material API 文档, examples/ 示例目录。让任何熟悉 LangChain 的开发者能通过 README 了解项目、复制示例开始构建。
+**Depends on**: Phase 6
+**Requirements**: D-01, D-02, D-03, D-04, D-05, D-06 (documentation phase — driven by CONTEXT.md decisions)
+**Success Criteria** (what must be TRUE):
+
+  1. README.md exists at project root with project description, quick start, 6 query mode overview, and links to docs/examples — readable by any LangChain developer
+  2. `uv run mkdocs build --strict` exits 0 — MkDocs + Material site builds successfully from docs/ Markdown sources
+  3. All 28+ public API symbols are documented in docs/api-reference/ with auto-generated signatures and usage examples from source docstrings
+  4. `examples/` directory contains 4 runnable Python scripts (naive, local, global, hybrid) and a comprehensive Jupyter notebook (walkthrough.ipynb) covering all 6 query modes
+  5. `.github/workflows/deploy-mkdocs.yml` auto-deploys docs to GitHub Pages on every push to main
+
+**Plans**: 3 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 07-01-PLAN.md — Documentation infrastructure: dev deps (mkdocs-material, mkdocstrings, mkdocstrings-python), mkdocs.yml config, CI deployment workflow, docs/ directory scaffolding (D-01, D-02, D-06)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 07-02-PLAN.md — API Reference: 8 mkdocstrings pages covering all 28+ public symbols (chains, retrievers, factories, reranker, keywords, token budget, config) (D-03, D-04)
+- [ ] 07-03-PLAN.md — README.md (bilingual), user-facing docs (index, quick-start, examples), complete examples/ directory (4 scripts + walkthrough.ipynb + setup README) (D-05)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -188,13 +213,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
 | 5. Retriever Interfaces | 3/3 | Complete    | 2026-05-30 |
 | 6. QA Chain | 3/3 | Complete   | 2026-05-31 |
-
-### Phase 7: samples和docs文档+README.md
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 6
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd-plan-phase 7 to break down)
+| 7. Samples & Docs + README | 0/3 | Planned   | -- |
