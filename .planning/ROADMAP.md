@@ -198,7 +198,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 07-02-PLAN.md — API Reference: 8 mkdocstrings pages covering all 28+ public symbols (chains, retrievers, factories, reranker, keywords, token budget, config) (D-03, D-04)
-- [ ] 07-03-PLAN.md — README.md (bilingual), user-facing docs (index, quick-start, examples), complete examples/ directory (4 scripts + walkthrough.ipynb + setup README) (D-05)
+- [x] 07-03-PLAN.md — README.md (bilingual), user-facing docs (index, quick-start, examples), complete examples/ directory (4 scripts + walkthrough.ipynb + setup README) (D-05)
 
 ## Progress
 
@@ -213,4 +213,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
 | 5. Retriever Interfaces | 3/3 | Complete    | 2026-05-30 |
 | 6. QA Chain | 3/3 | Complete   | 2026-05-31 |
-| 7. Samples & Docs + README | 2/3 | In Progress|  |
+| 7. Samples & Docs + README | 3/3 | Complete   | 2026-05-31 |
