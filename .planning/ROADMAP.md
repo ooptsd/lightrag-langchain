@@ -10,7 +10,7 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
 - [x] **Phase 2: Data Layer** - Read-only PostgreSQL access layer for LightRAG's PGVector and Apache AGE graph stores (completed 2026-05-30)
 - [x] **Phase 3: LLM Integration** (Planned) - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control (completed 2026-05-30)
 - [x] **Phase 4: Query Strategies** - All 6 LightRAG query modes: naive, local, global, hybrid, mix, bypass (completed 2026-05-30)
-- [ ] **Phase 5: Retriever Interfaces** - Langchain BaseRetriever subclasses wrapping each query mode with sync/async support
+- [x] **Phase 5: Retriever Interfaces** - Langchain BaseRetriever subclasses wrapping each query mode with sync/async support (completed 2026-05-30)
 - [ ] **Phase 6: QA Chain** - Full LCEL Chain: query to retrieval to context assembly to LLM generation
 
 ## Phase Details
@@ -160,7 +160,20 @@ Plans:
   4. Pre-provided `hl_keywords` and `ll_keywords` in QueryParam bypass the LLM keyword extraction step, proceeding directly to retrieval with the given keywords
   5. Generated answers include traceable source citations referencing the original document file_path, source_id, or entity/relation identifiers from retrieved context
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 06-01-PLAN.md — Chain foundation: upstream prompt templates, Document-to-dict conversion utilities, conftest.py test fixtures
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 06-02-PLAN.md — Core implementation: LightRAGBaseChain with full pipeline, 6 mode-specific subclasses (NaiveChain through BypassChain), lazy export wiring
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 06-03-PLAN.md — Test suite: core pipeline integration tests, CHAIN-03 keyword resolution tests, subclass dispatch tests, astream contract verification (D-09/D-10)
 
 ## Progress
 
@@ -173,5 +186,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Data Layer | 4/4 | Complete   | 2026-05-30 |
 | 3. LLM Integration | 5/5 | Complete   | 2026-05-30 |
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
-| 5. Retriever Interfaces | 0/3 | Planned | - |
-| 6. QA Chain | 0/0 | Not started | - |
+| 5. Retriever Interfaces | 3/3 | Complete    | 2026-05-30 |
+| 6. QA Chain | 0/3 | Planned | - |
