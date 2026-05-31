@@ -7,6 +7,10 @@ so that ``import lightrag_langchain`` does NOT trigger:
 - Any tiktoken imports
 - Any httpx imports
 
+Phase 5 retriever classes (NaiveRetriever, LocalRetriever, GlobalRetriever,
+HybridRetriever, MixRetriever, BypassRetriever) are also exposed via lazy
+``__getattr__``.
+
 Data-layer models (EntityRecord, RelationshipRecord, ChunkRecord, GraphNode,
 GraphEdge, PGVectorStore, PGGraphStore) remain accessible via
 ``from lightrag_langchain.data import ...`` and are NOT re-exported here.
@@ -64,5 +68,31 @@ def __getattr__(name: str):
         from lightrag_langchain.token_budget import compute_chunk_token_budget
 
         return compute_chunk_token_budget
+
+    # -- Retrievers (retriever/retrievers.py) ----------------------------------
+    if name == "NaiveRetriever":
+        from lightrag_langchain.retriever.retrievers import NaiveRetriever
+
+        return NaiveRetriever
+    if name == "LocalRetriever":
+        from lightrag_langchain.retriever.retrievers import LocalRetriever
+
+        return LocalRetriever
+    if name == "GlobalRetriever":
+        from lightrag_langchain.retriever.retrievers import GlobalRetriever
+
+        return GlobalRetriever
+    if name == "HybridRetriever":
+        from lightrag_langchain.retriever.retrievers import HybridRetriever
+
+        return HybridRetriever
+    if name == "MixRetriever":
+        from lightrag_langchain.retriever.retrievers import MixRetriever
+
+        return MixRetriever
+    if name == "BypassRetriever":
+        from lightrag_langchain.retriever.retrievers import BypassRetriever
+
+        return BypassRetriever
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
