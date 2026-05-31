@@ -11,6 +11,9 @@ Phase 5 retriever classes (NaiveRetriever, LocalRetriever, GlobalRetriever,
 HybridRetriever, MixRetriever, BypassRetriever) are also exposed via lazy
 ``__getattr__``.
 
+Phase 6 chain classes (NaiveChain, LocalChain, GlobalChain, HybridChain,
+MixChain, BypassChain) are also exposed via lazy ``__getattr__``.
+
 Data-layer models (EntityRecord, RelationshipRecord, ChunkRecord, GraphNode,
 GraphEdge, PGVectorStore, PGGraphStore) remain accessible via
 ``from lightrag_langchain.data import ...`` and are NOT re-exported here.
@@ -94,5 +97,31 @@ def __getattr__(name: str):
         from lightrag_langchain.retriever.retrievers import BypassRetriever
 
         return BypassRetriever
+
+    # -- Chains (chain/chains.py) ----------------------------------------------
+    if name == "NaiveChain":
+        from lightrag_langchain.chain.chains import NaiveChain
+
+        return NaiveChain
+    if name == "LocalChain":
+        from lightrag_langchain.chain.chains import LocalChain
+
+        return LocalChain
+    if name == "GlobalChain":
+        from lightrag_langchain.chain.chains import GlobalChain
+
+        return GlobalChain
+    if name == "HybridChain":
+        from lightrag_langchain.chain.chains import HybridChain
+
+        return HybridChain
+    if name == "MixChain":
+        from lightrag_langchain.chain.chains import MixChain
+
+        return MixChain
+    if name == "BypassChain":
+        from lightrag_langchain.chain.chains import BypassChain
+
+        return BypassChain
 
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
