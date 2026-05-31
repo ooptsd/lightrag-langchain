@@ -19,9 +19,9 @@
 - [x] 关键词提取（Phase 3: LLM Integration, LLM-04） — KeywordsSchema + extract_keywords() + upstream prompt templates
 - [x] Token 预算控制（Phase 3: LLM Integration, LLM-05） — truncate_entities/relations + chunk budget via tiktoken
 - [x] 实现 6 种查询模式各自的检索策略（Phase 4: Query Strategies） — 6 async strategy functions + GraphTriple + QueryResult, 168 tests pass
+- [x] 实现 Langchain BaseRetriever 接口（Phase 5: Retriever Interfaces） — 6 BaseRetriever subclasses + sync/async + Document with JSON metadata, 26 new tests, 194 total
 
 ### Active
-- [ ] 实现 Langchain BaseRetriever 接口，每种模式对应一个 Retriever
 - [ ] 实现完整的 Langchain Chain，端到端：查询 → 检索 → 上下文拼装 → LLM生成
 - [ ] 引用来源返回
 
@@ -68,7 +68,7 @@
 |----------|-----------|---------|
 | 直接读 PostgreSQL，不依赖 LightRAG 运行时 | 用户要求脱离 LightRAG 部署 | ✓ Validated (Phase 2) |
 | 全部 6 种查询模式各自实现检索策略 | 用户要求"全部的召回策略" | — Pending (Phase 4) |
-| Langchain Retriever + Chain 双层接口 | 既提供可组合的 Retriever 也提供端到端 Chain | — Pending (Phase 5/6) |
+| Langchain Retriever + Chain 双层接口 | 既提供可组合的 Retriever 也提供端到端 Chain | ✓ Validated (Phase 5), Chain pending (Phase 6) |
 | .env 全配置 | 用户要求，灵活切换 provider | ✓ Validated (Phase 1) |
 | 保留 Rerank 能力 | 提升检索质量，用户要求保留 | ✓ Validated (Phase 3: Reranker Protocol + 3 backends) |
 | Python >= 3.12 | 用户指定 | ✓ Adopted |
@@ -92,4 +92,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-30 after Phase 3 (LLM Integration) completion*
+*Last updated: 2026-05-31 after Phase 5 (Retriever Interfaces) completion*
