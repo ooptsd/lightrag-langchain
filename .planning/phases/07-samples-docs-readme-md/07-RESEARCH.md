@@ -583,7 +583,7 @@ Source: [CITED: squidfunk.github.io/mkdocs-material/publishing-your-site/#with-g
 | A4 | Repository owner is willing to configure Pages settings manually after first deploy | Deployment | If not, docs won't be served. This is a one-time manual step per GitHub, unavoidable. |
 | A5 | The project's `src/` layout means `paths: [src]` is the correct mkdocstrings config | mkdocs.yml | If the project switched to flat layout, paths would need to be `[.]`. Verified: pyproject.toml uses `packages = ["src/lightrag_langchain"]`. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the README.md content be duplicated in docs/index.md (as MkDocs home page)?**
    - What we know: D-02 says "index (README content)". Material for MkDocs recommends docs/index.md as the landing page. GitHub renders README.md separately.
