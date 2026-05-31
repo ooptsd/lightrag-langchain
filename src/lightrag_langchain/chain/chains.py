@@ -212,6 +212,7 @@ class BypassChain(LightRAGBaseChain):
                 yield token
 
         final_dict["answer"] = "".join(full_answer)
+        self._last_result = final_dict  # CR-02: survive early consumer exit
         yield final_dict
 
 

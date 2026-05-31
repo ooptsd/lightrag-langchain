@@ -261,6 +261,7 @@ class LightRAGBaseChain(BaseModel):
 
         # Final structured dict (D-09: yield dict as last chunk)
         final_dict["answer"] = "".join(full_answer)
+        self._last_result = final_dict  # CR-02: survive early consumer exit
         yield final_dict
 
     # =====================================================================
