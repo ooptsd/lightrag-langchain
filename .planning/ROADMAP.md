@@ -11,7 +11,7 @@ A Langchain-based read-only query layer for LightRAG's pre-processed PostgreSQL 
 - [x] **Phase 3: LLM Integration** (Planned) - ChatOpenAI, OpenAIEmbeddings, multi-reranker, keyword extraction, and token budget control (completed 2026-05-30)
 - [x] **Phase 4: Query Strategies** - All 6 LightRAG query modes: naive, local, global, hybrid, mix, bypass (completed 2026-05-30)
 - [x] **Phase 5: Retriever Interfaces** - Langchain BaseRetriever subclasses wrapping each query mode with sync/async support (completed 2026-05-30)
-- [ ] **Phase 6: QA Chain** - Full LCEL Chain: query to retrieval to context assembly to LLM generation
+- [x] **Phase 6: QA Chain** - Full LCEL Chain: query to retrieval to context assembly to LLM generation (completed 2026-05-31)
 
 ## Phase Details
 
@@ -173,7 +173,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 06-03-PLAN.md — Test suite: core pipeline integration tests, CHAIN-03 keyword resolution tests, subclass dispatch tests, astream contract verification (D-09/D-10)
+- [x] 06-03-PLAN.md — Test suite: core pipeline integration tests, CHAIN-03 keyword resolution tests, subclass dispatch tests, astream contract verification (D-09/D-10)
 
 ## Progress
 
@@ -187,4 +187,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. LLM Integration | 5/5 | Complete   | 2026-05-30 |
 | 4. Query Strategies | 3/3 | Complete    | 2026-05-30 |
 | 5. Retriever Interfaces | 3/3 | Complete    | 2026-05-30 |
-| 6. QA Chain | 2/3 | In Progress|  |
+| 6. QA Chain | 3/3 | Complete   | 2026-05-31 |
