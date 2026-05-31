@@ -356,7 +356,8 @@ class LightRAGBaseChain(BaseModel):
             compute_chunk_token_budget,
         )
 
-        enc = _get_tokenizer("gpt-4o-mini")
+        _model_name = getattr(self.llm, "model_name", None) or "gpt-4o-mini"
+        enc = _get_tokenizer(_model_name)
 
         # Step a: Truncate entities using json.dumps (consistent with context assembly)
         _max_entity = settings.query_params.max_entity_tokens
