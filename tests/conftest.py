@@ -150,3 +150,41 @@ def mock_httpx_client():
     client = AsyncMock()
     client.post = AsyncMock()
     return client
+
+
+# Phase 5: Retriever test fixtures
+
+
+@pytest.fixture
+def mock_vector_store():
+    """Return an AsyncMock wrapping PGVectorStore for retriever unit tests.
+
+    Three search methods return empty lists by default; individual tests
+    override return_value to provide test data.
+    """
+    from unittest.mock import AsyncMock
+
+    store = AsyncMock()
+    store.search_entities = AsyncMock(return_value=[])
+    store.search_relationships = AsyncMock(return_value=[])
+    store.search_chunks = AsyncMock(return_value=[])
+    return store
+
+
+@pytest.fixture
+def mock_graph_store():
+    """Return an AsyncMock wrapping PGGraphStore for retriever unit tests.
+
+    get_nodes_batch returns dict[str, GraphNode]; get_edges_batch returns
+    dict[tuple[str,str], GraphEdge]; get_node_edges returns list[tuple[str,str]].
+    All default to empty; tests override as needed.
+    """
+    from unittest.mock import AsyncMock
+
+    store = AsyncMock()
+    store.get_node = AsyncMock(return_value=None)
+    store.get_nodes_batch = AsyncMock(return_value={})
+    store.get_edge = AsyncMock(return_value=None)
+    store.get_edges_batch = AsyncMock(return_value={})
+    store.get_node_edges = AsyncMock(return_value=[])
+    return store
