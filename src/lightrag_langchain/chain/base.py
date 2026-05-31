@@ -335,22 +335,39 @@ class LightRAGBaseChain(BaseModel):
         from lightrag_langchain.token_budget import (
             _get_tokenizer,
             compute_chunk_token_budget,
-            truncate_entities_by_tokens,
-            truncate_relations_by_tokens,
         )
 
-        # Step a: Truncate entities
-        entities = truncate_entities_by_tokens(
-            entities, settings.query_params.max_entity_tokens
-        )
+        enc = _get_tokenizer("gpt-4o-mini")
 
-        # Step b: Truncate relations
-        relations = truncate_relations_by_tokens(
-            relations, settings.query_params.max_relation_tokens
-        )
+        # Step a: Truncate entities using json.dumps (consistent with context assembly)
+        _max_entity = settings.query_params.max_entity_tokens
+        if _max_entity <= 0:
+            entities = []
+        else:
+            _entity_cumulative = 0
+            for _i, _e in enumerate(entities):
+                _entity_cumulative += len(
+                    enc.encode(json.dumps(_e, ensure_ascii=False) + "\n")
+                )
+                if _entity_cumulative > _max_entity:
+                    entities = entities[:_i]
+                    break
+
+        # Step b: Truncate relations using json.dumps (consistent with context assembly)
+        _max_relation = settings.query_params.max_relation_tokens
+        if _max_relation <= 0:
+            relations = []
+        else:
+            _relation_cumulative = 0
+            for _i, _r in enumerate(relations):
+                _relation_cumulative += len(
+                    enc.encode(json.dumps(_r, ensure_ascii=False) + "\n")
+                )
+                if _relation_cumulative > _max_relation:
+                    relations = relations[:_i]
+                    break
 
         # Step c: Count tokens used by truncated entities and relations
-        enc = _get_tokenizer("gpt-4o-mini")
         entity_tokens_used = len(
             enc.encode(
                 "\n".join(json.dumps(e, ensure_ascii=False) for e in entities)
