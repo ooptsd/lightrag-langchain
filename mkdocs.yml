@@ -1,6 +1,6 @@
 site_name: lightrag-langchain
 site_description: LangChain-based read-only query layer for LightRAG knowledge graphs
-repo_url: https://github.com/USER/lightrag-langchain
+repo_url: https://github.com/ooptsd/lightrag-langchain
 repo_name: lightrag-langchain
 
 theme:
