@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-05-29)
 Phase: 07
 Plan: Not started
 Status: Milestone complete
-Last activity: 2026-06-01 - Completed quick task 260601-dic: 添加mix和bypass查询示例，补全examples目录覆盖全部6种查询模式
+Last activity: 2026-06-01 - Completed quick task 260601-i4y: 在samples中增加*_retriever.py，为六种检索增加示例，只检索不生成LLM结果
 
 Progress: [██████████] 100%
 
@@ -120,6 +120,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260601-dic | 添加mix和bypass查询示例，补全examples目录覆盖全部6种查询模式 | 2026-06-01 | 5f454e3 | [260601-dic-mix-bypass-examples-6](./quick/260601-dic-mix-bypass-examples-6/) |
+| 260601-i4y | 在samples中增加*_retriever.py，为六种检索增加示例，只检索不生成LLM结果，供在LCEL中调用 | 2026-06-01 | 4de91a1 | [260601-i4y-samples-retriever-py-llm-lcel](./quick/260601-i4y-samples-retriever-py-llm-lcel/) |
 
 ## Deferred Items
 
