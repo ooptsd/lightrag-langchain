@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-05-29)
 Phase: 07
 Plan: Not started
 Status: Milestone complete
-Last activity: 2026-05-31
+Last activity: 2026-06-01 - Completed quick task 260601-dic: 添加mix和bypass查询示例，补全examples目录覆盖全部6种查询模式
 
 Progress: [██████████] 100%
 
@@ -105,6 +105,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Usage examples placed in individual docstrings rather than module-level docstrings so mkdocstrings renders them per-symbol
 - [Phase ?]: README language: Chinese primary + English technical terms (Claude's Discretion)
 - [Phase ?]: Bypass mode in walkthrough.ipynb only, no standalone bypass_query.py script
+- [Quick 260601-dic]: Added mix_query.py and bypass_query.py standalone scripts — all 6 query modes now covered in examples/
 
 ### Pending Todos
 
@@ -113,6 +114,12 @@ None yet.
 ### Blockers/Concerns
 
 None yet.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260601-dic | 添加mix和bypass查询示例，补全examples目录覆盖全部6种查询模式 | 2026-06-01 | 5f454e3 | [260601-dic-mix-bypass-examples-6](./quick/260601-dic-mix-bypass-examples-6/) |
 
 ## Deferred Items
 
