@@ -36,12 +36,24 @@
 
 ### Active
 
+- [ ] **CI-01**: 创建 GitHub repo 并 push 代码
+- [ ] **CI-02**: GitHub Actions tag push → 自动构建 wheel + sdist → 发布到 PyPI
+
 ### Out of Scope
 
 - 文档处理/插入 — LightRAG 负责，本项目只读
 - 知识图谱构建/增量更新 — LightRAG 负责
 - LightRAG 服务器部署 / Web UI — 本项目是库，不是服务
 - OAuth / 用户认证 — 无关
+- PR test/lint CI — 本次只做 tag→build→publish，不做 PR gate
+
+## Current Milestone: v2.0 CI集成
+
+**Goal:** 项目可通过 tag push 自动构建并发布到 PyPI
+
+**Target features:**
+- GitHub repo 创建并推送代码
+- GitHub Actions workflow: tag push → build wheel + sdist → PyPI publish
 
 ## Context
 
@@ -86,5 +98,5 @@
 待定。运行 `/gsd-new-milestone` 开始需求收集和研究。
 
 ---
-*Last updated: 2026-06-01 after v1.0 milestone shipped*
+*Last updated: 2026-06-01 — milestone v2.0 CI集成 started*
 

@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: lightrag-langchain initial release
-status: milestone_archived
-stopped_at: Milestone archived — v1.0 shipped with 7 phases, 23 plans, 222 tests
-last_updated: 2026-06-01T07:22:00.000Z
+milestone: v2.0
+milestone_name: CI集成
+status: planning
+last_updated: "2026-06-01T07:34:37.700Z"
 last_activity: 2026-06-01
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 23
-  completed_plans: 23
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,16 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-01)
 
 **Core value:** 用户可以通过 Langchain 标准 API，从 LightRAG 已构建的知识图谱数据库中执行六种查询模式的检索和问答，无需启动 LightRAG 服务。
-**Current focus:** Planning next milestone — run `/gsd-new-milestone`
+**Current focus:** v2.0 CI集成 — GitHub Actions tag→build→PyPI publish
 
 ## Current Position
 
-Phase: 07
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-06-01 - Completed quick task 260601-i4y: 在samples中增加*_retriever.py，为六种检索增加示例，只检索不生成LLM结果
-
-Progress: [██████████] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-06-01 — Milestone v2.0 started
 
 ## Performance Metrics
 
