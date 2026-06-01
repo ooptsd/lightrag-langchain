@@ -109,11 +109,16 @@ print(result["answer"])
   部署后访问 `https://<user>.github.io/lightrag-langchain/`。
 
 - **示例代码**：[`examples/`](examples/) 目录包含全套可运行脚本，覆盖所有六种查询模式：
-  - `naive_query.py` — Naive 模式（纯向量搜索）
-  - `local_query.py` — Local 模式（实体中心图扩展）
-  - `global_query.py` — Global 模式（关系中心图扩展）
-  - `hybrid_query.py` — Hybrid 模式（并行 local + global）
-  - `walkthrough.ipynb` — 完整 Jupyter Notebook，演示所有六种查询模式
+  - **Chain 示例**（完整管线：检索 + LLM 生成）：
+    - `naive_query.py` — Naive 模式（纯向量搜索）
+    - `local_query.py` — Local 模式（实体中心图扩展）
+    - `global_query.py` — Global 模式（关系中心图扩展）
+    - `hybrid_query.py` — Hybrid 模式（并行 local + global）
+    - `mix_query.py` — Mix 模式（hybrid + chunk 搜索）
+    - `bypass_query.py` — Bypass 模式（跳过检索，直接 LLM）
+  - **Retriever 示例**（仅检索，供 LCEL 调用）：
+    - `naive_retriever.py` / `local_retriever.py` / `global_retriever.py`
+    - `hybrid_retriever.py` / `mix_retriever.py` / `bypass_retriever.py`
 
   更多细节请参考 [`examples/README.md`](examples/README.md)。
 
