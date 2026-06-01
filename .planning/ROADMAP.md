@@ -38,7 +38,11 @@
   2. Pushing a `v*` tag (e.g., `v2.0.0`) triggers a GitHub Actions workflow that builds wheel + sdist and publishes to PyPI without manual intervention
   3. The published package is installable via `pip install lightrag-langchain` and matches the tagged version with all imports working
   4. Pushing to the main branch automatically deploys the MkDocs documentation site to GitHub Pages at a publicly accessible URL
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Create tag-to-PyPI publish workflow (CI-02)
+- [ ] 08-02-PLAN.md — GitHub repo setup, push, and pipeline verification (CI-01, CI-03)
 
 ## Progress
 
@@ -51,4 +55,4 @@
 | 5. Retriever Interfaces | v1.0 | 3/3 | Complete | 2026-05-30 |
 | 6. QA Chain | v1.0 | 3/3 | Complete | 2026-05-31 |
 | 7. Samples & Docs + README | v1.0 | 3/3 | Complete | 2026-05-31 |
-| 8. CI/CD Pipeline | v2.0 | 0/0 | Not started | - |
+| 8. CI/CD Pipeline | v2.0 | 0/2 | Not started | - |
