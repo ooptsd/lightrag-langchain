@@ -4,24 +4,35 @@
 
 基于 Langchain 框架的 LightRAG 查询层，直接读取 LightRAG 已处理好的 PostgreSQL 知识图谱数据库，复刻全部六种查询模式（naive / local / global / hybrid / mix / bypass），提供标准 Langchain Retriever + Chain 接口。脱离 LightRAG 运行时独立运行，只做查询不做数据写入。
 
+已发布 v1.0，包含 7 个阶段 23 个计划，12,749 行 Python 代码，222 个测试全部通过。
+
 ## Core Value
 
 用户可以通过 Langchain 标准 API，从 LightRAG 已构建的知识图谱数据库中执行六种查询模式的检索和问答，无需启动 LightRAG 服务。
 
+## Current State
+
+- **Version:** v1.0 (shipped 2026-06-01)
+- **Codebase:** 12,749 Python LOC, 222 tests passing
+- **Tech Stack:** Python 3.12, LangChain 1.2.3+, PostgreSQL (pgvector + Apache AGE), DeepSeek v4-pro, 阿里云 text-embedding-v4, 阿里云 gte-rerank-v2
+- **Documentation:** MkDocs + Material at GitHub Pages, README.md (bilingual), examples/ (6 scripts + walkthrough.ipynb)
+
 ## Requirements
 
-### Validated
+### Validated (v1.0)
 
-- [x] .env 全配置（Phase 1: Configuration） — Pydantic Settings + SecretStr + 5 个子模型
-- [x] 直接读取 PostgreSQL 中的 LightRAG 数据（Phase 2: Data Layer） — PGVectorStore + PGGraphStore + asyncpg pool
-- [x] LLM/Embedding 工厂 + provider-agnostic（Phase 3: LLM Integration, LLM-01/LLM-02） — create_llm()/create_embedding() lazy proxies
-- [x] 保留 Rerank 重排序能力（Phase 3: LLM Integration, LLM-03） — Reranker Protocol + 3 种后端（aliyun/cohere/jina）+ LightRAGReranker
-- [x] 关键词提取（Phase 3: LLM Integration, LLM-04） — KeywordsSchema + extract_keywords() + upstream prompt templates
-- [x] Token 预算控制（Phase 3: LLM Integration, LLM-05） — truncate_entities/relations + chunk budget via tiktoken
-- [x] 实现 6 种查询模式各自的检索策略（Phase 4: Query Strategies） — 6 async strategy functions + GraphTriple + QueryResult, 168 tests pass
-- [x] 实现 Langchain BaseRetriever 接口（Phase 5: Retriever Interfaces） — 6 BaseRetriever subclasses + sync/async + Document with JSON metadata, 26 new tests, 194 total
-- [x] 实现完整的 Langchain Chain 端到端管道（Phase 6: QA Chain） — LightRAGBaseChain 9-step pipeline + 6 mode-specific subclasses + lazy exports, 28 new tests, 211 total
-- [x] 引用来源返回（Phase 6: QA Chain, D-11/D-12） — file_path dedup + sequential integer reference_ids + [N] footnote format
+- [x] .env 全配置（Phase 1） — Pydantic Settings + SecretStr + 5 个子模型
+- [x] 直接读取 PostgreSQL 中的 LightRAG 数据（Phase 2） — PGVectorStore + PGGraphStore + asyncpg pool
+- [x] LLM/Embedding 工厂 + provider-agnostic（Phase 3） — create_llm()/create_embedding() lazy proxies
+- [x] 保留 Rerank 重排序能力（Phase 3） — Reranker Protocol + 3 种后端（aliyun/cohere/jina）+ LightRAGReranker
+- [x] 关键词提取（Phase 3） — KeywordsSchema + extract_keywords() + upstream prompt templates
+- [x] Token 预算控制（Phase 3） — truncate_entities/relations + chunk budget via tiktoken
+- [x] 实现 6 种查询模式各自的检索策略（Phase 4） — 6 async strategy functions, 168 tests pass
+- [x] 实现 Langchain BaseRetriever 接口（Phase 5） — 6 BaseRetriever subclasses + sync/async + Document with JSON metadata, 194 tests
+- [x] 实现完整的 Langchain Chain 端到端管道（Phase 6） — LightRAGBaseChain 9-step pipeline + 6 mode-specific subclasses, 211 tests
+- [x] 引用来源返回（Phase 6） — file_path dedup + sequential integer reference_ids + [N] footnote format
+- [x] MkDocs + Material 文档站点（Phase 7） — API Reference 28+ symbols, GitHub Pages CI 部署
+- [x] README.md + examples/ 目录（Phase 7） — bilingual README, 6 scripts + walkthrough.ipynb
 
 ### Active
 
@@ -39,17 +50,9 @@
   - Graph Storage: PGGraphStorage（Apache AGE 扩展，entity 节点 + relation 边）
   - Vector Storage: PGVectorStorage（pgvector 扩展，entities_vdb / relationships_vdb / chunks_vdb）
   - Doc Status: PGDocStatusStorage
-- **上游 LLM**: DeepSeek v4-pro（用于 LightRAG 的原始处理）
+- **上游 LLM**: DeepSeek v4-pro
 - **上游 Embedding**: 阿里云 text-embedding-v4（1024 维）
 - **上游 Rerank**: 阿里云 gte-rerank-v2
-- **当前工作目录**: 已有 LightRAG 源码在 `/Users/lizhouyang/llm/graphrag/LightRAG`，本项目是独立的查询层
-- **LightRAG 六种查询模式**:
-  1. **naive** — 纯向量相似度搜索 (chunks_vdb)，无图遍历
-  2. **local** — 实体聚焦：entities_vdb 向量搜索 → 图扩展获取关联边
-  3. **global** — 关系聚焦：relationships_vdb 向量搜索 → 图查找关联实体
-  4. **hybrid** — local + global 合并，round-robin 交错
-  5. **mix** — hybrid + chunks_vdb 向量搜索，最大覆盖
-  6. **bypass** — 无检索，直接 LLM 回答
 
 ## Constraints
 
@@ -67,29 +70,21 @@
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | 直接读 PostgreSQL，不依赖 LightRAG 运行时 | 用户要求脱离 LightRAG 部署 | ✓ Validated (Phase 2) |
-| 全部 6 种查询模式各自实现检索策略 | 用户要求"全部的召回策略" | ✓ Validated (Phase 4: 6 strategy functions) |
-| Langchain Retriever + Chain 双层接口 | 既提供可组合的 Retriever 也提供端到端 Chain | ✓ Validated (Phase 5: Retrievers, Phase 6: Chains) |
-| .env 全配置 | 用户要求，灵活切换 provider | ✓ Validated (Phase 1) |
-| 保留 Rerank 能力 | 提升检索质量，用户要求保留 | ✓ Validated (Phase 3: Reranker Protocol + 3 backends) |
-| Python >= 3.12 | 用户指定 | ✓ Adopted |
-| langchain >= 1.2.3 | 用户指定 | ✓ Adopted |
+| 全部 6 种查询模式各自实现检索策略 | 复刻 LightRAG 全部召回策略 | ✓ Validated (Phase 4) |
+| Langchain Retriever + Chain 双层接口 | 可组合 + 端到端两种使用方式 | ✓ Validated (Phase 5, 6) |
+| .env 全配置 + Pydantic Settings | 灵活切换 provider | ✓ Validated (Phase 1) |
+| 保留 Rerank 能力 + 多后端 | 提升检索质量 | ✓ Validated (Phase 3) |
+| Python >= 3.12, langchain >= 1.2.3 | 用户指定 | ✓ Adopted |
+| MkDocs + Material for MkDocs + GitHub Pages | 文档部署 | ✓ Validated (Phase 7) |
+| asyncpg connection pool + lazy init | 只读连接池 | ✓ Validated (Phase 2) |
+| 6 独立 Chain 子类 + LightRAGBaseChain | 每种模式独立实现 + 共享 pipeline | ✓ Validated (Phase 6) |
+| Reranker Protocol + 3 独立 Adapter | 每种后端独立类，避免 switch-case | ✓ Validated (Phase 3) |
+| method="function_calling" → "json_mode" | DeepSeek thinking mode 不支持 tool_choice | ✓ Validated (keywords.py fix) |
 
-## Evolution
+## Next Milestone Goals
 
-This document evolves at phase transitions and milestone boundaries.
-
-**After each phase transition** (via `/gsd-transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd-complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
+待定。运行 `/gsd-new-milestone` 开始需求收集和研究。
 
 ---
-*Last updated: 2026-05-31 after Phase 6 (QA Chain) completion — milestone v1.0 complete*
+*Last updated: 2026-06-01 after v1.0 milestone shipped*
+

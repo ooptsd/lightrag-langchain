@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-status: milestone_complete
-stopped_at: Milestone complete (Phase 07 was final phase)
-last_updated: 2026-05-31T15:37:39.350Z
-last_activity: 2026-05-31
+milestone_name: lightrag-langchain initial release
+status: milestone_archived
+stopped_at: Milestone archived — v1.0 shipped with 7 phases, 23 plans, 222 tests
+last_updated: 2026-06-01T07:22:00.000Z
+last_activity: 2026-06-01
 progress:
   total_phases: 7
   completed_phases: 7
@@ -18,10 +18,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-29)
+See: .planning/PROJECT.md (updated 2026-06-01)
 
 **Core value:** 用户可以通过 Langchain 标准 API，从 LightRAG 已构建的知识图谱数据库中执行六种查询模式的检索和问答，无需启动 LightRAG 服务。
-**Current focus:** Milestone complete
+**Current focus:** Planning next milestone — run `/gsd-new-milestone`
 
 ## Current Position
 
@@ -124,9 +124,16 @@ None yet.
 
 ## Deferred Items
 
-| Category | Item | Status | Deferred At |
-|----------|------|--------|-------------|
-| *(none)* | | | |
+Items acknowledged and deferred at milestone close on 2026-06-01:
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | lazy-llm-pydantic-attribute-error | diagnosed |
+| debug | thinking-mode-tool-choice | verifying |
+| uat_gap | Phase 05 — 05-HUMAN-UAT.md | partial (2 scenarios) |
+| verification_gap | Phase 05 — 05-VERIFICATION.md | human_needed |
+| quick_task | 260601-dic-mix-bypass-examples-6 | missing |
+| quick_task | 260601-i4y-samples-retriever-py-llm-lcel | missing |
 
 ## Session Continuity
 
