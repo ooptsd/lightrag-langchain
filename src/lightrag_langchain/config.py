@@ -47,7 +47,7 @@ class PgConfig(BaseModel):
     """PostgreSQL 连接和连接池设置。
 
     环境变量通过顶层 ``Settings`` 的字段名 ``pg`` 进行路由。
-    ``PG_HOST`` → ``pg.host``、``PG_PORT`` → ``pg.port`` 等。
+    ``LIGHTRAG_PG__HOST`` → ``pg.host``、``LIGHTRAG_PG__PORT`` → ``pg.port`` 等。
 
     连接池字段：
     - ``workspace``：多租户 LightRAG 数据库的隔离命名空间
@@ -235,6 +235,7 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_file=".env",
+        env_prefix="LIGHTRAG_",
         env_nested_delimiter="__",
         nested_model_default_partial_update=True,
         extra="forbid",

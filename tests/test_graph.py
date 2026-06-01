@@ -47,19 +47,19 @@ def _setup_env(monkeypatch):
     even though most graph tests inject a ``graph_name`` directly.
     """
     required_vars = {
-        "pg__host": "localhost",
-        "pg__port": "5432",
-        "pg__user": "test",
-        "pg__password": "secret",
-        "pg__database": "testdb",
-        "llm__binding": "openai",
-        "llm__binding_host": "https://api.openai.com/v1",
-        "llm__binding_api_key": "sk-test",
-        "llm__model": "gpt-4o-mini",
-        "embedding__binding": "openai",
-        "embedding__binding_host": "https://api.openai.com/v1",
-        "embedding__binding_api_key": "sk-emb",
-        "embedding__model": "text-embedding-3-small",
+        "lightrag_pg__host": "localhost",
+        "lightrag_pg__port": "5432",
+        "lightrag_pg__user": "test",
+        "lightrag_pg__password": "secret",
+        "lightrag_pg__database": "testdb",
+        "lightrag_llm__binding": "openai",
+        "lightrag_llm__binding_host": "https://api.openai.com/v1",
+        "lightrag_llm__binding_api_key": "sk-test",
+        "lightrag_llm__model": "gpt-4o-mini",
+        "lightrag_embedding__binding": "openai",
+        "lightrag_embedding__binding_host": "https://api.openai.com/v1",
+        "lightrag_embedding__binding_api_key": "sk-emb",
+        "lightrag_embedding__model": "text-embedding-3-small",
     }
     for k, v in required_vars.items():
         monkeypatch.setenv(k, v)
@@ -570,7 +570,7 @@ class TestGraphNameResolution:
     @pytest.mark.asyncio
     async def test_graph_name_default_workspace(self, monkeypatch):
         """Default workspace ``"default"`` resolves to ``"lightrag_graph"``."""
-        monkeypatch.setenv("pg__workspace", "default")
+        monkeypatch.setenv("lightrag_pg__workspace", "default")
         import lightrag_langchain.config as cfg
 
         cfg._settings = None
@@ -582,7 +582,7 @@ class TestGraphNameResolution:
     @pytest.mark.asyncio
     async def test_graph_name_custom_workspace(self, monkeypatch):
         """Custom workspace appends sanitized name to ``lightrag_graph``."""
-        monkeypatch.setenv("pg__workspace", "my_project")
+        monkeypatch.setenv("lightrag_pg__workspace", "my_project")
         import lightrag_langchain.config as cfg
 
         cfg._settings = None
@@ -596,7 +596,7 @@ class TestGraphNameResolution:
     @pytest.mark.asyncio
     async def test_graph_name_sanitizes_special_chars(self, monkeypatch):
         """Non-alphanumeric characters in workspace are replaced with ``_``."""
-        monkeypatch.setenv("pg__workspace", "my-project")
+        monkeypatch.setenv("lightrag_pg__workspace", "my-project")
         import lightrag_langchain.config as cfg
 
         cfg._settings = None

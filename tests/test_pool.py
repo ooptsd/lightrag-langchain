@@ -54,19 +54,19 @@ def _reset_module_state(monkeypatch):
     that ``init_pool()`` picks up the monkeypatched env values.
     """
     required_vars = {
-        "pg__host": "localhost",
-        "pg__port": "5432",
-        "pg__user": "test",
-        "pg__password": "secret",
-        "pg__database": "testdb",
-        "llm__binding": "openai",
-        "llm__binding_host": "https://api.openai.com/v1",
-        "llm__binding_api_key": "sk-test",
-        "llm__model": "gpt-4o-mini",
-        "embedding__binding": "openai",
-        "embedding__binding_host": "https://api.openai.com/v1",
-        "embedding__binding_api_key": "sk-emb",
-        "embedding__model": "text-embedding-3-small",
+        "lightrag_pg__host": "localhost",
+        "lightrag_pg__port": "5432",
+        "lightrag_pg__user": "test",
+        "lightrag_pg__password": "secret",
+        "lightrag_pg__database": "testdb",
+        "lightrag_llm__binding": "openai",
+        "lightrag_llm__binding_host": "https://api.openai.com/v1",
+        "lightrag_llm__binding_api_key": "sk-test",
+        "lightrag_llm__model": "gpt-4o-mini",
+        "lightrag_embedding__binding": "openai",
+        "lightrag_embedding__binding_host": "https://api.openai.com/v1",
+        "lightrag_embedding__binding_api_key": "sk-emb",
+        "lightrag_embedding__model": "text-embedding-3-small",
     }
     for k, v in required_vars.items():
         monkeypatch.setenv(k, v)

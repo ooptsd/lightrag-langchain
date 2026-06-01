@@ -43,31 +43,31 @@ pip install .
 
    ```ini
    # PostgreSQL 连接
-   PG_HOST=localhost
-   PG_PORT=5432
-   PG_USER=postgres
-   PG_PASSWORD=your_password
-   PG_DATABASE=lightrag
+   LIGHTRAG_PG__HOST=localhost
+   LIGHTRAG_PG__PORT=5432
+   LIGHTRAG_PG__USER=postgres
+   LIGHTRAG_PG__PASSWORD=your_password
+   LIGHTRAG_PG__DATABASE=lightrag
 
    # LLM（支持所有 OpenAI 兼容 API）
-   LLM_BINDING=openai
-   LLM_BINDING_HOST=https://api.openai.com/v1
-   LLM_BINDING_API_KEY=sk-your-api-key
-   LLM_MODEL=gpt-4o-mini
+   LIGHTRAG_LLM__BINDING=openai
+   LIGHTRAG_LLM__BINDING_HOST=https://api.openai.com/v1
+   LIGHTRAG_LLM__BINDING_API_KEY=sk-your-api-key
+   LIGHTRAG_LLM__MODEL=gpt-4o-mini
 
    # Embedding
-   EMBEDDING_BINDING=openai
-   EMBEDDING_BINDING_HOST=https://api.openai.com/v1
-   EMBEDDING_BINDING_API_KEY=sk-your-api-key
-   EMBEDDING_MODEL=text-embedding-3-small
-   EMBEDDING_DIM=1024
+   LIGHTRAG_EMBEDDING__BINDING=openai
+   LIGHTRAG_EMBEDDING__BINDING_HOST=https://api.openai.com/v1
+   LIGHTRAG_EMBEDDING__BINDING_API_KEY=sk-your-api-key
+   LIGHTRAG_EMBEDDING__MODEL=text-embedding-3-small
+   LIGHTRAG_EMBEDDING__DIM=1024
 
    # 查询参数（使用默认值）
-   TOP_K=40
-   CHUNK_TOP_K=20
-   MAX_ENTITY_TOKENS=6000
-   MAX_RELATION_TOKENS=8000
-   MAX_TOTAL_TOKENS=30000
+   LIGHTRAG_QUERY_PARAMS__TOP_K=40
+   LIGHTRAG_QUERY_PARAMS__CHUNK_TOP_K=20
+   LIGHTRAG_QUERY_PARAMS__MAX_ENTITY_TOKENS=6000
+   LIGHTRAG_QUERY_PARAMS__MAX_RELATION_TOKENS=8000
+   LIGHTRAG_QUERY_PARAMS__MAX_TOTAL_TOKENS=30000
    ```
 
    !!! warning "安全提醒"

@@ -314,19 +314,19 @@ class TestFrozenImmutability:
 
         env = temp_env_file(
             **{
-                "pg__host": "localhost",
-                "pg__port": "5432",
-                "pg__user": "test",
-                "pg__password": "secret",
-                "pg__database": "rag",
-                "llm__binding": "openai",
-                "llm__binding_host": "https://api.openai.com/v1",
-                "llm__binding_api_key": "sk-test",
-                "llm__model": "gpt-4o-mini",
-                "embedding__binding": "openai",
-                "embedding__binding_host": "https://api.openai.com/v1",
-                "embedding__binding_api_key": "sk-emb",
-                "embedding__model": "text-embedding-3-small",
+                "lightrag_pg__host": "localhost",
+                "lightrag_pg__port": "5432",
+                "lightrag_pg__user": "test",
+                "lightrag_pg__password": "secret",
+                "lightrag_pg__database": "rag",
+                "lightrag_llm__binding": "openai",
+                "lightrag_llm__binding_host": "https://api.openai.com/v1",
+                "lightrag_llm__binding_api_key": "sk-test",
+                "lightrag_llm__model": "gpt-4o-mini",
+                "lightrag_embedding__binding": "openai",
+                "lightrag_embedding__binding_host": "https://api.openai.com/v1",
+                "lightrag_embedding__binding_api_key": "sk-emb",
+                "lightrag_embedding__model": "text-embedding-3-small",
             }
         )
         s = Settings(_env_file=env)
@@ -383,19 +383,19 @@ class TestSettingsIntegration:
 
         env = temp_env_file(
             **{
-                "pg__host": "db.example.com",
-                "pg__port": "5432",
-                "pg__user": "admin",
-                "pg__password": "db-secret",
-                "pg__database": "lightrag",
-                "llm__binding": "openai",
-                "llm__binding_host": "https://api.openai.com/v1",
-                "llm__binding_api_key": "sk-test",
-                "llm__model": "gpt-4o-mini",
-                "embedding__binding": "openai",
-                "embedding__binding_host": "https://api.openai.com/v1",
-                "embedding__binding_api_key": "sk-emb",
-                "embedding__model": "text-embedding-3-small",
+                "lightrag_pg__host": "db.example.com",
+                "lightrag_pg__port": "5432",
+                "lightrag_pg__user": "admin",
+                "lightrag_pg__password": "db-secret",
+                "lightrag_pg__database": "lightrag",
+                "lightrag_llm__binding": "openai",
+                "lightrag_llm__binding_host": "https://api.openai.com/v1",
+                "lightrag_llm__binding_api_key": "sk-test",
+                "lightrag_llm__model": "gpt-4o-mini",
+                "lightrag_embedding__binding": "openai",
+                "lightrag_embedding__binding_host": "https://api.openai.com/v1",
+                "lightrag_embedding__binding_api_key": "sk-emb",
+                "lightrag_embedding__model": "text-embedding-3-small",
             }
         )
         s = Settings(_env_file=env)
@@ -411,19 +411,19 @@ class TestSettingsIntegration:
 
         env = temp_env_file(
             **{
-                "pg__host": "localhost",
-                "pg__port": "5432",
-                "pg__user": "test",
-                "pg__password": "secret",
-                "pg__database": "rag",
-                "llm__binding": "openai",
-                "llm__binding_host": "https://api.openai.com/v1",
-                "llm__binding_api_key": "sk-test",
-                "llm__model": "gpt-4o-mini",
-                "embedding__binding": "openai",
-                "embedding__binding_host": "https://api.openai.com/v1",
-                "embedding__binding_api_key": "sk-emb",
-                "embedding__model": "text-embedding-3-small",
+                "lightrag_pg__host": "localhost",
+                "lightrag_pg__port": "5432",
+                "lightrag_pg__user": "test",
+                "lightrag_pg__password": "secret",
+                "lightrag_pg__database": "rag",
+                "lightrag_llm__binding": "openai",
+                "lightrag_llm__binding_host": "https://api.openai.com/v1",
+                "lightrag_llm__binding_api_key": "sk-test",
+                "lightrag_llm__model": "gpt-4o-mini",
+                "lightrag_embedding__binding": "openai",
+                "lightrag_embedding__binding_host": "https://api.openai.com/v1",
+                "lightrag_embedding__binding_api_key": "sk-emb",
+                "lightrag_embedding__model": "text-embedding-3-small",
                 "UNKNOWN_KEY": "some-value",
             }
         )
@@ -436,19 +436,19 @@ class TestSettingsIntegration:
 
         env = temp_env_file(
             **{
-                "pg__host": "localhost",
-                "pg__port": "5432",
-                "pg__user": "test",
-                "pg__password": "secret",
-                "pg__database": "rag",
-                "llm__binding": "openai",
-                "llm__binding_host": "https://api.openai.com/v1",
-                "llm__binding_api_key": "sk-test",
-                "llm__model": "gpt-4o-mini",
-                "embedding__binding": "openai",
-                "embedding__binding_host": "https://api.openai.com/v1",
-                "embedding__binding_api_key": "sk-emb",
-                "embedding__model": "text-embedding-3-small",
+                "lightrag_pg__host": "localhost",
+                "lightrag_pg__port": "5432",
+                "lightrag_pg__user": "test",
+                "lightrag_pg__password": "secret",
+                "lightrag_pg__database": "rag",
+                "lightrag_llm__binding": "openai",
+                "lightrag_llm__binding_host": "https://api.openai.com/v1",
+                "lightrag_llm__binding_api_key": "sk-test",
+                "lightrag_llm__model": "gpt-4o-mini",
+                "lightrag_embedding__binding": "openai",
+                "lightrag_embedding__binding_host": "https://api.openai.com/v1",
+                "lightrag_embedding__binding_api_key": "sk-emb",
+                "lightrag_embedding__model": "text-embedding-3-small",
                 "TYPO_KEY": "oops",
             }
         )
@@ -461,9 +461,9 @@ class TestSettingsIntegration:
 
         env = temp_env_file(
             **{
-                "pg__host": "localhost",
-                "pg__user": "test",
-                # pg__password and pg__database intentionally omitted
+                "lightrag_pg__host": "localhost",
+                "lightrag_pg__user": "test",
+                # lightrag_pg__password and lightrag_pg__database intentionally omitted
             }
         )
         with pytest.raises(SettingsError):
@@ -475,9 +475,9 @@ class TestSettingsIntegration:
 
         env = temp_env_file(
             **{
-                "pg__host": "localhost",
-                "pg__user": "test",
-                # missing pg__password, pg__database
+                "lightrag_pg__host": "localhost",
+                "lightrag_pg__user": "test",
+                # missing lightrag_pg__password, lightrag_pg__database
             }
         )
         with pytest.raises(SettingsError, match=r"\[PostgreSQL\]"):
@@ -489,13 +489,13 @@ class TestSettingsIntegration:
 
         env = temp_env_file(
             **{
-                "pg__host": "localhost",
-                "pg__user": "test",
-                "pg__password": "secret",
-                # missing pg__database
-                "llm__binding": "openai",
-                "llm__binding_host": "https://api.openai.com/v1",
-                # missing llm__binding_api_key, llm__model
+                "lightrag_pg__host": "localhost",
+                "lightrag_pg__user": "test",
+                "lightrag_pg__password": "secret",
+                # missing lightrag_pg__database
+                "lightrag_llm__binding": "openai",
+                "lightrag_llm__binding_host": "https://api.openai.com/v1",
+                # missing lightrag_llm__binding_api_key, lightrag_llm__model
             }
         )
         with pytest.raises(SettingsError) as exc_info:
@@ -538,19 +538,19 @@ class TestModuleImport:
     def test_import_succeeds_with_env_vars(self, monkeypatch):
         """Module import succeeds when all required env vars are set (SC #1)."""
         required_vars = {
-            "pg__host": "localhost",
-            "pg__port": "5432",
-            "pg__user": "test",
-            "pg__password": "secret",
-            "pg__database": "rag",
-            "llm__binding": "openai",
-            "llm__binding_host": "https://api.openai.com/v1",
-            "llm__binding_api_key": "sk-test",
-            "llm__model": "gpt-4o-mini",
-            "embedding__binding": "openai",
-            "embedding__binding_host": "https://api.openai.com/v1",
-            "embedding__binding_api_key": "sk-emb",
-            "embedding__model": "text-embedding-3-small",
+            "lightrag_pg__host": "localhost",
+            "lightrag_pg__port": "5432",
+            "lightrag_pg__user": "test",
+            "lightrag_pg__password": "secret",
+            "lightrag_pg__database": "rag",
+            "lightrag_llm__binding": "openai",
+            "lightrag_llm__binding_host": "https://api.openai.com/v1",
+            "lightrag_llm__binding_api_key": "sk-test",
+            "lightrag_llm__model": "gpt-4o-mini",
+            "lightrag_embedding__binding": "openai",
+            "lightrag_embedding__binding_host": "https://api.openai.com/v1",
+            "lightrag_embedding__binding_api_key": "sk-emb",
+            "lightrag_embedding__model": "text-embedding-3-small",
         }
         for k, v in required_vars.items():
             monkeypatch.setenv(k, v)
@@ -563,19 +563,19 @@ class TestModuleImport:
     def test_import_and_types_visible(self, monkeypatch):
         """All public API names are importable from config when env vars are set."""
         required_vars = {
-            "pg__host": "localhost",
-            "pg__port": "5432",
-            "pg__user": "test",
-            "pg__password": "secret",
-            "pg__database": "rag",
-            "llm__binding": "openai",
-            "llm__binding_host": "https://api.openai.com/v1",
-            "llm__binding_api_key": "sk-test",
-            "llm__model": "gpt-4o-mini",
-            "embedding__binding": "openai",
-            "embedding__binding_host": "https://api.openai.com/v1",
-            "embedding__binding_api_key": "sk-emb",
-            "embedding__model": "text-embedding-3-small",
+            "lightrag_pg__host": "localhost",
+            "lightrag_pg__port": "5432",
+            "lightrag_pg__user": "test",
+            "lightrag_pg__password": "secret",
+            "lightrag_pg__database": "rag",
+            "lightrag_llm__binding": "openai",
+            "lightrag_llm__binding_host": "https://api.openai.com/v1",
+            "lightrag_llm__binding_api_key": "sk-test",
+            "lightrag_llm__model": "gpt-4o-mini",
+            "lightrag_embedding__binding": "openai",
+            "lightrag_embedding__binding_host": "https://api.openai.com/v1",
+            "lightrag_embedding__binding_api_key": "sk-emb",
+            "lightrag_embedding__model": "text-embedding-3-small",
         }
         for k, v in required_vars.items():
             monkeypatch.setenv(k, v)

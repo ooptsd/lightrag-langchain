@@ -14,7 +14,7 @@ def temp_env_file(tmp_path: Path):
     Usage in tests::
 
         def test_something(temp_env_file):
-            env_path = temp_env_file(PG_HOST="localhost", PG_PORT="5432")
+            env_path = temp_env_file(LIGHTRAG_PG__HOST="localhost", LIGHTRAG_PG__PORT="5432")
             # env_path points to tmp_path / ".env" with those variables
     """
 
