@@ -56,9 +56,11 @@ jupyter notebook examples/walkthrough.ipynb
 | `local_query.py` | Local | 实体中心图扩展 — `entities_vdb` 搜索 + AGE 图邻居扩展 |
 | `global_query.py` | Global | 关系中心图扩展 — `relationships_vdb` 搜索 + AGE 图实体查找 |
 | `hybrid_query.py` | Hybrid | 并行 local + global，round-robin 交错合并 |
+| `mix_query.py` | Mix | hybrid 检索 + chunks_vdb 向量搜索，融合图知识和原始文本块 |
+| `bypass_query.py` | Bypass | 跳过所有检索，直接调用 LLM |
 | `walkthrough.ipynb` | 全部 6 种 | 完整 Notebook，覆盖 Naive / Local / Global / Hybrid / Mix / Bypass |
 
-> **Bypass 模式** 跳过检索直接调用 LLM，无需独立脚本，其演示在 `walkthrough.ipynb` 中。
+> 全部 6 种查询模式均有独立 Python 脚本；`walkthrough.ipynb` 提供完整的交互式演示。
 
 ## 脚本结构
 
