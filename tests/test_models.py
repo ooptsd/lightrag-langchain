@@ -16,7 +16,7 @@ from pydantic import ValidationError
 
 
 class TestEntityRecord:
-    """EntityRecord tests — PGVector LIGHTRAG_VDB_ENTITY row mapping."""
+    """EntityRecord tests — PGVector lightrag_vdb_entity_* row mapping."""
 
     def test_instantiation_all_fields(self):
         """Instantiate EntityRecord with all fields populated."""
@@ -64,7 +64,7 @@ class TestEntityRecord:
 
 
 class TestRelationshipRecord:
-    """RelationshipRecord tests — PGVector LIGHTRAG_VDB_RELATION row mapping."""
+    """RelationshipRecord tests — PGVector lightrag_vdb_relation_* row mapping."""
 
     def test_instantiation_all_fields(self):
         """Instantiate RelationshipRecord with all fields populated."""
@@ -110,7 +110,7 @@ class TestRelationshipRecord:
 
 
 class TestChunkRecord:
-    """ChunkRecord tests — PGVector LIGHTRAG_VDB_CHUNKS row mapping."""
+    """ChunkRecord tests — PGVector lightrag_vdb_chunks_* row mapping."""
 
     def test_instantiation_all_fields(self):
         """Instantiate ChunkRecord with all fields populated."""

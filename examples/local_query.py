@@ -15,36 +15,23 @@ from pathlib import Path
 # Add project root to path for running from examples/
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from lightrag_langchain import LocalChain, LocalRetriever, create_llm, create_embedding
+from lightrag_langchain import LocalChain, LocalRetriever, create_llm
 from lightrag_langchain.config import settings
 from lightrag_langchain.data.graph import PGGraphStore
+from lightrag_langchain.data.pool import init_pool
 from lightrag_langchain.data.store import PGVectorStore
 
 
 async def main() -> None:
     """Run a Local mode query — entity-centric graph traversal."""
 
-    # (1) Create data-layer connections
-    vector_store = PGVectorStore(
-        embedding_dim=settings.embedding.dim,
-        host=settings.pg.host,
-        port=settings.pg.port,
-        user=settings.pg.user,
-        password=settings.pg.password.get_secret_value(),
-        database=settings.pg.database,
-    )
-    graph_store = PGGraphStore(
-        host=settings.pg.host,
-        port=settings.pg.port,
-        user=settings.pg.user,
-        password=settings.pg.password.get_secret_value(),
-        database=settings.pg.database,
-        workspace=settings.pg.workspace,
-    )
+    # (1) Initialize connection pool and data-layer connections
+    await init_pool()
+    vector_store = PGVectorStore()
+    graph_store = PGGraphStore()
 
-    # (2) Create LLM and embedding from settings
+    # (2) Create LLM from settings
     llm = create_llm(settings.llm)
-    embedding = create_embedding(settings.embedding)
 
     # (3) Build retriever — Local mode needs both vector_store and graph_store
     retriever = LocalRetriever(

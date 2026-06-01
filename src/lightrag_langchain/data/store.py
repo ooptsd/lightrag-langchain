@@ -1,7 +1,7 @@
 """PGVectorStore — read-only vector similarity search over LightRAG PGVector tables.
 
 Provides entity, relationship, and chunk vector search backed by the LightRAG
-``LIGHTRAG_VDB_ENTITY``, ``LIGHTRAG_VDB_RELATION``, and ``LIGHTRAG_VDB_CHUNKS``
+``lightrag_vdb_entity_*``, ``lightrag_vdb_relation_*``, and ``lightrag_vdb_chunks_*``
 tables.  Uses asyncpg connection pools from the data layer's pool module, with
 automatic table-name discovery via ``information_schema``.
 
@@ -48,14 +48,14 @@ class PGVectorStore:
         ``settings.pg.workspace`` when *None*.
     table_prefix:
         Prefix used to discover PGVector tables in ``information_schema``.
-        Defaults to ``"LIGHTRAG_VDB"``.
+        Defaults to ``"lightrag_vdb"``.
     """
 
     def __init__(
         self,
         pool: asyncpg.Pool | None = None,
         workspace: str | None = None,
-        table_prefix: str = "LIGHTRAG_VDB",
+        table_prefix: str = "lightrag_vdb",
     ) -> None:
         self._pool = pool
         self._workspace = (
@@ -99,7 +99,7 @@ class PGVectorStore:
         -------
         dict[str, str]
             Mapping of namespace name to full table name, e.g.
-            ``{"ENTITY": "LIGHTRAG_VDB_ENTITY", ...}``.
+            ``{"ENTITY": "lightrag_vdb_entity_text_embedding_v4_1024d", ...}``.
 
         Raises
         ------
@@ -116,7 +116,7 @@ class PGVectorStore:
             SELECT table_name
             FROM information_schema.tables
             WHERE table_schema = 'public'
-              AND table_name LIKE $1
+              AND table_name ILIKE $1
             ORDER BY table_name
         """
 
@@ -124,7 +124,7 @@ class PGVectorStore:
             rows = await conn.fetch(sql, pattern)
 
         # Build namespace → table_name categories from the system-catalog
-        # whitelist (T-02-03-STORE-01: only LIGHTRAG_VDB_* prefixed tables).
+        # whitelist (T-02-03-STORE-01: only lightrag_vdb_* prefixed tables).
         prefix = self._table_prefix
         namespaces: dict[str, list[str]] = {
             "ENTITY": [],
@@ -134,16 +134,22 @@ class PGVectorStore:
 
         for row in rows:
             name: str = row["table_name"]
-            # ENTITY: exact match or suffix variant
-            if name == f"{prefix}_ENTITY" or name.startswith(f"{prefix}_ENTITY_"):
+            # ENTITY: exact match or suffix variant (case-insensitive)
+            name_lower = name.lower()
+            prefix_lower = prefix.lower()
+            if name_lower == f"{prefix_lower}_entity" or name_lower.startswith(
+                f"{prefix_lower}_entity_"
+            ):
                 namespaces["ENTITY"].append(name)
-            # RELATION: exact match or suffix variant
-            elif name == f"{prefix}_RELATION" or name.startswith(
-                f"{prefix}_RELATION_"
+            # RELATION: exact match or suffix variant (case-insensitive)
+            elif name_lower == f"{prefix_lower}_relation" or name_lower.startswith(
+                f"{prefix_lower}_relation_"
             ):
                 namespaces["RELATION"].append(name)
-            # CHUNKS: exact match or suffix variant
-            elif name == f"{prefix}_CHUNKS" or name.startswith(f"{prefix}_CHUNKS_"):
+            # CHUNKS: exact match or suffix variant (case-insensitive)
+            elif name_lower == f"{prefix_lower}_chunks" or name_lower.startswith(
+                f"{prefix_lower}_chunks_"
+            ):
                 namespaces["CHUNKS"].append(name)
             # Non-matching tables are silently ignored — they belong to
             # other LightRAG subsystems (KV, doc status, etc.).
@@ -254,7 +260,7 @@ class PGVectorStore:
         """Vector similarity search on the LightRAG relationships vector table.
 
         ``keywords`` and ``weight`` are returned as ``None`` because the
-        ``LIGHTRAG_VDB_RELATION`` DDL does not contain those columns
+        ``lightrag_vdb_relation`` DDL does not contain those columns
         (RESEARCH.md A1).  Real values are available from AGE graph edges
         (Plan 02-04 PGGraphStore).
 

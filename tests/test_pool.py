@@ -47,8 +47,11 @@ def _reset_module_state(monkeypatch):
     singleton and pool singleton are cleared, and all required env vars are
     available via monkeypatch.
 
-    IMPORTANT: env vars must be set BEFORE importing pool, which triggers
-    Settings instantiation via ``from lightrag_langchain.config import settings``.
+    When a different test module (e.g. test_store) loads ``pool.py`` first in
+    the same pytest session, Python's module cache hands back the stale module
+    whose ``settings`` reference still points to the original Settings instance.
+    We must rebind ``pool.settings`` after clearing the config singleton so
+    that ``init_pool()`` picks up the monkeypatched env values.
     """
     required_vars = {
         "pg__host": "localhost",
@@ -76,6 +79,11 @@ def _reset_module_state(monkeypatch):
 
     # Now import pool (triggers fresh Settings creation with our env vars)
     import lightrag_langchain.data.pool as pool_module
+    # Rebind pool.settings in case the pool module was already cached from a
+    # previous test module — Python's import cache would return the stale
+    # module without re-executing its body, so its settings reference would
+    # still point to the original Settings instance.
+    pool_module.settings = config_module.__getattr__("settings")
     pool_module._pool = None
 
 

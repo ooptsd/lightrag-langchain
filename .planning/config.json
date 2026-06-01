@@ -32,7 +32,8 @@
     "ai_integration_phase": true,
     "tdd_mode": false,
     "ui_review": true,
-    "use_worktrees": false
+    "use_worktrees": false,
+    "_auto_chain_active": true
   },
   "ship": {
     "pr_body_sections": [
@@ -68,7 +69,6 @@
   "phase_naming": "sequential",
   "agent_skills": {},
   "features": {},
-  "branching_strategy": "none",
   "create_tag": false,
   "intel": {
     "enabled": true

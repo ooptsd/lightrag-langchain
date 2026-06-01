@@ -9,3 +9,13 @@ dist/
 .venv/
 venv/
 .DS_Store
+.mcp.json
+# AI Coding
+.agents/
+.claude/
+.pytest_cache/
+.qoder/
+.remember/
+.ruff_cache
+.trae/
+

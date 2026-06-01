@@ -73,6 +73,7 @@ class PgConfig(BaseModel):
     password: SecretStr
     database: str
     workspace: str = "default"
+    age_schema: str = "ag_catalog"
     pool_min_size: int = 2
     pool_max_size: int = 10
     pool_timeout: float = 30.0

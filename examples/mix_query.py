@@ -16,36 +16,23 @@ from pathlib import Path
 # Add project root to path for running from examples/
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from lightrag_langchain import MixChain, MixRetriever, create_llm, create_embedding
+from lightrag_langchain import MixChain, MixRetriever, create_llm
 from lightrag_langchain.config import settings
 from lightrag_langchain.data.graph import PGGraphStore
+from lightrag_langchain.data.pool import init_pool
 from lightrag_langchain.data.store import PGVectorStore
 
 
 async def main() -> None:
     """Run a Mix mode query — hybrid retrieval + chunk vector search."""
 
-    # (1) Create data-layer connections
-    vector_store = PGVectorStore(
-        embedding_dim=settings.embedding.dim,
-        host=settings.pg.host,
-        port=settings.pg.port,
-        user=settings.pg.user,
-        password=settings.pg.password.get_secret_value(),
-        database=settings.pg.database,
-    )
-    graph_store = PGGraphStore(
-        host=settings.pg.host,
-        port=settings.pg.port,
-        user=settings.pg.user,
-        password=settings.pg.password.get_secret_value(),
-        database=settings.pg.database,
-        workspace=settings.pg.workspace,
-    )
+    # (1) Initialize connection pool and data-layer connections
+    await init_pool()
+    vector_store = PGVectorStore()
+    graph_store = PGGraphStore()
 
-    # (2) Create LLM and embedding from settings
+    # (2) Create LLM from settings
     llm = create_llm(settings.llm)
-    embedding = create_embedding(settings.embedding)
 
     # (3) Build retriever — Mix mode needs both vector_store and graph_store
     retriever = MixRetriever(
@@ -58,7 +45,7 @@ async def main() -> None:
     chain = MixChain(retriever=retriever, llm=llm)
 
     # (5) Query
-    question = "洪水防汛应急响应的完整体系是什么？"
+    question = "广州市三防成员单位有哪些？"
     result = await chain.ainvoke(question)
 
     print(f"模式: {result['mode']}")

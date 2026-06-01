@@ -21,6 +21,34 @@ GraphEdge, PGVectorStore, PGGraphStore) remain accessible via
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lightrag_langchain.llm import create_embedding, create_llm
+    from lightrag_langchain.reranker import LightRAGReranker, create_reranker
+    from lightrag_langchain.keywords import KeywordsSchema, extract_keywords
+    from lightrag_langchain.token_budget import (
+        compute_chunk_token_budget,
+        truncate_entities_by_tokens,
+        truncate_relations_by_tokens,
+    )
+    from lightrag_langchain.retriever.retrievers import (
+        BypassRetriever,
+        GlobalRetriever,
+        HybridRetriever,
+        LocalRetriever,
+        MixRetriever,
+        NaiveRetriever,
+    )
+    from lightrag_langchain.chain.chains import (
+        BypassChain,
+        GlobalChain,
+        HybridChain,
+        LocalChain,
+        MixChain,
+        NaiveChain,
+    )
+
 
 def __getattr__(name: str):
     """Lazy import for all Phase 3 modules — defers import/construction until

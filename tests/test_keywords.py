@@ -107,7 +107,7 @@ def test_prompt_formatting() -> None:
 @pytest.mark.asyncio
 async def test_extract_keywords_calls_structured_output() -> None:
     """extract_keywords() must delegate to llm.with_structured_output() with
-    method="function_calling" and return a KeywordsSchema."""
+    method="json_mode" and return a KeywordsSchema."""
     expected = KeywordsSchema(
         high_level_keywords=["防汛"],
         low_level_keywords=["东莞市"],
@@ -135,7 +135,7 @@ async def test_extract_keywords_calls_structured_output() -> None:
     # Verify with_structured_output was called once with the right args.
     mock_llm.with_structured_output.assert_called_once_with(
         KeywordsSchema,
-        method="function_calling",
+        method="json_mode",
     )
 
     # Verify ainvoke was called on the structured LLM.

@@ -143,6 +143,9 @@ class PGGraphStore:
         - Otherwise → ``{sanitized_workspace}_lightrag_graph``, where
           sanitization replaces any non-alphanumeric/underscore character
           with ``"_"``.
+
+        If the resolved name does not exist in the database, auto-detects
+        from ``ag_catalog.ag_graph`` (preferring graphs with a ``base`` table).
         """
         if self._graph_name_resolved is not None:
             return self._graph_name_resolved
@@ -153,6 +156,35 @@ class PGGraphStore:
         else:
             sanitized = re.sub(r"[^a-zA-Z0-9_]", "_", ws)
             name = f"{sanitized}_lightrag_graph"
+
+        # Verify the resolved name exists; auto-detect if not.
+        # When pool is not yet initialised (e.g. in tests), skip DB verification
+        # and use the resolved name as-is.
+        try:
+            async for conn in acquire_with_retry(self.pool):
+                exists = await conn.fetchval(
+                    "SELECT EXISTS(SELECT 1 FROM ag_catalog.ag_graph WHERE name = $1)",
+                    name,
+                )
+                if not exists:
+                    # Auto-detect: find a graph that has a base table
+                    detected: str | None = await conn.fetchval(
+                        "SELECT g.name FROM ag_catalog.ag_graph g "
+                        "JOIN pg_tables t ON t.schemaname = g.name AND t.tablename = 'base' "
+                        "ORDER BY g.name LIMIT 1"
+                    )
+                    if detected is None:
+                        # Fallback: any graph
+                        detected = await conn.fetchval(
+                            "SELECT name FROM ag_catalog.ag_graph ORDER BY name LIMIT 1"
+                        )
+                    if detected is not None:
+                        name = detected
+                break
+        except RuntimeError:
+            # Pool not initialised — use workspace-derived name without
+            # DB verification (safe for tests and offline contexts).
+            pass
 
         self._graph_name_resolved = name
         return name
@@ -246,21 +278,23 @@ class PGGraphStore:
 
         graph_name = await self._resolve_graph_name()
 
+        age_schema = settings.pg.age_schema
+
         sql = f"""
             WITH input(v, ord) AS (
               SELECT v, ord
               FROM unnest($1::text[]) WITH ORDINALITY AS t(v, ord)
             ),
             ids(node_id, ord) AS (
-              SELECT (to_json(v)::text)::agtype AS node_id, ord
+              SELECT (to_json(v)::text)::{age_schema}.agtype AS node_id, ord
               FROM input
             )
             SELECT i.node_id::text AS node_id,
                    b.properties
             FROM {graph_name}.base AS b
             JOIN ids i
-              ON ag_catalog.agtype_access_operator(
-                   VARIADIC ARRAY[b.properties, '"entity_id"'::agtype]
+              ON {age_schema}.agtype_access_operator(
+                   VARIADIC ARRAY[b.properties, '"entity_id"'::{age_schema}.agtype]
                  ) = i.node_id
             ORDER BY i.ord
         """

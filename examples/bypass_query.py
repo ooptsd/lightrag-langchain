@@ -16,28 +16,22 @@ from pathlib import Path
 # Add project root to path for running from examples/
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from lightrag_langchain import BypassChain, BypassRetriever, create_llm, create_embedding
+from lightrag_langchain import BypassChain, BypassRetriever, create_llm
 from lightrag_langchain.config import settings
+from lightrag_langchain.data.pool import init_pool
 from lightrag_langchain.data.store import PGVectorStore
 
 
 async def main() -> None:
     """Run a Bypass mode query — direct LLM call, no retrieval."""
 
-    # (1) Create vector_store connection (required by BypassRetriever constructor,
-    #     though internally unused — no vector search or graph lookup is performed)
-    vector_store = PGVectorStore(
-        embedding_dim=settings.embedding.dim,
-        host=settings.pg.host,
-        port=settings.pg.port,
-        user=settings.pg.user,
-        password=settings.pg.password.get_secret_value(),
-        database=settings.pg.database,
-    )
+    # (1) Initialize connection pool and vector_store (required by BypassRetriever
+    #     constructor, though internally unused — no vector search or graph lookup)
+    await init_pool()
+    vector_store = PGVectorStore()
 
-    # (2) Create LLM and embedding from settings
+    # (2) Create LLM from settings
     llm = create_llm(settings.llm)
-    embedding = create_embedding(settings.embedding)
 
     # (3) Build retriever — Bypass mode returns empty results (no retrieval)
     retriever = BypassRetriever(

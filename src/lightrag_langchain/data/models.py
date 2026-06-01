@@ -13,12 +13,12 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict
 
 # ---------------------------------------------------------------------------
-# Model 1 — PGVector entity vector search result (LIGHTRAG_VDB_ENTITY)
+# Model 1 — PGVector entity vector search result (lightrag_vdb_entity_*)
 # ---------------------------------------------------------------------------
 
 
 class EntityRecord(BaseModel):
-    """A single entity row from the PGVector ``LIGHTRAG_VDB_ENTITY`` table.
+    """A single entity row from the PGVector ``lightrag_vdb_entity_*`` table.
 
     Represents a named entity stored in the vector database.  The ``source_id``
     field is the ``VDB_ENTITY.id`` column (renamed per STOR-01).  ``file_path``
@@ -44,12 +44,12 @@ class EntityRecord(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Model 2 — PGVector relationship vector search result (LIGHTRAG_VDB_RELATION)
+# Model 2 — PGVector relationship vector search result (lightrag_vdb_relation_*)
 # ---------------------------------------------------------------------------
 
 
 class RelationshipRecord(BaseModel):
-    """A single relationship row from the PGVector ``LIGHTRAG_VDB_RELATION`` table.
+    """A single relationship row from the PGVector ``lightrag_vdb_relation_*`` table.
 
     The DDL does NOT contain ``keywords`` / ``weight`` columns (see RESEARCH.md
     Open Question 1).  Those fields default to ``None`` for PGVector results;
@@ -78,12 +78,12 @@ class RelationshipRecord(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Model 3 — PGVector chunk vector search result (LIGHTRAG_VDB_CHUNKS)
+# Model 3 — PGVector chunk vector search result (lightrag_vdb_chunks_*)
 # ---------------------------------------------------------------------------
 
 
 class ChunkRecord(BaseModel):
-    """A single chunk row from the PGVector ``LIGHTRAG_VDB_CHUNKS`` table.
+    """A single chunk row from the PGVector ``lightrag_vdb_chunks_*`` table.
 
     Maps to the text chunk storage used by LightRAG for naive / mix retrieval.
     ``full_doc_id`` and ``chunk_order_index`` correspond to the document

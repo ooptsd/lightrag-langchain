@@ -69,7 +69,7 @@ class TestEntitySearch:
         )
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         results = await store.search_entities(_EMBEDDING_1024)
 
@@ -90,7 +90,7 @@ class TestEntitySearch:
         mock_conn.fetch = AsyncMock(return_value=[])
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         results = await store.search_entities(_EMBEDDING_1024)
         assert results == []
@@ -102,7 +102,7 @@ class TestEntitySearch:
         mock_conn.fetch = AsyncMock(return_value=[])
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         await store.search_entities(_EMBEDDING_1024, top_k=10)
 
@@ -119,7 +119,7 @@ class TestEntitySearch:
         mock_conn.fetch = AsyncMock(return_value=[])
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         await store.search_entities(_EMBEDDING_1024)  # top_k not passed
 
@@ -156,7 +156,7 @@ class TestRelationSearch:
         )
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"RELATION": "LIGHTRAG_VDB_RELATION"}
+        store._tables = {"RELATION": "lightrag_vdb_relation"}
 
         results = await store.search_relationships(_EMBEDDING_1024)
 
@@ -188,7 +188,7 @@ class TestRelationSearch:
         )
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"RELATION": "LIGHTRAG_VDB_RELATION"}
+        store._tables = {"RELATION": "lightrag_vdb_relation"}
 
         results = await store.search_relationships(_EMBEDDING_1024)
         rec = results[0]
@@ -221,7 +221,7 @@ class TestChunkSearch:
         )
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"CHUNKS": "LIGHTRAG_VDB_CHUNKS"}
+        store._tables = {"CHUNKS": "lightrag_vdb_chunks"}
 
         results = await store.search_chunks(_EMBEDDING_1024)
 
@@ -251,7 +251,7 @@ class TestChunkSearch:
         )
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"CHUNKS": "LIGHTRAG_VDB_CHUNKS"}
+        store._tables = {"CHUNKS": "lightrag_vdb_chunks"}
 
         results = await store.search_chunks(_EMBEDDING_1024)
         assert results[0].full_doc_id is None
@@ -272,7 +272,7 @@ class TestWorkspaceFilter:
         mock_conn.fetch = AsyncMock(return_value=[])
 
         store = _store_cls()(pool=mock_pool, workspace="ws_custom")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         await store.search_entities(_EMBEDDING_1024)
 
@@ -300,9 +300,9 @@ class TestTableDiscovery:
             side_effect=[
                 # First call: information_schema
                 [
-                    {"table_name": "LIGHTRAG_VDB_ENTITY"},
-                    {"table_name": "LIGHTRAG_VDB_RELATION"},
-                    {"table_name": "LIGHTRAG_VDB_CHUNKS"},
+                    {"table_name": "lightrag_vdb_entity"},
+                    {"table_name": "lightrag_vdb_relation"},
+                    {"table_name": "lightrag_vdb_chunks"},
                 ],
                 # Second call: the actual _vector_search (will be empty)
                 [],
@@ -315,9 +315,9 @@ class TestTableDiscovery:
 
         tables = await store._ensure_tables()
 
-        assert tables["ENTITY"] == "LIGHTRAG_VDB_ENTITY"
-        assert tables["RELATION"] == "LIGHTRAG_VDB_RELATION"
-        assert tables["CHUNKS"] == "LIGHTRAG_VDB_CHUNKS"
+        assert tables["ENTITY"] == "lightrag_vdb_entity"
+        assert tables["RELATION"] == "lightrag_vdb_relation"
+        assert tables["CHUNKS"] == "lightrag_vdb_chunks"
         assert store._tables is not None  # cached
 
     @pytest.mark.asyncio
@@ -326,8 +326,8 @@ class TestTableDiscovery:
         _wire_pool_for_acquire_with_retry(mock_pool, mock_conn)
         mock_conn.fetch = AsyncMock(
             return_value=[
-                {"table_name": "LIGHTRAG_VDB_ENTITY"},
-                {"table_name": "LIGHTRAG_VDB_ENTITY_v2"},
+                {"table_name": "lightrag_vdb_entity"},
+                {"table_name": "lightrag_vdb_entity_v2"},
             ]
         )
 
@@ -337,8 +337,8 @@ class TestTableDiscovery:
             await store._ensure_tables()
 
         msg = str(exc_info.value)
-        assert "LIGHTRAG_VDB_ENTITY" in msg
-        assert "LIGHTRAG_VDB_ENTITY_v2" in msg
+        assert "lightrag_vdb_entity" in msg
+        assert "lightrag_vdb_entity_v2" in msg
         assert "PG_TABLE_SUFFIX" in msg
 
     @pytest.mark.asyncio
@@ -372,7 +372,7 @@ class TestReadOnly:
         mock_conn.fetch = AsyncMock(return_value=[])
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         await store.search_entities(_EMBEDDING_1024)
 
@@ -408,7 +408,7 @@ class TestPoolInjection:
         mock_conn.fetch = AsyncMock(return_value=[])
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         await store.search_entities(_EMBEDDING_1024)
 
@@ -441,7 +441,7 @@ class TestVectorParameters:
         mock_conn.fetch = AsyncMock(return_value=[])
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         await store.search_entities(_EMBEDDING_1024)
 
@@ -461,7 +461,7 @@ class TestVectorParameters:
         mock_conn.fetch = AsyncMock(return_value=[])
 
         store = _store_cls()(pool=mock_pool, workspace="default")
-        store._tables = {"ENTITY": "LIGHTRAG_VDB_ENTITY"}
+        store._tables = {"ENTITY": "lightrag_vdb_entity"}
 
         await store.search_entities(_EMBEDDING_1024)
 

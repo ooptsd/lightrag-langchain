@@ -68,10 +68,12 @@ def __getattr__(name: str) -> Pool:
 
 
 async def _init_connection(conn: Connection) -> None:
-    """Register pgvector binary codec on each new pool connection."""
+    """Register pgvector binary codec and set AGE search_path on each new pool connection."""
     from pgvector.asyncpg import register_vector
 
     await register_vector(conn)
+    age_schema = settings.pg.age_schema
+    await conn.execute(f"SET search_path TO {age_schema}, public")
 
 
 # ---------------------------------------------------------------------------
@@ -111,6 +113,7 @@ async def init_pool(custom_pool: Pool | None = None) -> Pool:
         server_settings={
             "application_name": "lightrag_langchain",
             "default_transaction_read_only": "on",
+            "search_path": f"{settings.pg.age_schema}, public",
         },
     )
     return _pool

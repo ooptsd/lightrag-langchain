@@ -17,11 +17,11 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from typing import TYPE_CHECKING, AsyncIterator
+from typing import TYPE_CHECKING, Any, AsyncIterator
 
 from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, SystemMessage
-from pydantic import BaseModel, ConfigDict, PrivateAttr
+from pydantic import BaseModel, ConfigDict, PrivateAttr, field_validator
 
 from lightrag_langchain.chain.prompt import (
     KG_QUERY_CONTEXT_TEMPLATE,
@@ -96,6 +96,26 @@ class LightRAGBaseChain(BaseModel):
 
     mode: str
     """Query mode identifier — subclasses override with a concrete string."""
+
+    @field_validator("llm", mode="before")
+    @classmethod
+    def _unwrap_lazy_llm(cls, v: Any) -> Any:
+        """Unwrap ``_LazyLLM`` proxy before Pydantic nested model validation.
+
+        When ``llm`` is a ``_LazyLLM`` proxy (from :func:`create_llm`),
+        Pydantic's nested ``ChatOpenAI`` validation runs ``validate_temperature``
+        (a ``mode="before"`` validator) on the raw proxy, which expects a dict
+        and calls ``.get()``.  Since ``_LazyLLM.__getattr__`` delegates to
+        ``ChatOpenAI`` that has no ``.get()``, the validator crashes.
+
+        This hook detects the proxy, triggers lazy construction by accessing
+        ``.model_name``, and returns the inner ``ChatOpenAI`` instance so
+        Pydantic sees a real model object.
+        """
+        if hasattr(v, "_config") and hasattr(v, "_instance"):
+            _ = v.model_name  # trigger lazy ChatOpenAI construction
+            return v._instance
+        return v
 
     # ------------------------------------------------------------------
     # Private attributes

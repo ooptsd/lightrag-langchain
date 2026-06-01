@@ -136,7 +136,7 @@ async def extract_keywords(
 
     Formats the upstream LightRAG prompt template with the query, examples,
     and language, then calls ``llm.with_structured_output(KeywordsSchema,
-    method="function_calling")`` for type-safe extraction.
+    method="json_mode")`` for type-safe extraction.
 
     Parameters
     ----------
@@ -160,8 +160,9 @@ async def extract_keywords(
     -----
     - No caching (D-12) — every call invokes the LLM.
     - No json_repair fallback (D-14) — structured output failures propagate.
-    - ``method="function_calling"`` is explicit for provider compatibility
-      (DeepSeek, vLLM, etc. per RESEARCH.md Pitfall 1).
+    - ``method="json_mode"`` avoids ``tool_choice`` in the API request, which
+      is incompatible with DeepSeek v4-pro's thinking (reasoning) mode. The
+      keyword extraction prompt already instructs the model to output JSON.
 
     Example:
         ```python
@@ -188,10 +189,11 @@ async def extract_keywords(
         language=language,
     )
 
-    # Create a structured LLM with explicit function_calling method.
+    # Create a structured LLM with json_mode to avoid tool_choice
+    # incompatibility with DeepSeek v4-pro thinking (reasoning) mode.
     structured_llm = llm.with_structured_output(
         KeywordsSchema,
-        method="function_calling",
+        method="json_mode",
     )
 
     # Extract keywords via async LLM call.

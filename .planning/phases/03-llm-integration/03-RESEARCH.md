@@ -610,19 +610,19 @@ async def _post_rerank(url: str, headers: dict, payload: dict) -> dict:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **KEYWORD_LANGUAGE .env var placement**
+1. **(RESOLVED) KEYWORD_LANGUAGE .env var placement**
    - What we know: D-13 requires `KEYWORD_LANGUAGE` env var, default "Chinese". The .env.example does not currently include it. The config system (Phase 1) does not have a dedicated Config model for it.
    - What's unclear: Should KEYWORD_LANGUAGE be added as a field to an existing config model (QueryParamsConfig?) or read directly via os.getenv()? The CONTEXT.md does not specify.
    - Recommendation: Add to QueryParamsConfig as `keyword_language: str = "Chinese"` for consistency with the all-config-from-settings pattern. This requires a config.py change (minor Phase 1 edit).
 
-2. **LightRAGReranker sync compress_documents() implementation**
+2. **(RESOLVED) LightRAGReranker sync compress_documents() implementation**
    - What we know: The raw reranker is async (HTTP calls). BaseDocumentCompressor.compress_documents() is sync. BaseDocumentCompressor.acompress_documents() is async but falls back to running sync in executor by default.
    - What's unclear: Should we override acompress_documents() to be truly async (calling the async reranker directly), or rely on the default executor-based fallback? The LangChain pattern is to override acompress_documents for true async support.
    - Recommendation: Override `acompress_documents()` to call `await self._reranker.rerank()`. The sync `compress_documents()` can use `asyncio.run()` or be left as a stub that raises NotImplementedError if sync is not critical for Phase 3 (Phase 5/6 primarily use async).
 
-3. **Upstream prompt template maintenance**
+3. **(RESOLVED) Upstream prompt template maintenance**
    - What we know: Prompt templates are copied verbatim from upstream LightRAG prompt.py. If upstream changes the prompts, our copies become stale.
    - What's unclear: How to track upstream prompt changes? LightRAG is an active project with frequent updates.
    - Recommendation: Add a comment in keywords.py citing the exact upstream commit hash and file lines. This is documentation debt, not a code issue -- Phase 3 copies the current templates as of the research date.

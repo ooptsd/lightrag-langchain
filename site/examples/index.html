@@ -1,0 +1,1099 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="LangChain-based read-only query layer for LightRAG knowledge graphs">
+      
+      
+      
+      
+        <link rel="prev" href="../api-reference/config/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Examples - lightrag-langchain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#examples" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="lightrag-langchain" class="md-header__button md-logo" aria-label="lightrag-langchain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            lightrag-langchain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Examples
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/USER/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lightrag-langchain
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="lightrag-langchain" class="md-nav__button md-logo" aria-label="lightrag-langchain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    lightrag-langchain
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/USER/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lightrag-langchain
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/chains/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chains
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/retrievers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Retrievers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/factories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Factories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/reranker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reranker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/keywords/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keywords
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/token-budget/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Budget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行前准备
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        可用示例
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="可用示例">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chain 示例（完整管线）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retriever-lcel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retriever 示例（仅检索，供 LCEL 调用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notebook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notebook
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        示例结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="示例结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chain-_querypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chain 示例 (*_query.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retriever-_retrieverpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retriever 示例 (*_retriever.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notebook_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行 Notebook
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行前准备
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        可用示例
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="可用示例">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chain 示例（完整管线）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retriever-lcel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retriever 示例（仅检索，供 LCEL 调用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notebook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notebook
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        示例结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="示例结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chain-_querypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chain 示例 (*_query.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retriever-_retrieverpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retriever 示例 (*_retriever.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notebook_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行 Notebook
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="examples">示例 (Examples)<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h1>
+<p><a href="https://github.com/&lt;user&gt;/lightrag-langchain/tree/main/examples"><code>examples/</code></a> 目录包含独立可运行的 Python 脚本和 Jupyter Notebook，演示 lightrag-langchain 的全部查询模式。</p>
+<p>示例分为两类：
+- <strong>Chain 示例 (<code>*_query.py</code>)</strong>：完整管线 — 检索 + LLM 生成答案
+- <strong>Retriever 示例 (<code>*_retriever.py</code>)</strong>：仅检索 — 返回 <code>list[Document]</code>，供在 LCEL 管线中独立调用</p>
+<p>每个脚本都是自包含的（无需额外依赖），可直接复制到你的项目中使用。它们使用与 README 一致的懒加载导入模式，并附有中文注释解释每一步操作。</p>
+<h2 id="_1">运行前准备<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>请参考 <a href="https://github.com/&lt;user&gt;/lightrag-langchain/tree/main/examples/README.md"><code>examples/README.md</code></a> 中的详细设置说明。简要步骤如下：</p>
+<ol>
+<li>确保 PostgreSQL 数据库已由 LightRAG 完成知识图谱构建</li>
+<li>复制 <code>.env.example</code> 为 <code>.env</code> 并填入你的实际配置</li>
+<li>安装依赖：<code>uv sync</code></li>
+<li>运行任意脚本：<code>uv run python examples/naive_query.py</code></li>
+</ol>
+<h2 id="_2">可用示例<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="chain">Chain 示例（完整管线）<a class="headerlink" href="#chain" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>模式</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/naive_query.py"><code>naive_query.py</code></a></td>
+<td>Naive</td>
+<td>纯向量相似度搜索 <code>chunks_vdb</code>，不做图遍历。适用于简单的语义匹配查询。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/local_query.py"><code>local_query.py</code></a></td>
+<td>Local</td>
+<td>实体中心图扩展——先对 <code>entities_vdb</code> 搜索 Top-K 实体，再通过 AGE 图扩展获取关联的边和邻居实体。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/global_query.py"><code>global_query.py</code></a></td>
+<td>Global</td>
+<td>关系中心图扩展——先对 <code>relationships_vdb</code> 搜索 Top-K 关系，再通过 AGE 图查找关联实体。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/hybrid_query.py"><code>hybrid_query.py</code></a></td>
+<td>Hybrid</td>
+<td>并行 Local + Global 检索，round-robin 交错合并结果。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/mix_query.py"><code>mix_query.py</code></a></td>
+<td>Mix</td>
+<td>Hybrid 检索 + chunks_vdb 向量搜索，融合图知识和原始文本块。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/bypass_query.py"><code>bypass_query.py</code></a></td>
+<td>Bypass</td>
+<td>跳过所有检索，直接将用户问题发送给 LLM。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="retriever-lcel">Retriever 示例（仅检索，供 LCEL 调用）<a class="headerlink" href="#retriever-lcel" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>模式</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/naive_retriever.py"><code>naive_retriever.py</code></a></td>
+<td>Naive</td>
+<td>纯向量 chunk 搜索，返回 <code>list[Document]</code>。无 chain/LLM。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/local_retriever.py"><code>local_retriever.py</code></a></td>
+<td>Local</td>
+<td>实体搜索 + AGE 图扩展，返回 entity + GraphTriple Documents。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/global_retriever.py"><code>global_retriever.py</code></a></td>
+<td>Global</td>
+<td>关系搜索 + 实体查找，返回 relation + GraphTriple Documents。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/hybrid_retriever.py"><code>hybrid_retriever.py</code></a></td>
+<td>Hybrid</td>
+<td>并行 local + global，返回 entity + relation + GraphTriple Documents。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/mix_retriever.py"><code>mix_retriever.py</code></a></td>
+<td>Mix</td>
+<td>hybrid + chunk 搜索，返回四种类型 Documents。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/bypass_retriever.py"><code>bypass_retriever.py</code></a></td>
+<td>Bypass</td>
+<td>空检索，始终返回 <code>[]</code>。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="notebook">Notebook<a class="headerlink" href="#notebook" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/&lt;user&gt;/lightrag-langchain/blob/main/examples/walkthrough.ipynb"><code>walkthrough.ipynb</code></a></td>
+<td>完整 Jupyter Notebook 演示，覆盖所有六种 Chain 模式（Naive / Local / Global / Hybrid / Mix / Bypass）。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">示例结构<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="chain-_querypy">Chain 示例 (<code>*_query.py</code>)<a class="headerlink" href="#chain-_querypy" title="Permanent link">&para;</a></h3>
+<p>每个 Python 脚本遵循以下统一结构：</p>
+<ol>
+<li><strong>异步 <code>main()</code> 函数</strong> — 分为五个步骤：</li>
+<li>(1) 创建数据层连接（<code>PGVectorStore</code> / <code>PGGraphStore</code>）</li>
+<li>(2) 创建 LLM / Embedding（通过 <code>create_llm</code> / <code>create_embedding</code> 工厂）</li>
+<li>(3) 构建 Retriever（模式对应的 <code>*Retriever</code>）</li>
+<li>(4) 构建 Chain（模式对应的 <code>*Chain</code>）</li>
+<li>(5) 执行查询并打印结果（模式、关键词、来源数、回答）</li>
+<li><strong><code>if __name__ == "__main__"</code> 入口</strong> — 使用 <code>asyncio.run(main())</code> 启动</li>
+</ol>
+<h3 id="retriever-_retrieverpy">Retriever 示例 (<code>*_retriever.py</code>)<a class="headerlink" href="#retriever-_retrieverpy" title="Permanent link">&para;</a></h3>
+<p>每个脚本仅包含检索步骤（无 Chain、无 LLM）：</p>
+<ol>
+<li><strong>异步 <code>main()</code> 函数</strong> — 分为三个步骤：</li>
+<li>(1) 创建数据层连接（<code>PGVectorStore</code> / <code>PGGraphStore</code>）</li>
+<li>(2) 构建 Retriever（模式对应的 <code>*Retriever</code>）</li>
+<li>(3) 调用 <code>retriever.ainvoke(query)</code> → <code>list[Document]</code>，打印 <code>page_content</code> 和 <code>metadata</code></li>
+<li><strong><code>if __name__ == "__main__"</code> 入口</strong> — 使用 <code>asyncio.run(main())</code> 启动</li>
+<li><strong>不导入 Chain、LLM、Reranker</strong> — 仅依赖数据层和 Retriever</li>
+</ol>
+<h2 id="notebook_1">运行 Notebook<a class="headerlink" href="#notebook_1" title="Permanent link">&para;</a></h2>
+<p>要运行 <code>walkthrough.ipynb</code>，需要安装 <code>jupyter</code>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>jupyter
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>jupyter<span class="w"> </span>notebook<span class="w"> </span>examples/walkthrough.ipynb
+</code></pre></div>
+<p>Notebook 按顺序演示六种查询模式，每个模式包含说明性的 Markdown 介绍和可执行代码，可逐一运行查看结果。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

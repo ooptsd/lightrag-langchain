@@ -32,20 +32,24 @@ def _get_tokenizer(model_name: str = "gpt-4o-mini"):
     tiktoken is imported lazily so the module can be imported without
     tiktoken pre-installed (only needed when functions are called).
 
+    For unrecognised model names (e.g. DeepSeek, custom providers), falls back
+    to ``"gpt-4o-mini"`` (o200k_base encoding).
+
     Args:
-        model_name: tiktoken model encoding name. Default "gpt-4o-mini"
-            (o200k_base encoding, also valid for gpt-4o).
+        model_name: tiktoken model encoding name. Default ``"gpt-4o-mini"``.
 
     Returns:
         tiktoken.Encoding instance.
 
     Raises:
         ImportError: If tiktoken is not installed.
-        KeyError: If model_name is not recognised by tiktoken.
     """
     import tiktoken
 
-    return tiktoken.encoding_for_model(model_name)
+    try:
+        return tiktoken.encoding_for_model(model_name)
+    except KeyError:
+        return tiktoken.encoding_for_model("gpt-4o-mini")
 
 
 # ---------------------------------------------------------------------------
