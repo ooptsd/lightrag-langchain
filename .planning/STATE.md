@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: CI集成
 status: planning
-last_updated: "2026-06-01T07:34:37.700Z"
+last_updated: "2026-06-01T08:00:00.000Z"
 last_activity: 2026-06-01
 progress:
-  total_phases: 0
+  total_phases: 1
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-06-01)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 8 — CI/CD Pipeline
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-01 — Milestone v2.0 started
+Status: Roadmap defined
+Last activity: 2026-06-01 — Roadmap created for v2.0
 
 ## Performance Metrics
 

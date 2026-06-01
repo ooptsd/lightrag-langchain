@@ -3,6 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0** — 初始发布：7 phases, 23 plans (shipped 2026-06-01)
+- 🔵 **v2.0** — CI集成：GitHub Actions tag→build→PyPI publish (active)
 
 ## Phases
 
@@ -19,6 +20,26 @@
 
 </details>
 
+<details open>
+<summary>🔵 v2.0 (Phase 8)</summary>
+
+- [ ] **Phase 8: CI/CD Pipeline** — GitHub repo + tag→PyPI publish + GitHub Pages docs
+
+</details>
+
+## Phase Details
+
+### Phase 8: CI/CD Pipeline
+**Goal**: The project is on GitHub with automated tag-based PyPI publishing and GitHub Pages documentation deployment
+**Depends on**: Nothing (standalone CI infrastructure phase)
+**Requirements**: CI-01, CI-02, CI-03
+**Success Criteria** (what must be TRUE):
+  1. The `lightrag-langchain` GitHub repository exists with full commit history, tags, and all v1.0 source code pushed
+  2. Pushing a `v*` tag (e.g., `v2.0.0`) triggers a GitHub Actions workflow that builds wheel + sdist and publishes to PyPI without manual intervention
+  3. The published package is installable via `pip install lightrag-langchain` and matches the tagged version with all imports working
+  4. Pushing to the main branch automatically deploys the MkDocs documentation site to GitHub Pages at a publicly accessible URL
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -30,3 +51,4 @@
 | 5. Retriever Interfaces | v1.0 | 3/3 | Complete | 2026-05-30 |
 | 6. QA Chain | v1.0 | 3/3 | Complete | 2026-05-31 |
 | 7. Samples & Docs + README | v1.0 | 3/3 | Complete | 2026-05-31 |
+| 8. CI/CD Pipeline | v2.0 | 0/0 | Not started | - |

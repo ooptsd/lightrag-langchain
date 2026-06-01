@@ -24,13 +24,15 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CI-01 | | Pending |
-| CI-02 | | Pending |
-| CI-03 | | Pending |
+| CI-01 | Phase 8 | Pending |
+| CI-02 | Phase 8 | Pending |
+| CI-03 | Phase 8 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 3 total
-- Mapped to phases: 0 (awaiting roadmap)
+- Mapped to phases: 3/3 (100%)
+- Orphans: 0
 
 ---
 *Requirements defined: 2026-06-01*
+*Traceability updated: 2026-06-01 — Phase 8 mapped*
