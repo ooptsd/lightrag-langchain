@@ -1,10 +1,10 @@
-"""Typed configuration API for lightrag-langchain.
+"""lightrag-langchain 的类型化配置 API。
 
-Provides five nested sub-models (PgConfig, LlmConfig, EmbeddingConfig,
-RerankerConfig, QueryParamsConfig) composed into a frozen Settings singleton.
-Fail-fast validation at import time with categorized error summary.
+提供五个嵌套子模型（PgConfig、LlmConfig、EmbeddingConfig、
+RerankerConfig、QueryParamsConfig），组合成一个不可变的 Settings 单例。
+在导入时进行 fail-fast 验证，并给出分类的错误摘要。
 
-Usage::
+用法::
 
     from lightrag_langchain.config import settings
     print(settings.pg.host)
@@ -24,7 +24,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class SettingsError(Exception):
-    """Raised when configuration validation fails with categorized summary.
+    """配置验证失败时抛出，附带分类摘要。
 
     Example:
         ```python
@@ -44,17 +44,17 @@ class SettingsError(Exception):
 
 
 class PgConfig(BaseModel):
-    """PostgreSQL connection and pool settings.
+    """PostgreSQL 连接和连接池设置。
 
-    Env vars are routed via the top-level ``Settings`` field name ``pg``.
-    ``PG_HOST`` → ``pg.host``, ``PG_PORT`` → ``pg.port``, etc.
+    环境变量通过顶层 ``Settings`` 的字段名 ``pg`` 进行路由。
+    ``PG_HOST`` → ``pg.host``、``PG_PORT`` → ``pg.port`` 等。
 
-    Pool fields:
-    - ``workspace``: isolation namespace for multi-tenant LightRAG databases
-      (D-05 single-workspace strategy, default ``"default"``).
-    - ``pool_min_size`` / ``pool_max_size``: asyncpg connection pool sizing
-      (D-03, default 2 / 10).
-    - ``pool_timeout``: command timeout in seconds (default 30.0).
+    连接池字段：
+    - ``workspace``：多租户 LightRAG 数据库的隔离命名空间
+      （D-05 单工作空间策略，默认 ``"default"``）。
+    - ``pool_min_size`` / ``pool_max_size``：asyncpg 连接池大小
+      （D-03，默认 2 / 10）。
+    - ``pool_timeout``：命令超时时间，单位为秒（默认 30.0）。
 
     Example:
         ```python
@@ -85,10 +85,10 @@ class PgConfig(BaseModel):
 
 
 class LlmConfig(BaseModel):
-    """LLM provider settings.
+    """LLM provider 设置。
 
-    Required: binding, binding_host, binding_api_key, model.
-    Optional: temperature (default 0.0), max_tokens (default 9000).
+    必填：binding、binding_host、binding_api_key、model。
+    可选：temperature（默认 0.0）、max_tokens（默认 9000）。
 
     Example:
         ```python
@@ -115,9 +115,9 @@ class LlmConfig(BaseModel):
 
 
 class EmbeddingConfig(BaseModel):
-    """Embedding provider settings.
+    """Embedding provider 设置。
 
-    ``dim`` defaults to 1024 per D-06 (matches upstream aliyun text-embedding-v4).
+    ``dim`` 默认为 1024（根据 D-06，匹配上游阿里云 text-embedding-v4）。
 
     Example:
         ```python
@@ -143,9 +143,9 @@ class EmbeddingConfig(BaseModel):
 
 
 class RerankerConfig(BaseModel):
-    """Reranker settings.
+    """Reranker 设置。
 
-    All fields defaulted — empty binding string means rerank is disabled.
+    所有字段均有默认值——binding 为空字符串表示禁用 rerank。
 
     Example:
         ```python
@@ -172,10 +172,10 @@ class RerankerConfig(BaseModel):
 
 
 class QueryParamsConfig(BaseModel):
-    """Query behaviour defaults matching upstream LightRAG constants.
+    """匹配上游 LightRAG 常量的查询行为默认值。
 
-    Token budget invariant (D-08):
-    ``max_entity_tokens + max_relation_tokens < max_total_tokens``.
+    Token budget 不变量（D-08）：
+    ``max_entity_tokens + max_relation_tokens < max_total_tokens``。
 
     Example:
         ```python
@@ -199,7 +199,7 @@ class QueryParamsConfig(BaseModel):
 
     @model_validator(mode="after")
     def check_token_budget(self) -> QueryParamsConfig:
-        """Enforce token budget invariant — read-only (no mutation)."""
+        """强制执行 token budget 不变量——只读（不进行修改）。"""
         if self.max_entity_tokens + self.max_relation_tokens >= self.max_total_tokens:
             raise ValueError(
                 f"Token budget violated: max_entity_tokens ({self.max_entity_tokens}) "
@@ -215,16 +215,16 @@ class QueryParamsConfig(BaseModel):
 
 
 class Settings(BaseSettings):
-    """Top-level configuration composing all five config groups.
+    """组合所有五个配置组的顶层配置。
 
-    All instantiation failures (direct or through the singleton) raise
-    ``SettingsError`` with a categorized summary, never raw ``ValidationError``.
+    所有实例化失败（直接或通过单例）都会抛出 ``SettingsError``
+    并附带分类摘要，绝不会抛出原始的 ``ValidationError``。
 
     Example:
         ```python
         from lightrag_langchain.config import settings
 
-        # Access sub-configs through the singleton
+        # 通过单例访问子配置
         pg = settings.pg
         llm = settings.llm
         embedding = settings.embedding
@@ -261,9 +261,9 @@ class Settings(BaseSettings):
 
 
 def _format_validation_error(exc: ValidationError) -> str:
-    """Group validation errors by config group and format a categorized summary.
+    """按配置组对验证错误进行分组，并格式化分类摘要。
 
-    Error messages reference field names only — raw values are never included.
+    错误信息仅引用字段名——从不包含原始值。
     """
     groups: dict[str, list[str]] = defaultdict(list)
 
@@ -307,11 +307,10 @@ _settings: Settings | None = None
 
 
 def __getattr__(name: str) -> Settings:
-    """Lazy module-level singleton — Settings is created on first access.
+    """惰性模块级单例——Settings 在首次访问时创建。
 
-    This allows importing sub-model classes (PgConfig, etc.) without a valid
-    .env file, while still providing fail-fast validation when ``settings``
-    is actually accessed (D-05).
+    这允许在不依赖有效 .env 文件的情况下导入子模型类（PgConfig 等），
+    同时在真正访问 ``settings`` 时提供 fail-fast 验证（D-05）。
     """
     global _settings
     if name == "settings":

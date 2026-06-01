@@ -160,7 +160,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/USER/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
+        <a href="https://github.com/ooptsd/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -206,7 +206,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/USER/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
+      <a href="https://github.com/ooptsd/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -954,16 +954,16 @@
 
 
 
-        <p>Top-level configuration composing all five config groups.</p>
-<p>All instantiation failures (direct or through the singleton) raise
-<code>SettingsError</code> with a categorized summary, never raw <code>ValidationError</code>.</p>
+        <p>组合所有五个配置组的顶层配置。</p>
+<p>所有实例化失败（直接或通过单例）都会抛出 <code>SettingsError</code>
+并附带分类摘要，绝不会抛出原始的 <code>ValidationError</code>。</p>
 
 
 <details class="example" open>
   <summary>Example</summary>
   <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">lightrag_langchain.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Access sub-configs through the singleton</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># 通过单例访问子配置</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">pg</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">pg</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">llm</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">embedding</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">embedding</span>
@@ -1019,16 +1019,16 @@
 <span class="normal"><a href="#__codelineno-0-253">253</a></span>
 <span class="normal"><a href="#__codelineno-0-254">254</a></span>
 <span class="normal"><a href="#__codelineno-0-255">255</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="k">class</span><span class="w"> </span><span class="nc">Settings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
-<a id="__codelineno-0-218" name="__codelineno-0-218"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Top-level configuration composing all five config groups.</span>
+<a id="__codelineno-0-218" name="__codelineno-0-218"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;组合所有五个配置组的顶层配置。</span>
 <a id="__codelineno-0-219" name="__codelineno-0-219"></a>
-<a id="__codelineno-0-220" name="__codelineno-0-220"></a><span class="sd">    All instantiation failures (direct or through the singleton) raise</span>
-<a id="__codelineno-0-221" name="__codelineno-0-221"></a><span class="sd">    ``SettingsError`` with a categorized summary, never raw ``ValidationError``.</span>
+<a id="__codelineno-0-220" name="__codelineno-0-220"></a><span class="sd">    所有实例化失败（直接或通过单例）都会抛出 ``SettingsError``</span>
+<a id="__codelineno-0-221" name="__codelineno-0-221"></a><span class="sd">    并附带分类摘要，绝不会抛出原始的 ``ValidationError``。</span>
 <a id="__codelineno-0-222" name="__codelineno-0-222"></a>
 <a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="sd">    Example:</span>
 <a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="sd">        ```python</span>
 <a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">        from lightrag_langchain.config import settings</span>
 <a id="__codelineno-0-226" name="__codelineno-0-226"></a>
-<a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">        # Access sub-configs through the singleton</span>
+<a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">        # 通过单例访问子配置</span>
 <a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">        pg = settings.pg</span>
 <a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="sd">        llm = settings.llm</span>
 <a id="__codelineno-0-230" name="__codelineno-0-230"></a><span class="sd">        embedding = settings.embedding</span>
@@ -1100,15 +1100,15 @@
 
 
 
-        <p>PostgreSQL connection and pool settings.</p>
-<p>Env vars are routed via the top-level <code>Settings</code> field name <code>pg</code>.
-<code>PG_HOST</code> → <code>pg.host</code>, <code>PG_PORT</code> → <code>pg.port</code>, etc.</p>
-<p>Pool fields:
-- <code>workspace</code>: isolation namespace for multi-tenant LightRAG databases
-  (D-05 single-workspace strategy, default <code>"default"</code>).
-- <code>pool_min_size</code> / <code>pool_max_size</code>: asyncpg connection pool sizing
-  (D-03, default 2 / 10).
-- <code>pool_timeout</code>: command timeout in seconds (default 30.0).</p>
+        <p>PostgreSQL 连接和连接池设置。</p>
+<p>环境变量通过顶层 <code>Settings</code> 的字段名 <code>pg</code> 进行路由。
+<code>PG_HOST</code> → <code>pg.host</code>、<code>PG_PORT</code> → <code>pg.port</code> 等。</p>
+<p>连接池字段：
+- <code>workspace</code>：多租户 LightRAG 数据库的隔离命名空间
+  （D-05 单工作空间策略，默认 <code>"default"</code>）。
+- <code>pool_min_size</code> / <code>pool_max_size</code>：asyncpg 连接池大小
+  （D-03，默认 2 / 10）。
+- <code>pool_timeout</code>：命令超时时间，单位为秒（默认 30.0）。</p>
 
 
 <details class="example" open>
@@ -1162,17 +1162,17 @@
 <span class="normal"><a href="#__codelineno-0-77">77</a></span>
 <span class="normal"><a href="#__codelineno-0-78">78</a></span>
 <span class="normal"><a href="#__codelineno-0-79">79</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="k">class</span><span class="w"> </span><span class="nc">PgConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;PostgreSQL connection and pool settings.</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;PostgreSQL 连接和连接池设置。</span>
 <a id="__codelineno-0-48" name="__codelineno-0-48"></a>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">    Env vars are routed via the top-level ``Settings`` field name ``pg``.</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">    ``PG_HOST`` → ``pg.host``, ``PG_PORT`` → ``pg.port``, etc.</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">    环境变量通过顶层 ``Settings`` 的字段名 ``pg`` 进行路由。</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">    ``PG_HOST`` → ``pg.host``、``PG_PORT`` → ``pg.port`` 等。</span>
 <a id="__codelineno-0-51" name="__codelineno-0-51"></a>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="sd">    Pool fields:</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">    - ``workspace``: isolation namespace for multi-tenant LightRAG databases</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">      (D-05 single-workspace strategy, default ``&quot;default&quot;``).</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">    - ``pool_min_size`` / ``pool_max_size``: asyncpg connection pool sizing</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">      (D-03, default 2 / 10).</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">    - ``pool_timeout``: command timeout in seconds (default 30.0).</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="sd">    连接池字段：</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">    - ``workspace``：多租户 LightRAG 数据库的隔离命名空间</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">      （D-05 单工作空间策略，默认 ``&quot;default&quot;``）。</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">    - ``pool_min_size`` / ``pool_max_size``：asyncpg 连接池大小</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">      （D-03，默认 2 / 10）。</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">    - ``pool_timeout``：命令超时时间，单位为秒（默认 30.0）。</span>
 <a id="__codelineno-0-58" name="__codelineno-0-58"></a>
 <a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">    Example:</span>
 <a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        ```python</span>
@@ -1236,9 +1236,9 @@
 
 
 
-        <p>LLM provider settings.</p>
-<p>Required: binding, binding_host, binding_api_key, model.
-Optional: temperature (default 0.0), max_tokens (default 9000).</p>
+        <p>LLM provider 设置。</p>
+<p>必填：binding、binding_host、binding_api_key、model。
+可选：temperature（默认 0.0）、max_tokens（默认 9000）。</p>
 
 
 <details class="example" open>
@@ -1281,10 +1281,10 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 <span class="normal"><a href="#__codelineno-0-107">107</a></span>
 <span class="normal"><a href="#__codelineno-0-108">108</a></span>
 <span class="normal"><a href="#__codelineno-0-109">109</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="k">class</span><span class="w"> </span><span class="nc">LlmConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM provider settings.</span>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM provider 设置。</span>
 <a id="__codelineno-0-89" name="__codelineno-0-89"></a>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="sd">    Required: binding, binding_host, binding_api_key, model.</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="sd">    Optional: temperature (default 0.0), max_tokens (default 9000).</span>
+<a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="sd">    必填：binding、binding_host、binding_api_key、model。</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="sd">    可选：temperature（默认 0.0）、max_tokens（默认 9000）。</span>
 <a id="__codelineno-0-92" name="__codelineno-0-92"></a>
 <a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="sd">    Example:</span>
 <a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="sd">        ```python</span>
@@ -1344,8 +1344,8 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 
 
 
-        <p>Embedding provider settings.</p>
-<p><code>dim</code> defaults to 1024 per D-06 (matches upstream aliyun text-embedding-v4).</p>
+        <p>Embedding provider 设置。</p>
+<p><code>dim</code> 默认为 1024（根据 D-06，匹配上游阿里云 text-embedding-v4）。</p>
 
 
 <details class="example" open>
@@ -1386,9 +1386,9 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 <span class="normal"><a href="#__codelineno-0-135">135</a></span>
 <span class="normal"><a href="#__codelineno-0-136">136</a></span>
 <span class="normal"><a href="#__codelineno-0-137">137</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmbeddingConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Embedding provider settings.</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Embedding provider 设置。</span>
 <a id="__codelineno-0-119" name="__codelineno-0-119"></a>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">    ``dim`` defaults to 1024 per D-06 (matches upstream aliyun text-embedding-v4).</span>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">    ``dim`` 默认为 1024（根据 D-06，匹配上游阿里云 text-embedding-v4）。</span>
 <a id="__codelineno-0-121" name="__codelineno-0-121"></a>
 <a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="sd">    Example:</span>
 <a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="sd">        ```python</span>
@@ -1447,8 +1447,8 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 
 
 
-        <p>Reranker settings.</p>
-<p>All fields defaulted — empty binding string means rerank is disabled.</p>
+        <p>Reranker 设置。</p>
+<p>所有字段均有默认值——binding 为空字符串表示禁用 rerank。</p>
 
 
 <details class="example" open>
@@ -1491,9 +1491,9 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 <span class="normal"><a href="#__codelineno-0-164">164</a></span>
 <span class="normal"><a href="#__codelineno-0-165">165</a></span>
 <span class="normal"><a href="#__codelineno-0-166">166</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-145" name="__codelineno-0-145"></a><span class="k">class</span><span class="w"> </span><span class="nc">RerankerConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-146" name="__codelineno-0-146"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Reranker settings.</span>
+<a id="__codelineno-0-146" name="__codelineno-0-146"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Reranker 设置。</span>
 <a id="__codelineno-0-147" name="__codelineno-0-147"></a>
-<a id="__codelineno-0-148" name="__codelineno-0-148"></a><span class="sd">    All fields defaulted — empty binding string means rerank is disabled.</span>
+<a id="__codelineno-0-148" name="__codelineno-0-148"></a><span class="sd">    所有字段均有默认值——binding 为空字符串表示禁用 rerank。</span>
 <a id="__codelineno-0-149" name="__codelineno-0-149"></a>
 <a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="sd">    Example:</span>
 <a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="sd">        ```python</span>
@@ -1553,9 +1553,9 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 
 
 
-        <p>Query behaviour defaults matching upstream LightRAG constants.</p>
-<p>Token budget invariant (D-08):
-<code>max_entity_tokens + max_relation_tokens &lt; max_total_tokens</code>.</p>
+        <p>匹配上游 LightRAG 常量的查询行为默认值。</p>
+<p>Token budget 不变量（D-08）：
+<code>max_entity_tokens + max_relation_tokens &lt; max_total_tokens</code>。</p>
 
 
 <details class="example" open>
@@ -1611,10 +1611,10 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 <span class="normal"><a href="#__codelineno-0-207">207</a></span>
 <span class="normal"><a href="#__codelineno-0-208">208</a></span>
 <span class="normal"><a href="#__codelineno-0-209">209</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-174" name="__codelineno-0-174"></a><span class="k">class</span><span class="w"> </span><span class="nc">QueryParamsConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query behaviour defaults matching upstream LightRAG constants.</span>
+<a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;匹配上游 LightRAG 常量的查询行为默认值。</span>
 <a id="__codelineno-0-176" name="__codelineno-0-176"></a>
-<a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">    Token budget invariant (D-08):</span>
-<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">    ``max_entity_tokens + max_relation_tokens &lt; max_total_tokens``.</span>
+<a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">    Token budget 不变量（D-08）：</span>
+<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">    ``max_entity_tokens + max_relation_tokens &lt; max_total_tokens``。</span>
 <a id="__codelineno-0-179" name="__codelineno-0-179"></a>
 <a id="__codelineno-0-180" name="__codelineno-0-180"></a><span class="sd">    Example:</span>
 <a id="__codelineno-0-181" name="__codelineno-0-181"></a><span class="sd">        ```python</span>
@@ -1638,7 +1638,7 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 <a id="__codelineno-0-199" name="__codelineno-0-199"></a>
 <a id="__codelineno-0-200" name="__codelineno-0-200"></a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">check_token_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QueryParamsConfig</span><span class="p">:</span>
-<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Enforce token budget invariant — read-only (no mutation).&quot;&quot;&quot;</span>
+<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;强制执行 token budget 不变量——只读（不进行修改）。&quot;&quot;&quot;</span>
 <a id="__codelineno-0-203" name="__codelineno-0-203"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_entity_tokens</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_relation_tokens</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_total_tokens</span><span class="p">:</span>
 <a id="__codelineno-0-204" name="__codelineno-0-204"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
 <a id="__codelineno-0-205" name="__codelineno-0-205"></a>                <span class="sa">f</span><span class="s2">&quot;Token budget violated: max_entity_tokens (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_entity_tokens</span><span class="si">}</span><span class="s2">) &quot;</span>
@@ -1675,7 +1675,7 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 
     <div class="doc doc-contents ">
 
-        <p>Enforce token budget invariant — read-only (no mutation).</p>
+        <p>强制执行 token budget 不变量——只读（不进行修改）。</p>
 
 
             <details class="mkdocstrings-source">
@@ -1691,7 +1691,7 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 <span class="normal"><a href="#__codelineno-0-208">208</a></span>
 <span class="normal"><a href="#__codelineno-0-209">209</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_token_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QueryParamsConfig</span><span class="p">:</span>
-<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enforce token budget invariant — read-only (no mutation).&quot;&quot;&quot;</span>
+<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;强制执行 token budget 不变量——只读（不进行修改）。&quot;&quot;&quot;</span>
 <a id="__codelineno-0-203" name="__codelineno-0-203"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_entity_tokens</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_relation_tokens</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_total_tokens</span><span class="p">:</span>
 <a id="__codelineno-0-204" name="__codelineno-0-204"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
 <a id="__codelineno-0-205" name="__codelineno-0-205"></a>            <span class="sa">f</span><span class="s2">&quot;Token budget violated: max_entity_tokens (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_entity_tokens</span><span class="si">}</span><span class="s2">) &quot;</span>
@@ -1731,7 +1731,7 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 
 
 
-        <p>Raised when configuration validation fails with categorized summary.</p>
+        <p>配置验证失败时抛出，附带分类摘要。</p>
 
 
 <details class="example" open>
@@ -1766,7 +1766,7 @@ Optional: temperature (default 0.0), max_tokens (default 9000).</p>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
 <span class="normal"><a href="#__codelineno-0-37">37</a></span>
 <span class="normal"><a href="#__codelineno-0-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="k">class</span><span class="w"> </span><span class="nc">SettingsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when configuration validation fails with categorized summary.</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;配置验证失败时抛出，附带分类摘要。</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28"></a>
 <a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">    Example:</span>
 <a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">        ```python</span>

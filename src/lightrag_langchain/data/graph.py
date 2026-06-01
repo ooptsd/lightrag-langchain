@@ -1,20 +1,19 @@
-"""Apache AGE graph query layer for lightrag-langchain.
+"""lightrag-langchain 的 Apache AGE 图查询层。
 
-Provides ``PGGraphStore`` — a read-only interface to the LightRAG knowledge
-graph stored in an Apache AGE graph under a ``base`` node label and
-``DIRECTED`` edge label.
+提供 ``PGGraphStore`` — 对存储在 Apache AGE 图中 LightRAG 知识图谱的只读接口，
+使用 ``base`` 节点标签和 ``DIRECTED`` 边标签。
 
-Query methods:
+查询方法：
 - ``get_node(entity_id)`` → ``GraphNode | None``
 - ``get_nodes_batch(entity_ids)`` → ``dict[str, GraphNode]``
 - ``get_edge(src, tgt)`` → ``GraphEdge | None``
 - ``get_edges_batch(pairs)`` → ``dict[tuple[str,str], GraphEdge]``
 - ``get_node_edges(entity_id)`` → ``list[tuple[str,str]]``
 
-All Cypher queries use ``$1::agtype`` parameterisation with ``json.dumps()`` —
-no string interpolation of user-supplied values into Cypher (T-02-04-GRAPH-01).
+所有 Cypher 查询使用 ``$1::agtype`` 参数化配合 ``json.dumps()`` —
+不将用户提供的值进行字符串插值到 Cypher 中 (T-02-04-GRAPH-01)。
 
-Usage::
+用法::
 
     from lightrag_langchain.data.graph import PGGraphStore
 
@@ -45,19 +44,16 @@ if TYPE_CHECKING:
 
 
 class PGGraphStore:
-    """Read-only query layer for the Apache AGE knowledge graph.
+    """Apache AGE 知识图谱的只读查询层。
 
     Parameters
     ----------
     pool:
-        asyncpg Pool instance.  When *None* the module-level pool from
-        ``data/pool.py`` is used (dependency injection, D-07).
+        asyncpg Pool 实例。当为 *None* 时，使用 ``data/pool.py`` 的模块级池（依赖注入，D-07）。
     graph_name:
-        Explicit AGE graph name.  When *None* the name is resolved lazily
-        from ``workspace`` on first query (D-14).
+        显式指定的 AGE 图名称。当为 *None* 时，名称在首次查询时从 ``workspace`` 延迟解析 (D-14)。
     workspace:
-        LightRAG workspace name used to derive the graph name.  When *None*
-        ``settings.pg.workspace`` is used (D-05).
+        用于派生图名称的 LightRAG workspace 名称。当为 *None* 时，使用 ``settings.pg.workspace`` (D-05)。
     """
 
     def __init__(
@@ -77,7 +73,7 @@ class PGGraphStore:
 
     @property
     def pool(self) -> Pool:
-        """Return the injected pool or fall back to the module-level pool."""
+        """返回注入的池或回退到模块级池。"""
         if self._pool is not None:
             return self._pool
         # Lazy access — __getattr__ raises RuntimeError if pool not initialized
@@ -89,12 +85,11 @@ class PGGraphStore:
 
     @staticmethod
     def _dollar_quote(s: str, tag_prefix: str = "AGE") -> str:
-        """Generate a PostgreSQL dollar-quoted string with a collision-free tag.
+        """生成带有无冲突标签的 PostgreSQL dollar-quoted 字符串。
 
-        Iterates ``AGE1``, ``AGE2``, … until a tag is found that does not
-        appear inside *s*, preventing dollar-quote nesting conflicts
-        (T-02-04-GRAPH-02).  Falls back to a UUID-based tag if 1000
-        attempts are exhausted.
+        遍历 ``AGE1``、``AGE2``、... 直到找到一个不在 *s* 内出现的标签，
+        防止 dollar-quote 嵌套冲突 (T-02-04-GRAPH-02)。
+        如果 1000 次尝试耗尽，回退到基于 UUID 的标签。
         """
         content = "" if s is None else str(s)
         for i in itertools.count(1):
@@ -112,12 +107,11 @@ class PGGraphStore:
 
     @staticmethod
     def _parse_agtype(value: str) -> dict | None:
-        """Parse an AGE ``agtype`` return value.
+        """解析 AGE ``agtype`` 返回值。
 
-        AGE may suffix agtype strings with ``::vertex`` or ``::edge`` type
-        markers.  This method strips those suffixes before ``json.loads``.
-        Returns *None* for empty / whitespace-only / unparseable input
-        (T-02-04-GRAPH-06).
+        AGE 可能在 agtype 字符串后附加 ``::vertex`` 或 ``::edge`` 类型标记。
+        此方法在 ``json.loads`` 之前去除这些后缀。
+        对于空/仅空白/无法解析的输入返回 *None* (T-02-04-GRAPH-06)。
         """
         if value is None or not isinstance(value, str):
             return None
@@ -135,17 +129,15 @@ class PGGraphStore:
             return None
 
     async def _resolve_graph_name(self) -> str:
-        """Resolve the AGE graph name from workspace (lazy, cached).
+        """从 workspace 解析 AGE 图名称（延迟，缓存）。
 
-        Resolution rules (D-14):
-        - If ``graph_name`` was passed to ``__init__``, use it as-is.
-        - If ``workspace`` is ``"default"`` or empty → ``"lightrag_graph"``.
-        - Otherwise → ``{sanitized_workspace}_lightrag_graph``, where
-          sanitization replaces any non-alphanumeric/underscore character
-          with ``"_"``.
+        解析规则 (D-14)：
+        - 如果 ``graph_name`` 已传入 ``__init__``，直接使用。
+        - 如果 ``workspace`` 为 ``"default"`` 或空 → ``"lightrag_graph"``。
+        - 否则 → ``{sanitized_workspace}_lightrag_graph``，其中清理操作将任何非字母数字/下划线字符替换为 ``"_"``。
 
-        If the resolved name does not exist in the database, auto-detects
-        from ``ag_catalog.ag_graph`` (preferring graphs with a ``base`` table).
+        如果解析的名称在数据库中不存在，则从 ``ag_catalog.ag_graph`` 自动检测
+        （优先选择带有 ``base`` 表的图）。
         """
         if self._graph_name_resolved is not None:
             return self._graph_name_resolved
@@ -199,19 +191,19 @@ class PGGraphStore:
         params: dict | None = None,
         returns: str = "result agtype",
     ) -> list[dict]:
-        """Execute a parameterised AGE Cypher query via ``SELECT * FROM cypher()``.
+        """通过 ``SELECT * FROM cypher()`` 执行参数化的 AGE Cypher 查询。
 
-        All Cypher parameters are serialised via ``json.dumps()`` and bound
-        as ``$1::agtype``, preventing Cypher injection (T-02-04-GRAPH-01).
+        所有 Cypher 参数通过 ``json.dumps()`` 序列化并绑定为 ``$1::agtype``，
+        防止 Cypher 注入 (T-02-04-GRAPH-01)。
 
         Parameters
         ----------
         cypher:
-            The Cypher query string (e.g. ``"MATCH (n) RETURN n"``).
+            Cypher 查询字符串（例如 ``"MATCH (n) RETURN n"``）。
         params:
-            Dictionary of Cypher parameter bindings.
+            Cypher 参数绑定字典。
         returns:
-            The ``AS (…)`` return column list for the ``cypher()`` function.
+            ``cypher()`` 函数的 ``AS (…)`` 返回列列表。
         """
         graph_name = await self._resolve_graph_name()
 
@@ -238,9 +230,9 @@ class PGGraphStore:
     # ------------------------------------------------------------------
 
     async def get_node(self, node_id: str) -> GraphNode | None:
-        """Retrieve a single graph node by ``entity_id``.
+        """通过 ``entity_id`` 检索单个图节点。
 
-        Returns *None* if no node with the given ID exists.
+        如果不存在具有给定 ID 的节点，则返回 *None*。
         """
         cypher = (
             "MATCH (n:base {entity_id: $entity_id}) "
@@ -267,11 +259,11 @@ class PGGraphStore:
         )
 
     async def get_nodes_batch(self, node_ids: list[str]) -> dict[str, GraphNode]:
-        """Retrieve multiple graph nodes in a single parameterised query.
+        """在单个参数化查询中检索多个图节点。
 
-        Uses ``UNNEST`` + ``ag_catalog.agtype_access_operator`` for
-        efficient batch lookup.  Returns a ``dict`` mapping ``entity_id``
-        to ``GraphNode``.  Nodes that do not exist are silently omitted.
+        使用 ``UNNEST`` + ``ag_catalog.agtype_access_operator`` 进行
+        高效的批量查找。返回将 ``entity_id`` 映射到 ``GraphNode`` 的 ``dict``。
+        不存在的节点将被静默省略。
         """
         if not node_ids:
             return {}
@@ -330,9 +322,9 @@ class PGGraphStore:
     # ------------------------------------------------------------------
 
     async def get_edge(self, src: str, tgt: str) -> GraphEdge | None:
-        """Retrieve a single directed edge between two entity nodes.
+        """检索两个实体节点之间的单个有向边。
 
-        Returns *None* if no edge exists from *src* to *tgt*.
+        如果不存在从 *src* 到 *tgt* 的边，则返回 *None*。
         """
         cypher = (
             "MATCH (a:base {entity_id: $src})-[r:DIRECTED]->(b:base {entity_id: $tgt}) "
@@ -362,13 +354,12 @@ class PGGraphStore:
     async def get_edges_batch(
         self, pairs: list[dict[str, str]]
     ) -> dict[tuple[str, str], GraphEdge]:
-        """Retrieve multiple directed edges in a single UNWIND Cypher query.
+        """在单个 UNWIND Cypher 查询中检索多个有向边。
 
-        For small batches (<= 10 pairs) falls back to sequential
-        ``get_edge`` calls.  For larger batches uses ``UNWIND $pairs``.
+        对于小批量（<= 10 对），回退到顺序 ``get_edge`` 调用。
+        对于大批量，使用 ``UNWIND $pairs``。
 
-        Returns a ``dict`` mapping ``(source_id, target_id)`` tuples to
-        ``GraphEdge``.
+        返回将 ``(source_id, target_id)`` 元组映射到 ``GraphEdge`` 的 ``dict``。
         """
         if not pairs:
             return {}
@@ -418,10 +409,9 @@ class PGGraphStore:
     # ------------------------------------------------------------------
 
     async def get_node_edges(self, node_id: str) -> list[tuple[str, str]]:
-        """Return all ``(source_id, connected_id)`` neighbour pairs for a node.
+        """返回节点的所有 ``(source_id, connected_id)`` 邻居对。
 
-        Uses ``OPTIONAL MATCH`` — when a node has no neighbours the result
-        is an empty list (not ``[(node_id, None)]``).
+        使用 ``OPTIONAL MATCH`` — 当节点没有邻居时，结果为空列表（不是 ``[(node_id, None)]``）。
         """
         cypher = (
             "MATCH (n:base {entity_id: $entity_id}) "

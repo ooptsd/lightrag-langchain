@@ -1,18 +1,17 @@
-"""LightRAG query strategy functions.
+"""LightRAG 查询策略函数。
 
-This module contains the core retrieval functions that implement LightRAG's
-six query modes. Each strategy receives pre-computed embedding vectors (D-03)
-and returns a :class:`QueryResult` with the relevant fields populated.
+本模块包含实现 LightRAG 六种查询模式的核心检索函数。每种策略接收预先计算好的
+embedding 向量（D-03），并返回一个 :class:`QueryResult`，其中填入了相应字段。
 
-Strategy mapping:
-- ``naive_strategy`` (QUERY-01): Pure vector similarity on chunks_vdb, no graph traversal
-- ``local_strategy`` (QUERY-02): Entities_vdb search + AGE graph expansion
-- ``global_strategy`` (QUERY-03): Relationships_vdb search + AGE entity lookup
-- ``hybrid_strategy`` (QUERY-04): Parallel local+global + round-robin merge
-- ``mix_strategy`` (QUERY-05): Hybrid + chunk vector search + chunk merge
-- ``bypass_strategy`` (QUERY-06): No retrieval, returns empty QueryResult
+策略映射：
+- ``naive_strategy``（QUERY-01）：仅在 chunks_vdb 上进行纯向量相似度搜索，不涉及图遍历
+- ``local_strategy``（QUERY-02）：Entities_vdb 搜索 + AGE 图扩展
+- ``global_strategy``（QUERY-03）：Relationships_vdb 搜索 + AGE 实体查找
+- ``hybrid_strategy``（QUERY-04）：并行 local+global + round-robin 合并
+- ``mix_strategy``（QUERY-05）：Hybrid + chunk 向量搜索 + chunk 合并
+- ``bypass_strategy``（QUERY-06）：无检索，返回空 QueryResult
 
-All strategies are async and receive ``query_embedding: list[float]``.
+所有策略均为异步函数，接收 ``query_embedding: list[float]``。
 """
 
 from __future__ import annotations
@@ -45,23 +44,22 @@ async def naive_strategy(
     vector_store: PGVectorStore,
     chunk_top_k: int | None = None,
 ) -> QueryResult:
-    """QUERY-01: Pure vector similarity search on chunks_vdb only.
+    """QUERY-01：仅在 chunks_vdb 上进行纯向量相似度搜索。
 
-    No graph traversal.  The top *chunk_top_k* chunks are retrieved from
-    the PGVector chunks_vdb table by cosine distance and returned in a
-    :class:`QueryResult` with only the ``chunks`` field populated.
+    不涉及图遍历。从 PGVector chunks_vdb 表中按余弦距离检索前 *chunk_top_k* 个 chunk，
+    并返回一个仅填充了 ``chunks`` 字段的 :class:`QueryResult`。
 
-    KG_CHUNK_PICK_METHOD=WEIGHT falls back to VECTOR with a logged warning
-    since no KV store is available (RESEARCH.md Pitfall 4).
+    设置 KG_CHUNK_PICK_METHOD=WEIGHT 时会回退到 VECTOR 并记录一条警告日志，
+    因为没有可用的 KV store（RESEARCH.md Pitfall 4）。
 
     Args:
-        query_embedding: Pre-computed query embedding vector (D-03).
-        vector_store: Configured PGVectorStore instance.
-        chunk_top_k: Override for :attr:`.QueryParamsConfig.chunk_top_k`.
-            If ``None`` the setting default (20) is used.
+        query_embedding: 预先计算好的 query embedding 向量（D-03）。
+        vector_store: 已配置的 PGVectorStore 实例。
+        chunk_top_k: 覆盖 :attr:`.QueryParamsConfig.chunk_top_k` 的值。
+            若为 ``None``，则使用配置默认值（20）。
 
     Returns:
-        QueryResult with ``chunks`` populated; all other fields are empty.
+        QueryResult，其中 ``chunks`` 已填充；其他所有字段为空。
     """
     from lightrag_langchain.config import settings
 
@@ -90,25 +88,25 @@ async def global_strategy(
     graph_store: PGGraphStore,
     top_k: int | None = None,
 ) -> QueryResult:
-    """QUERY-03: Relationships_vdb vector search followed by AGE graph entity lookup.
+    """QUERY-03：Relationships_vdb 向量搜索后进行 AGE 图实体查找。
 
-    Step 1: Vector search for top-K relationship records from PGVector
-            ``relationships_vdb`` (keywords/weight will be ``None`` per
-            RESEARCH.md Pitfall 2 -- real values come from AGE edges).
-    Step 2: Batch-retrieve edge data from AGE graph via ``get_edges_batch()``
-            to get real keywords/weight.
-    Step 3: Batch-retrieve entity nodes for all connected entity IDs.
-    Step 4: Assemble :class:`GraphTriple` list from relations + edges + nodes.
+    步骤 1：从 PGVector ``relationships_vdb`` 向量搜索 top-K 条关系记录
+            （keywords/weight 将为 ``None``，参见 RESEARCH.md Pitfall 2
+            —— 真实值来自 AGE 边）。
+    步骤 2：通过 ``get_edges_batch()`` 从 AGE 图批量获取边数据，
+            以获取真实的 keywords/weight。
+    步骤 3：为所有关联的实体 ID 批量获取实体节点。
+    步骤 4：从 relations + edges + nodes 组装 :class:`GraphTriple` 列表。
 
     Args:
-        query_embedding: Pre-computed query embedding vector (D-03).
-        vector_store: Configured PGVectorStore instance.
-        graph_store: Configured PGGraphStore instance.
-        top_k: Override for :attr:`.QueryParamsConfig.top_k`.
-            If ``None`` the setting default (40) is used.
+        query_embedding: 预先计算好的 query embedding 向量（D-03）。
+        vector_store: 已配置的 PGVectorStore 实例。
+        graph_store: 已配置的 PGGraphStore 实例。
+        top_k: 覆盖 :attr:`.QueryParamsConfig.top_k` 的值。
+            若为 ``None``，则使用配置默认值（40）。
 
     Returns:
-        QueryResult with ``relations`` and ``graph_triples`` populated.
+        QueryResult，其中 ``relations`` 和 ``graph_triples`` 已填充。
     """
     from lightrag_langchain.config import settings
 
@@ -175,22 +173,22 @@ async def _concurrent_graph_lookup(
     graph_store: PGGraphStore,
     entity_names: list[str],
 ) -> tuple[dict[str, GraphNode], set[tuple[str, str]]]:
-    """Concurrent graph node lookup + edge discovery for a batch of entities.
+    """对一批实体进行并发的图节点查找 + 边发现。
 
-    Step A: Batch-retrieve node data for all given entity names.
-    Step B: Execute ``get_node_edges()`` for each entity **in parallel** via
-            :func:`asyncio.gather` with ``return_exceptions=True`` so a single
-            failed lookup does not crash the entire batch (RESEARCH.md Pitfall 5).
-    Step C: Collect all unique deduplicated edge pairs from all entities.
+    步骤 A：为所有给定实体名称批量获取节点数据。
+    步骤 B：通过 :func:`asyncio.gather` 对每个实体**并行**执行 ``get_node_edges()``，
+            并设置 ``return_exceptions=True``，使得单个失败的查找不会导致整批崩溃
+            （RESEARCH.md Pitfall 5）。
+    步骤 C：收集所有实体中所有唯一的去重边对。
 
     Args:
-        graph_store: Configured PGGraphStore instance.
-        entity_names: List of entity names (VDB entity_name == AGE entity_id).
+        graph_store: 已配置的 PGGraphStore 实例。
+        entity_names: 实体名称列表（VDB entity_name == AGE entity_id）。
 
     Returns:
-        Tuple of ``(nodes_dict, all_edge_pairs)`` where *nodes_dict* maps
-        entity_name to :class:`GraphNode` and *all_edge_pairs* is a deduplicated
-        set of ``(sorted_src, sorted_tgt)`` tuples.
+        ``(nodes_dict, all_edge_pairs)`` 元组，其中 *nodes_dict* 将
+        entity_name 映射到 :class:`GraphNode`，*all_edge_pairs* 是一个去重后的
+        ``(sorted_src, sorted_tgt)`` 元组集合。
     """
     # Step A: Batch node retrieval
     nodes_dict = await graph_store.get_nodes_batch(entity_names)
@@ -220,22 +218,22 @@ async def _concurrent_edge_retrieval(
     all_edge_pairs: set[tuple[str, str]],
     nodes_dict: dict[str, GraphNode],
 ) -> tuple[dict[tuple[str, str], GraphEdge], dict[str, GraphNode]]:
-    """Concurrent edge data retrieval + neighbor node lookup.
+    """并发边数据检索 + 邻居节点查找。
 
-    Step A: Convert edge pair tuples to dict format for ``get_edges_batch()``.
-    Step B: Batch-retrieve edge data from AGE graph (keywords/weight etc.).
-    Step C: Discover neighbor entity IDs not already in *nodes_dict*.
-    Step D: Batch-retrieve those neighbor nodes if any exist.
+    步骤 A：将边对元组转换为 ``get_edges_batch()`` 所需的字典格式。
+    步骤 B：从 AGE 图批量获取边数据（keywords/weight 等）。
+    步骤 C：发现尚未在 *nodes_dict* 中的邻居实体 ID。
+    步骤 D：如果存在新邻居节点，则批量获取它们。
 
     Args:
-        graph_store: Configured PGGraphStore instance.
-        all_edge_pairs: Deduplicated set of ``(sorted_src, sorted_tgt)`` tuples.
-        nodes_dict: Existing node lookup (from prior batch call).
+        graph_store: 已配置的 PGGraphStore 实例。
+        all_edge_pairs: 去重后的 ``(sorted_src, sorted_tgt)`` 元组集合。
+        nodes_dict: 已有的节点查找结果（来自之前的批量调用）。
 
     Returns:
-        Tuple of ``(edges_dict, neighbor_nodes)`` where *edges_dict* maps
-        ``(src_id, tgt_id)`` to :class:`GraphEdge` and *neighbor_nodes* maps
-        newly discovered entity IDs to :class:`GraphNode`.
+        ``(edges_dict, neighbor_nodes)`` 元组，其中 *edges_dict* 将
+        ``(src_id, tgt_id)`` 映射到 :class:`GraphEdge`，*neighbor_nodes* 将
+        新发现的实体 ID 映射到 :class:`GraphNode`。
     """
     # Step A: Convert to dict format for get_edges_batch()
     edge_pairs: list[dict[str, str]] = [
@@ -267,24 +265,22 @@ def _build_graph_triples(
     edges_dict: dict[tuple[str, str], GraphEdge],
     neighbor_nodes: dict[str, GraphNode],
 ) -> list[GraphTriple]:
-    """Assemble :class:`GraphTriple` list from already-fetched data (pure sync).
+    """从已获取的数据（纯同步）组装 :class:`GraphTriple` 列表。
 
-    No I/O — operates only on in-memory Pydantic models.  Merges *nodes_dict*
-    and *neighbor_nodes* into a unified lookup, then walks every entity record
-    matching it against edges whose ``source_id`` matches the entity name.
+    无 I/O —— 仅操作内存中的 Pydantic 模型。将 *nodes_dict* 和 *neighbor_nodes*
+    合并为统一的查找表，然后遍历每条 entity record，将其匹配到 ``source_id``
+    与实体名称相同的边上。
 
-    Deduplication key: ``(src_node.entity_id, sorted((edge.source_id, edge.target_id)), tgt_node.entity_id)``.
+    去重键：``(src_node.entity_id, sorted((edge.source_id, edge.target_id)), tgt_node.entity_id)``。
 
     Args:
-        entity_records: Top-K entities from the vector search (ordered by
-            cosine distance).
-        nodes_dict: Entity nodes for the top-K entity names.
-        edges_dict: Graph edges for all discovered edge pairs (keyed by
-            ``(source_id, target_id)``).
-        neighbor_nodes: Neighbor entity nodes discovered during graph expansion.
+        entity_records: 向量搜索得到的 top-K 实体（按余弦距离排序）。
+        nodes_dict: top-K 实体名称对应的实体节点。
+        edges_dict: 所有已发现边对的图边（以 ``(source_id, target_id)`` 为键）。
+        neighbor_nodes: 图扩展过程中发现的邻居实体节点。
 
     Returns:
-        Deduplicated list of :class:`GraphTriple` objects.
+        去重后的 :class:`GraphTriple` 对象列表。
     """
     # Unified node lookup
     all_nodes: dict[str, GraphNode] = {**nodes_dict, **neighbor_nodes}
@@ -335,29 +331,27 @@ async def local_strategy(
     graph_store: PGGraphStore,
     top_k: int | None = None,
 ) -> QueryResult:
-    """QUERY-02: Entities_vdb vector search followed by AGE graph expansion.
+    """QUERY-02：Entities_vdb 向量搜索后进行 AGE 图扩展。
 
-    Step 1: Vector search for top-K entity records (in cosine distance order).
-    Step 2: ``_concurrent_graph_lookup()`` — parallel node data + edge discovery
-            for all top-K entities (Pitfall 5: prevents 40 sequential round-trips).
-    Step 3: ``_concurrent_edge_retrieval()`` — batch edge data + neighbor node
-            lookup.
-    Step 4: ``_build_graph_triples()`` — assemble deduplicated graph triples.
+    步骤 1：向量搜索 top-K 条 entity record（按余弦距离排序）。
+    步骤 2：``_concurrent_graph_lookup()`` —— 为所有 top-K 实体并行进行节点数据
+            + 边发现（Pitfall 5：避免 40 次顺序往返）。
+    步骤 3：``_concurrent_edge_retrieval()`` —— 批量边数据 + 邻居节点查找。
+    步骤 4：``_build_graph_triples()`` —— 组装去重后的 graph triples。
 
-    Entity names from VDB (``entity_name``) ARE the graph node IDs in
-    Apache AGE (Pitfall 1).  The returned ``QueryResult`` only populates
-    ``entities`` and ``graph_triples`` — ``relations`` and ``chunks``
-    remain empty for local mode.
+    VDB 中的实体名称（``entity_name``）就是 Apache AGE 中的图节点 ID
+    （Pitfall 1）。返回的 ``QueryResult`` 仅填充 ``entities`` 和
+    ``graph_triples`` —— ``relations`` 和 ``chunks`` 在 local 模式下保持为空。
 
     Args:
-        query_embedding: Pre-computed query embedding vector (D-03).
-        vector_store: Configured PGVectorStore instance.
-        graph_store: Configured PGGraphStore instance.
-        top_k: Override for :attr:`.QueryParamsConfig.top_k`.
-            If ``None`` the setting default (40) is used.
+        query_embedding: 预先计算好的 query embedding 向量（D-03）。
+        vector_store: 已配置的 PGVectorStore 实例。
+        graph_store: 已配置的 PGGraphStore 实例。
+        top_k: 覆盖 :attr:`.QueryParamsConfig.top_k` 的值。
+            若为 ``None``，则使用配置默认值（40）。
 
     Returns:
-        QueryResult with ``entities`` and ``graph_triples`` populated.
+        QueryResult，其中 ``entities`` 和 ``graph_triples`` 已填充。
     """
     from lightrag_langchain.config import settings
 
@@ -399,18 +393,18 @@ def _round_robin_merge_entities(
     local_entities: list[EntityRecord],
     global_entities: list[EntityRecord],
 ) -> list[EntityRecord]:
-    """Round-robin interleave entities from local and global strategies.
+    """将 local 和 global 策略的实体进行 round-robin 交错合并。
 
-    Alternates: local[0], global[0], local[1], global[1], ...
-    Deduplicates by *entity_name*.
-    Matches upstream ``_perform_kg_search`` lines 3512-3566.
+    交替方式：local[0], global[0], local[1], global[1], ...
+    按 *entity_name* 去重。
+    与上游 ``_perform_kg_search`` 第 3512-3566 行一致。
 
     Args:
-        local_entities: Entities from the local strategy.
-        global_entities: Entities from the global strategy.
+        local_entities: local 策略返回的实体。
+        global_entities: global 策略返回的实体。
 
     Returns:
-        Deduplicated, round-robin interleaved entity list.
+        去重后、round-robin 交错合并的实体列表。
     """
     merged: list[EntityRecord] = []
     seen: set[str] = set()
@@ -433,18 +427,18 @@ def _round_robin_merge_relations(
     local_relations: list[RelationshipRecord],
     global_relations: list[RelationshipRecord],
 ) -> list[RelationshipRecord]:
-    """Round-robin interleave relations from local and global strategies.
+    """将 local 和 global 策略的关系进行 round-robin 交错合并。
 
-    Alternates: local[0], global[0], local[1], global[1], ...
-    Deduplicates by ``tuple(sorted((src_id, tgt_id)))``.
-    Matches upstream ``_perform_kg_search`` lines 3542-3564.
+    交替方式：local[0], global[0], local[1], global[1], ...
+    按 ``tuple(sorted((src_id, tgt_id)))`` 去重。
+    与上游 ``_perform_kg_search`` 第 3542-3564 行一致。
 
     Args:
-        local_relations: Relations from the local strategy (usually empty).
-        global_relations: Relations from the global strategy.
+        local_relations: local 策略返回的关系（通常为空）。
+        global_relations: global 策略返回的关系。
 
     Returns:
-        Deduplicated, round-robin interleaved relation list.
+        去重后、round-robin 交错合并的关系列表。
     """
     merged: list[RelationshipRecord] = []
     seen: set[tuple[str, str]] = set()
@@ -469,18 +463,18 @@ def _round_robin_merge_chunks(
     vector_chunks: list[ChunkRecord],
     kg_chunks: list[ChunkRecord],
 ) -> list[ChunkRecord]:
-    """Round-robin interleave vector chunks and KG (entity) chunks.
+    """将向量 chunks 和 KG（实体）chunks 进行 round-robin 交错合并。
 
-    Alternates: vector_chunks[0], kg_chunks[0], vector_chunks[1], kg_chunks[1], ...
-    Deduplicates by *chunk_id*.
-    Matches upstream ``_merge_all_chunks`` lines 3804-3845.
+    交替方式：vector_chunks[0], kg_chunks[0], vector_chunks[1], kg_chunks[1], ...
+    按 *chunk_id* 去重。
+    与上游 ``_merge_all_chunks`` 第 3804-3845 行一致。
 
     Args:
-        vector_chunks: Chunks from vector similarity search.
-        kg_chunks: Pseudo-chunks constructed from entity content.
+        vector_chunks: 向量相似度搜索返回的 chunks。
+        kg_chunks: 由实体内容构建的伪 chunks。
 
     Returns:
-        Deduplicated, round-robin interleaved chunk list.
+        去重后、round-robin 交错合并的 chunk 列表。
     """
     merged: list[ChunkRecord] = []
     seen: set[str] = set()
@@ -511,27 +505,26 @@ async def hybrid_strategy(
     graph_store: PGGraphStore,
     top_k: int | None = None,
 ) -> QueryResult:
-    """QUERY-04: Run local and global strategies in parallel then round-robin merge.
+    """QUERY-04：并行执行 local 和 global 策略，然后 round-robin 交错合并。
 
-    Step 1: :func:`asyncio.gather` runs ``local_strategy()`` and
-            ``global_strategy()`` concurrently.
-    Step 2: Entities and relations are merged using round-robin interleaving
-            with deduplication by entity_name (entities) and sorted
-            (src_id, tgt_id) tuple (relations).
-    Step 3: Graph triples from both results are merged with deduplication by
+    步骤 1：:func:`asyncio.gather` 并发运行 ``local_strategy()`` 和
+            ``global_strategy()``。
+    步骤 2：实体和关系使用 round-robin 交错方式合并，分别按 entity_name（实体）
+            和排序后的 (src_id, tgt_id) 元组（关系）去重。
+    步骤 3：两个结果的 graph triples 按
             ``(src.entity_id, sorted((edge.source_id, edge.target_id)), tgt.entity_id)``
-            per upstream ``_perform_kg_search`` lines 3512-3566.
+            去重后合并，与上游 ``_perform_kg_search`` 第 3512-3566 行一致。
 
     Args:
-        query_embedding: Pre-computed query embedding vector (D-03).
-        vector_store: Configured PGVectorStore instance.
-        graph_store: Configured PGGraphStore instance.
-        top_k: Override for :attr:`.QueryParamsConfig.top_k`.
-            If ``None`` the setting default (40) is used.
+        query_embedding: 预先计算好的 query embedding 向量（D-03）。
+        vector_store: 已配置的 PGVectorStore 实例。
+        graph_store: 已配置的 PGGraphStore 实例。
+        top_k: 覆盖 :attr:`.QueryParamsConfig.top_k` 的值。
+            若为 ``None``，则使用配置默认值（40）。
 
     Returns:
-        QueryResult with ``entities``, ``relations``, and ``graph_triples``
-        populated from the merged local+global results.
+        QueryResult，其中 ``entities``、``relations`` 和 ``graph_triples``
+        由合并后的 local+global 结果填充。
     """
     from lightrag_langchain.config import settings
 
@@ -593,17 +586,16 @@ async def hybrid_strategy(
 
 
 async def bypass_strategy() -> QueryResult:
-    """QUERY-06: No retrieval — returns an empty :class:`QueryResult`.
+    """QUERY-06：无检索 —— 返回一个空的 :class:`QueryResult`。
 
-    Takes no parameters and performs zero database queries.  All four
-    fields (entities, relations, chunks, graph_triples) default to empty
-    lists.  Phase 6 Chain detects the empty result and skips context
-    assembly, passing the query directly to the LLM.
+    不接受任何参数，不执行任何数据库查询。四个字段（entities、relations、chunks、
+    graph_triples）全部默认为空列表。Phase 6 Chain 检测到空结果后会跳过上下文组装，
+    直接将查询传递给 LLM。
 
-    Matches upstream LightRAG bypass mode handling (lightrag.py lines 2845-2855).
+    与上游 LightRAG bypass 模式处理一致（lightrag.py 第 2845-2855 行）。
 
     Returns:
-        Empty QueryResult with all fields as empty lists.
+        所有字段均为空列表的 QueryResult。
     """
     return QueryResult()
 
@@ -621,29 +613,27 @@ async def mix_strategy(
     top_k: int | None = None,
     chunk_top_k: int | None = None,
 ) -> QueryResult:
-    """QUERY-05: Hybrid retrieval plus chunk vector search, merged into one result.
+    """QUERY-05：Hybrid 检索加 chunk 向量搜索，合并为一个结果。
 
-    Step 1: :func:`asyncio.gather` runs ``hybrid_strategy()`` for graph
-            knowledge and ``vector_store.search_chunks()`` for raw text chunks
-            concurrently.
-    Step 2: Entity content strings are converted to :class:`ChunkRecord`
-            pseudo-chunks so they can be interleaved with vector-retrieved text
-            chunks.
-    Step 3: Vector chunks and entity chunks are merged via
-            :func:`_round_robin_merge_chunks` to produce the final chunk list.
+    步骤 1：:func:`asyncio.gather` 并发运行 ``hybrid_strategy()``（图知识）和
+            ``vector_store.search_chunks()``（原始文本 chunks）。
+    步骤 2：将实体内容字符串转换为 :class:`ChunkRecord` 伪 chunks，
+            以便与向量检索到的文本 chunks 交错合并。
+    步骤 3：通过 :func:`_round_robin_merge_chunks` 合并向量 chunks 和实体 chunks，
+            生成最终的 chunk 列表。
 
     Args:
-        query_embedding: Pre-computed query embedding vector (D-03).
-        vector_store: Configured PGVectorStore instance.
-        graph_store: Configured PGGraphStore instance.
-        top_k: Override for :attr:`.QueryParamsConfig.top_k`.
-            If ``None`` the setting default (40) is used.
-        chunk_top_k: Override for :attr:`.QueryParamsConfig.chunk_top_k`.
-            If ``None`` the setting default (20) is used.
+        query_embedding: 预先计算好的 query embedding 向量（D-03）。
+        vector_store: 已配置的 PGVectorStore 实例。
+        graph_store: 已配置的 PGGraphStore 实例。
+        top_k: 覆盖 :attr:`.QueryParamsConfig.top_k` 的值。
+            若为 ``None``，则使用配置默认值（40）。
+        chunk_top_k: 覆盖 :attr:`.QueryParamsConfig.chunk_top_k` 的值。
+            若为 ``None``，则使用配置默认值（20）。
 
     Returns:
-        QueryResult with all four fields (entities, relations, chunks,
-        graph_triples) populated.
+        QueryResult，其中所有四个字段（entities、relations、chunks、
+        graph_triples）均已填充。
     """
     from lightrag_langchain.config import settings
 

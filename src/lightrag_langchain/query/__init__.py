@@ -1,23 +1,21 @@
-"""LightRAG query strategy implementations.
+"""LightRAG 查询策略实现。
 
-This package provides six query strategies (naive, local, global, hybrid,
-mix, bypass) that execute against the LightRAG PostgreSQL knowledge graph.
-Each strategy returns a strongly-typed :class:`QueryResult` intermediate
-representation (D-01, D-02), which downstream consumers (Phase 5 Retriever,
-Phase 6 Chain) convert and assemble.
+本包提供六种查询策略（naive、local、global、hybrid、mix、bypass），
+它们对 LightRAG PostgreSQL 知识图谱执行查询。每种策略返回一个强类型的
+:class:`QueryResult` 中间表示（D-01、D-02），下游消费者（Phase 5 Retriever、
+Phase 6 Chain）对其进行转换和组装。
 
-Models (eagerly imported)
-    :class:`QueryResult` — Single-union type with entities, relations,
-    chunks, and graph_triples fields; each strategy fills only its relevant
-    fields.
+模型（立即导入）
+    :class:`QueryResult` —— 单一联合类型，包含 entities、relations、
+    chunks 和 graph_triples 字段；每种策略仅填充其相关字段。
 
-    :class:`GraphTriple` — A (src_entity, relation, tgt_entity) triple
-    from graph traversal, carrying full node and edge properties.
+    :class:`GraphTriple` —— 图遍历产生的 (src_entity, relation, tgt_entity)
+    三元组，携带完整的节点和边属性。
 
-Strategy functions (lazy, added in Plan 03)
-    When accessed, the ``__getattr__`` lazy import mechanism resolves
-    strategy function references to ``lightrag_langchain.query.strategies``
-    without triggering Settings instantiation at import time.
+策略函数（惰性导入，在 Plan 03 中添加）
+    当访问时，``__getattr__`` 惰性导入机制将策略函数引用解析到
+    ``lightrag_langchain.query.strategies``，而不会在导入时触发
+    Settings 实例化。
 """
 
 from __future__ import annotations
@@ -37,11 +35,10 @@ __all__ = [
 
 
 def __getattr__(name: str):
-    """Lazy import for query strategy functions — defers import/construction
-    until the exported identifier is actually accessed.
+    """查询策略函数的惰性导入 —— 将导入/构造推迟到导出的标识符被实际访问时。
 
-    Pattern matches :file:`lightrag_langchain/__init__.py` (L:18-68) and
-    :file:`data/__init__.py` (L:20-32).
+    模式与 :file:`lightrag_langchain/__init__.py`（L:18-68）和
+    :file:`data/__init__.py`（L:20-32）一致。
     """
     if name == "naive_strategy":
         from lightrag_langchain.query.strategies import naive_strategy

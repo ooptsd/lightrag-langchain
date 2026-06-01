@@ -1,15 +1,14 @@
-"""LightRAG query-mode retriever subclasses (D-07).
+"""LightRAG 查询模式 Retriever 子类 (D-07)。
 
-This module provides six :class:`LightRAGBaseRetriever` subclasses, one per
-LightRAG query mode.  Each retriever:
+本模块提供六个 :class:`LightRAGBaseRetriever` 子类，每个对应一种 LightRAG 查询模式。
+每个 Retriever：
 
-1. Generates a query embedding via the shared ``_generate_query_embedding`` helper.
-2. Calls the corresponding Phase 4 async strategy function.
-3. Converts the returned :class:`QueryResult` into ``list[Document]`` with
-   upstream-compatible JSON ``page_content`` (D-04) and structured ``metadata`` (D-05).
+1. 通过共享的 ``_generate_query_embedding`` 辅助方法生成查询 embedding。
+2. 调用相应的 Phase 4 异步策略函数。
+3. 将返回的 :class:`QueryResult` 转换为 ``list[Document]``，包含上游兼容的 JSON ``page_content`` (D-04)
+   和结构化 ``metadata`` (D-05)。
 
-All strategy imports are **lazy** (inside method bodies) to keep the module
-safe to import without a .env file or database connection.
+所有策略导入均为**延迟导入**（在方法体内部），确保模块在无需 .env 文件或数据库连接时也能安全导入。
 """
 
 from __future__ import annotations
@@ -50,12 +49,12 @@ logger = logging.getLogger(__name__)
 
 
 class NaiveRetriever(LightRAGBaseRetriever):
-    """LangChain retriever for LightRAG **naive** query mode.
+    """LightRAG **naive** 查询模式的 LangChain Retriever。
 
-    Performs pure vector similarity search on the chunks_vdb table.
-    No graph traversal — returns chunk Documents only.
+    在 chunks_vdb 表上执行纯向量相似度搜索。
+    不进行图遍历 — 仅返回 chunk Document。
 
-    RETR-01 (naive mode).  ``graph_store`` is not used (always ``None``).
+    RETR-01 (naive mode)。``graph_store`` 不使用（始终为 ``None``）。
 
     Example:
         ```python
@@ -72,7 +71,7 @@ class NaiveRetriever(LightRAGBaseRetriever):
     async def _aget_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Async naive retrieval: embed query → vector search chunks → convert."""
+        """异步 naive 检索：embed query → 向量搜索 chunks → 转换。"""
         embedding = self._generate_query_embedding(query)
 
         from lightrag_langchain.query.strategies import naive_strategy
@@ -99,12 +98,12 @@ class NaiveRetriever(LightRAGBaseRetriever):
 
 
 class LocalRetriever(LightRAGBaseRetriever):
-    """LangChain retriever for LightRAG **local** query mode.
+    """LightRAG **local** 查询模式的 LangChain Retriever。
 
-    Searches the entities_vdb for top-K entities, expands into the AGE graph
-    to discover edges/neighbors, and returns entity + GraphTriple Documents.
+    在 entities_vdb 中搜索 top-K 实体，扩展到 AGE 图中发现边/邻居，
+    返回 entity + GraphTriple Document。
 
-    RETR-01 (local mode).  Requires both ``vector_store`` and ``graph_store``.
+    RETR-01 (local mode)。需要同时 ``vector_store`` 和 ``graph_store``。
 
     Example:
         ```python
@@ -122,7 +121,7 @@ class LocalRetriever(LightRAGBaseRetriever):
     async def _aget_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Async local retrieval: embed → entity search → graph expand → convert."""
+        """异步 local 检索：embed → 实体搜索 → 图扩展 → 转换。"""
         embedding = self._generate_query_embedding(query)
 
         from lightrag_langchain.query.strategies import local_strategy
@@ -171,12 +170,12 @@ class LocalRetriever(LightRAGBaseRetriever):
 
 
 class GlobalRetriever(LightRAGBaseRetriever):
-    """LangChain retriever for LightRAG **global** query mode.
+    """LightRAG **global** 查询模式的 LangChain Retriever。
 
-    Searches the relationships_vdb for top-K relations, batch-retrieves edge
-    data from the AGE graph, and returns relation + GraphTriple Documents.
+    在 relationships_vdb 中搜索 top-K 关系，批量从 AGE 图中检索边数据，
+    返回 relation + GraphTriple Document。
 
-    RETR-01 (global mode).  Requires both ``vector_store`` and ``graph_store``.
+    RETR-01 (global mode)。需要同时 ``vector_store`` 和 ``graph_store``。
 
     Example:
         ```python
@@ -194,7 +193,7 @@ class GlobalRetriever(LightRAGBaseRetriever):
     async def _aget_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Async global retrieval: embed → relation search → enrich → convert."""
+        """异步 global 检索：embed → 关系搜索 → 丰富 → 转换。"""
         embedding = self._generate_query_embedding(query)
 
         from lightrag_langchain.query.strategies import global_strategy
@@ -244,12 +243,12 @@ class GlobalRetriever(LightRAGBaseRetriever):
 
 
 class HybridRetriever(LightRAGBaseRetriever):
-    """LangChain retriever for LightRAG **hybrid** query mode.
+    """LightRAG **hybrid** 查询模式的 LangChain Retriever。
 
-    Runs local and global strategies in parallel, then round-robin merges
-    entities and relations.  Returns entity + relation + GraphTriple Documents.
+    并行运行 local 和 global 策略，然后轮询合并 entities 和 relations。
+    返回 entity + relation + GraphTriple Document。
 
-    RETR-01 (hybrid mode).  Requires both ``vector_store`` and ``graph_store``.
+    RETR-01 (hybrid mode)。需要同时 ``vector_store`` 和 ``graph_store``。
 
     Example:
         ```python
@@ -267,7 +266,7 @@ class HybridRetriever(LightRAGBaseRetriever):
     async def _aget_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Async hybrid retrieval: embed → parallel local+global → merge → convert."""
+        """异步 hybrid 检索：embed → 并行 local+global → 合并 → 转换。"""
         embedding = self._generate_query_embedding(query)
 
         from lightrag_langchain.query.strategies import hybrid_strategy
@@ -336,13 +335,12 @@ class HybridRetriever(LightRAGBaseRetriever):
 
 
 class MixRetriever(LightRAGBaseRetriever):
-    """LangChain retriever for LightRAG **mix** query mode.
+    """LightRAG **mix** 查询模式的 LangChain Retriever。
 
-    Runs the hybrid strategy and chunk vector search in parallel, merging
-    entity pseudo-chunks with text chunks via round-robin.  Returns
-    entity + relation + chunk + GraphTriple Documents.
+    并行运行 hybrid 策略和 chunk 向量搜索，通过轮询将实体伪块与文本块合并。
+    返回 entity + relation + chunk + GraphTriple Document。
 
-    RETR-01 (mix mode).  Requires both ``vector_store`` and ``graph_store``.
+    RETR-01 (mix mode)。需要同时 ``vector_store`` 和 ``graph_store``。
 
     Example:
         ```python
@@ -360,7 +358,7 @@ class MixRetriever(LightRAGBaseRetriever):
     async def _aget_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Async mix retrieval: embed → mix strategy → convert all four types."""
+        """异步 mix 检索：embed → mix 策略 → 转换全部四种类型。"""
         embedding = self._generate_query_embedding(query)
 
         from lightrag_langchain.query.strategies import mix_strategy
@@ -436,12 +434,12 @@ class MixRetriever(LightRAGBaseRetriever):
 
 
 class BypassRetriever(LightRAGBaseRetriever):
-    """LangChain retriever for LightRAG **bypass** query mode.
+    """LightRAG **bypass** 查询模式的 LangChain Retriever。
 
-    No retrieval — returns an empty ``list[Document]``.  No embedding
-    generation, no strategy call, no database I/O.
+    不进行检索 — 返回空的 ``list[Document]``。无 embedding 生成、无策略调用、
+    无数据库 I/O。
 
-    RETR-01 (bypass mode).  ``vector_store`` and ``graph_store`` are unused.
+    RETR-01 (bypass mode)。``vector_store`` 和 ``graph_store`` 不使用。
 
     Example:
         ```python
@@ -451,20 +449,20 @@ class BypassRetriever(LightRAGBaseRetriever):
             vector_store=vector_store,
             embedding_config=settings.embedding,
         )
-        docs = await retriever.ainvoke("your query")  # always returns []
+        docs = await retriever.ainvoke("your query")  # 始终返回 []
         ```
     """
 
     async def _aget_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Async bypass — returns empty list.  No I/O."""
+        """异步 bypass — 返回空列表。无 I/O。"""
         return []
 
     def _get_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Sync bypass — returns empty list.  Skips ``asyncio.run`` overhead."""
+        """同步 bypass — 返回空列表。跳过 ``asyncio.run`` 开销。"""
         return []
 
 

@@ -1,14 +1,13 @@
-"""Shared base class for all LightRAG LangChain retrievers (D-06).
+"""所有 LightRAG LangChain Retriever 的共享基类 (D-06)。
 
-Provides the :class:`LightRAGBaseRetriever` abstract base class that encapsulates:
-- Embedding generation via lazy :meth:`embedding` property (D-02)
-- Async-to-sync bridge using :func:`asyncio.run` (matches LightRAGReranker pattern)
-- Shared error handling and logger
-- Pydantic field validation (D-01, D-03)
+提供 :class:`LightRAGBaseRetriever` 抽象基类，封装了以下功能：
+- 通过延迟 :meth:`embedding` 属性生成 Embedding (D-02)
+- 使用 :func:`asyncio.run` 的异步到同步桥接（匹配 LightRAGReranker 模式）
+- 共享的错误处理和日志记录
+- Pydantic 字段验证 (D-01, D-03)
 
-Subclass responsibility is limited to :meth:`_aget_relevant_documents` and
-any mode-specific helper methods.  No strategy-specific or conversion logic
-lives in the base class.
+子类职责仅限于 :meth:`_aget_relevant_documents` 和任何模式特定的辅助方法。
+基类中不包含策略特定或转换逻辑。
 """
 
 from __future__ import annotations
@@ -31,28 +30,23 @@ if TYPE_CHECKING:
 
 
 class LightRAGBaseRetriever(BaseRetriever):
-    """Abstract base class for all LightRAG query-mode retrievers.
+    """所有 LightRAG 查询模式 Retriever 的抽象基类。
 
-    Encapsulates shared infrastructure (embedding generation, async bridge,
-    error handling) so that each mode-specific subclass only needs to
-    implement ``_aget_relevant_documents`` with its own strategy call and
-    Document conversion logic (D-06).
+    封装共享基础设施（embedding 生成、异步桥接、错误处理），使每个模式特定子类
+    只需实现 ``_aget_relevant_documents`` 及其自身的策略调用和 Document 转换逻辑 (D-06)。
 
     Parameters
     ----------
     vector_store:
-        PGVectorStore instance for vector similarity search (D-01).
+        用于向量相似度搜索的 PGVectorStore 实例 (D-01)。
     embedding_config:
-        EmbeddingConfig used to create the embedding model lazily (D-02).
+        用于延迟创建 embedding 模型的 EmbeddingConfig (D-02)。
     graph_store:
-        PGGraphStore instance for graph lookups.  Optional — naive and
-        bypass modes do not require it (default ``None``).
+        用于图查询的 PGGraphStore 实例。可选 — naive 和 bypass 模式不需要（默认 ``None``）。
     top_k:
-        Override global top_k.  When ``None`` the retriever uses the
-        Settings-level default (D-03).
+        覆盖全局 top_k。当为 ``None`` 时，Retriever 使用 Settings 级别的默认值 (D-03)。
     chunk_top_k:
-        Override global chunk_top_k.  When ``None`` the retriever uses the
-        Settings-level default (D-03).
+        覆盖全局 chunk_top_k。当为 ``None`` 时，Retriever 使用 Settings 级别的默认值 (D-03)。
 
     Example:
         ```python
@@ -70,31 +64,31 @@ class LightRAGBaseRetriever(BaseRetriever):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     vector_store: PGVectorStore
-    """PGVectorStore for vector similarity search (D-01 constructor injection)."""
+    """用于向量相似度搜索的 PGVectorStore (D-01 构造函数注入)。"""
 
     embedding_config: EmbeddingConfig
-    """Embedding provider config; consumed by the lazy ``embedding`` property (D-02)."""
+    """Embedding provider 配置；由延迟 ``embedding`` 属性消费 (D-02)。"""
 
     graph_store: PGGraphStore | None = None
-    """PGGraphStore for graph lookups; optional (naive/bypass don't need it)."""
+    """用于图查询的 PGGraphStore；可选（naive/bypass 不需要）。"""
 
     top_k: int | None = None
-    """Override for global top_k; ``None`` means use Settings default (D-03)."""
+    """覆盖全局 top_k；``None`` 表示使用 Settings 默认值 (D-03)。"""
 
     chunk_top_k: int | None = None
-    """Override for chunk_top_k; ``None`` means use Settings default (D-03)."""
+    """覆盖 chunk_top_k；``None`` 表示使用 Settings 默认值 (D-03)。"""
 
     # ------------------------------------------------------------------
     # Private attributes
     # ------------------------------------------------------------------
 
     _embedding: OpenAIEmbeddings | None = PrivateAttr(default=None)
-    """Lazy-initialized embedding model (D-02)."""
+    """延迟初始化的 embedding 模型 (D-02)。"""
 
     _logger: logging.Logger = PrivateAttr(
         default_factory=lambda: logging.getLogger(__name__)
     )
-    """Per-instance logger for warnings and errors."""
+    """每个实例的日志记录器，用于警告和错误。"""
 
     # ------------------------------------------------------------------
     # Embedding (lazy init, D-02)
@@ -102,12 +96,11 @@ class LightRAGBaseRetriever(BaseRetriever):
 
     @property
     def embedding(self) -> OpenAIEmbeddings:
-        """Return the OpenAIEmbeddings instance, creating it on first access.
+        """返回 OpenAIEmbeddings 实例，在首次访问时创建。
 
-        Uses :func:`create_embedding(self.embedding_config)` which returns a
-        ``_LazyEmbedding`` proxy — actual ``OpenAIEmbeddings`` construction is
-        deferred until the first attribute access on the returned object.
-        No network call at import time (D-02).
+        使用 :func:`create_embedding(self.embedding_config)`，它返回一个
+        ``_LazyEmbedding`` 代理 — 实际的 ``OpenAIEmbeddings`` 构造延迟到
+        首次访问返回对象的属性时。导入时无网络调用 (D-02)。
         """
         if self._embedding is None:
             from lightrag_langchain.llm import create_embedding
@@ -122,11 +115,10 @@ class LightRAGBaseRetriever(BaseRetriever):
     def _get_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Synchronous path — uses ``asyncio.run`` to bridge to the async
-        implementation.
+        """同步路径 — 使用 ``asyncio.run`` 桥接到异步实现。
 
-        Matches :class:`LightRAGReranker.compress_documents` pattern
-        (:file:`reranker.py` line 357).
+        匹配 :class:`LightRAGReranker.compress_documents` 模式
+        (:file:`reranker.py` 第 357 行)。
         """
         return asyncio.run(
             self._aget_relevant_documents(query, run_manager=run_manager, **kwargs)
@@ -140,12 +132,12 @@ class LightRAGBaseRetriever(BaseRetriever):
     async def _aget_relevant_documents(
         self, query: str, *, run_manager=None, **kwargs
     ) -> list[Document]:
-        """Async retrieval — subclasses override with mode-specific logic.
+        """异步检索 — 子类通过模式特定逻辑覆盖。
 
-        Each implementation should:
-        1. Generate the query embedding via :meth:`_generate_query_embedding`
-        2. Call its mode-specific Phase 4 strategy function
-        3. Convert the returned :class:`QueryResult` into ``list[Document]``
+        每个实现应：
+        1. 通过 :meth:`_generate_query_embedding` 生成查询 embedding
+        2. 调用其模式特定的 Phase 4 策略函数
+        3. 将返回的 :class:`QueryResult` 转换为 ``list[Document]``
         """
 
     # ------------------------------------------------------------------
@@ -153,13 +145,13 @@ class LightRAGBaseRetriever(BaseRetriever):
     # ------------------------------------------------------------------
 
     def _generate_query_embedding(self, query: str) -> list[float]:
-        """Encode *query* into a dense vector via the embedding model.
+        """通过 embedding 模型将 *query* 编码为稠密向量。
 
         Returns
         -------
         list[float]
-            Embedding vector suitable for pgvector ``<=>`` cosine distance
-            searches and Phase 4 strategy function calls.
+            适用于 pgvector ``<=>`` 余弦距离搜索和 Phase 4 策略函数调用的
+            embedding 向量。
         """
         return self.embedding.embed_query(query)
 

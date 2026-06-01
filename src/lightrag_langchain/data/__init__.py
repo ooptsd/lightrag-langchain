@@ -1,4 +1,4 @@
-"""Data layer package — connection pool, data models, vector store, and graph store."""
+"""数据层包 — 连接池、数据模型、向量存储和图存储。"""
 
 from lightrag_langchain.data.models import (
     ChunkRecord,
@@ -18,8 +18,8 @@ __all__ = [
 
 
 def __getattr__(name: str):
-    """Lazy import PGVectorStore and PGGraphStore to avoid triggering Settings
-    instantiation at import time (before pytest fixtures can monkeypatch env vars).
+    """延迟导入 PGVectorStore 和 PGGraphStore，避免在导入时触发 Settings 实例化
+    （在 pytest fixture 可以 monkeypatch 环境变量之前）。
     """
     if name == "PGVectorStore":
         from lightrag_langchain.data.store import PGVectorStore

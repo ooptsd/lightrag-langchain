@@ -1,20 +1,19 @@
-"""Pydantic result models for LightRAG query strategy outputs.
+"""LightRAG 查询策略输出的 Pydantic 结果模型。
 
-These frozen Pydantic BaseModel subclasses represent the structured
-intermediate results returned by each of the 6 LightRAG query strategies.
-QueryResult is the single-union type (D-02) that carries all possible
-retrieved data; each strategy fills only its relevant fields.
+这些 frozen Pydantic BaseModel 子类表示每种 LightRAG 查询策略返回的
+结构化中间结果。QueryResult 是单一联合类型（D-02），携带所有可能的
+检索数据；每种策略仅填充其相关字段。
 
-Mapping to strategies:
-- naive: ``chunks`` only
-- local: ``entities`` + ``graph_triples``
-- global: ``relations`` + ``graph_triples``
-- hybrid: ``entities`` + ``relations`` + ``graph_triples``
-- mix: ``entities`` + ``relations`` + ``chunks`` + ``graph_triples``
-- bypass: all fields empty (no retrieval)
+策略映射：
+- naive：仅 ``chunks``
+- local：``entities`` + ``graph_triples``
+- global：``relations`` + ``graph_triples``
+- hybrid：``entities`` + ``relations`` + ``graph_triples``
+- mix：``entities`` + ``relations`` + ``chunks`` + ``graph_triples``
+- bypass：所有字段为空（无检索）
 
-All models use ``model_config = ConfigDict(frozen=True)``, matching the
-pattern established in :file:`data/models.py`.
+所有模型使用 ``model_config = ConfigDict(frozen=True)``，与
+:file:`data/models.py` 中建立的模式一致。
 """
 
 from __future__ import annotations
@@ -35,24 +34,23 @@ from lightrag_langchain.data.models import (
 
 
 class GraphTriple(BaseModel):
-    """A single (src_entity, relation, tgt_entity) triple from graph traversal.
+    """图遍历产生的单个 (src_entity, relation, tgt_entity) 三元组。
 
-    Represents one hop discovered during local / global / hybrid / mix
-    graph expansion.  Each field carries the FULL properties of the
-    corresponding node or edge, so downstream consumers (Phase 5/6) have
-    all available context without additional database lookups.
+    表示在 local / global / hybrid / mix 图扩展过程中发现的一次跳转。
+    每个字段携带对应节点或边的完整属性，因此下游消费者（Phase 5/6）
+    无需额外数据库查询即可获得全部可用上下文。
     """
 
     model_config = ConfigDict(frozen=True)
 
     src_entity: GraphNode
-    """The source entity node with full properties (entity_id, entity_type, description, source_id)."""
+    """源实体节点，携带完整属性（entity_id、entity_type、description、source_id）。"""
 
     relation: GraphEdge
-    """The directed edge with full properties (description, keywords, weight, source_id, target_id)."""
+    """有向边，携带完整属性（description、keywords、weight、source_id、target_id）。"""
 
     tgt_entity: GraphNode
-    """The target entity node with full properties (entity_id, entity_type, description, source_id)."""
+    """目标实体节点，携带完整属性（entity_id、entity_type、description、source_id）。"""
 
 
 # ---------------------------------------------------------------------------
@@ -61,30 +59,30 @@ class GraphTriple(BaseModel):
 
 
 class QueryResult(BaseModel):
-    """Structured intermediate result returned by all 6 query strategies (D-01, D-02).
+    """全部 6 种查询策略返回的结构化中间结果（D-01、D-02）。
 
-    The single-union-type design uses one model with all possible fields.
-    Each strategy fills only the fields relevant to its retrieval path;
-    unused fields remain as empty lists.
+    单一联合类型设计：一个模型包含所有可能的字段。
+    每种策略仅填充与其检索路径相关的字段；
+    未使用的字段保持为空列表。
 
-    Field strategy mapping
+    字段策略映射
     -----------------------
-    - ``entities``: populated by local / hybrid / mix (entity vector search)
-    - ``relations``: populated by global / hybrid / mix (relation vector search)
-    - ``chunks``: populated by naive / mix (chunk vector search)
-    - ``graph_triples``: populated by local / global / hybrid / mix (graph expansion)
+    - ``entities``：由 local / hybrid / mix 填充（entity 向量搜索）
+    - ``relations``：由 global / hybrid / mix 填充（relation 向量搜索）
+    - ``chunks``：由 naive / mix 填充（chunk 向量搜索）
+    - ``graph_triples``：由 local / global / hybrid / mix 填充（图扩展）
     """
 
     model_config = ConfigDict(frozen=True)
 
     entities: list[EntityRecord] = []
-    """Entity records matching query embedding (entities_vdb vector search)."""
+    """与 query embedding 匹配的 entity 记录（entities_vdb 向量搜索）。"""
 
     relations: list[RelationshipRecord] = []
-    """Relationship records matching query embedding (relationships_vdb vector search)."""
+    """与 query embedding 匹配的 relationship 记录（relationships_vdb 向量搜索）。"""
 
     chunks: list[ChunkRecord] = []
-    """Chunk records matching query embedding (chunks_vdb vector search)."""
+    """与 query embedding 匹配的 chunk 记录（chunks_vdb 向量搜索）。"""
 
     graph_triples: list[GraphTriple] = []
-    """(src, relation, tgt) triples discovered during graph expansion."""
+    """图扩展过程中发现的 (src, relation, tgt) 三元组。"""

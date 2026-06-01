@@ -1,9 +1,8 @@
-"""asyncpg connection pool manager for lightrag-langchain.
+"""lightrag-langchain 的 asyncpg 连接池管理器。
 
-Provides lazy pool initialization, explicit shutdown, pgvector codec registration,
-transient error retry, and database-level read-only enforcement.
+提供延迟池初始化、显式关闭、pgvector 编解码器注册、瞬态错误重试和数据库级别只读强制执行。
 
-Usage::
+用法::
 
     from lightrag_langchain.data.pool import init_pool, close_pool, pool
 
@@ -32,7 +31,7 @@ if TYPE_CHECKING:
 
 
 class DataLayerError(Exception):
-    """Raised when data layer operations fail (pool exhaustion, connection errors)."""
+    """当数据层操作失败时抛出（池耗尽、连接错误）。"""
 
 
 # ---------------------------------------------------------------------------
@@ -48,10 +47,10 @@ _pool: Pool | None = None
 
 
 def __getattr__(name: str) -> Pool:
-    """Lazy module-level accessor for the connection pool.
+    """连接池的延迟模块级访问器。
 
-    Raises ``RuntimeError`` if the pool has not been initialized yet.
-    Raises ``AttributeError`` for any unknown name.
+    如果池尚未初始化，则抛出 ``RuntimeError``。
+    对于任何未知名称，抛出 ``AttributeError``。
     """
     if name == "pool":
         if _pool is None:
@@ -68,7 +67,7 @@ def __getattr__(name: str) -> Pool:
 
 
 async def _init_connection(conn: Connection) -> None:
-    """Register pgvector binary codec and set AGE search_path on each new pool connection."""
+    """在每个新池连接上注册 pgvector 二进制编解码器并设置 AGE search_path。"""
     from pgvector.asyncpg import register_vector
 
     await register_vector(conn)
@@ -82,11 +81,10 @@ async def _init_connection(conn: Connection) -> None:
 
 
 async def init_pool(custom_pool: Pool | None = None) -> Pool:
-    """Lazy-init the connection pool. Idempotent — subsequent calls return the
-    same pool.
+    """延迟初始化连接池。幂等 — 后续调用返回相同的池。
 
-    **Dependency injection (D-07):** Callers can pass ``custom_pool`` to use a
-    pre-existing ``asyncpg.Pool`` instead of creating one from settings.
+    **依赖注入 (D-07)：** 调用者可以传递 ``custom_pool`` 来使用
+    预先存在的 ``asyncpg.Pool``，而不是从 settings 创建。
     """
     global _pool
 
@@ -120,8 +118,7 @@ async def init_pool(custom_pool: Pool | None = None) -> Pool:
 
 
 async def close_pool() -> None:
-    """Explicitly close the connection pool. Idempotent — safe to call multiple
-    times."""
+    """显式关闭连接池。幂等 — 可安全多次调用。"""
     global _pool
     if _pool is not None:
         await _pool.close()
@@ -136,14 +133,13 @@ async def close_pool() -> None:
 async def acquire_with_retry(
     pool: Pool, max_retries: int = 3
 ) -> AsyncIterator[Connection]:
-    """Async generator that acquires a connection with exponential backoff retry
-    on transient errors.
+    """异步生成器，在瞬态错误时通过指数退避重试获取连接。
 
-    Transient errors (D-06): ``ConnectionDoesNotExistError``,
-    ``ConnectionFailureError``, ``OSError``, ``TimeoutError`` are retried with
-    delays of 1s, 2s, 4s. Non-transient errors propagate immediately.
+    瞬态错误 (D-06)：``ConnectionDoesNotExistError``、
+    ``ConnectionFailureError``、``OSError``、``TimeoutError`` 会以 1s、2s、4s
+    的延迟重试。非瞬态错误立即传播。
 
-    Usage::
+    用法::
 
         async for conn in acquire_with_retry(pool):
             rows = await conn.fetch("SELECT ...")

@@ -18,4 +18,4 @@
 
 ---
 
-本文档使用 MkDocs + Material for MkDocs 构建。支持全文搜索（Ctrl+K）、明暗主题切换、代码复制等特性。
+本文档使用 MkDocs + Material for MkDocs 构建，支持全文搜索（Ctrl+K）、明暗主题切换、代码一键复制等特性。

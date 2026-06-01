@@ -1,11 +1,11 @@
-"""Pydantic record models for LightRAG PostgreSQL and Apache AGE query results.
+"""LightRAG PostgreSQL 和 Apache AGE 查询结果的 Pydantic 记录模型。
 
-These frozen Pydantic BaseModel subclasses type all data records flowing through
-the LightRAG-to-Langchain query layer. Each model maps to a specific LightRAG
-database table under the ``lightrag`` / ``lightrag_vdb`` schema.
+这些冻结的 Pydantic BaseModel 子类为流经 LightRAG-to-Langchain 查询层的所有数据记录
+提供类型定义。每个模型映射到 ``lightrag`` / ``lightrag_vdb`` schema 下的一个特定
+LightRAG 数据库表。
 
-All models use ``model_config = ConfigDict(frozen=True)`` to enforce immutability
-(T-02-01), matching the pattern established in Phase 1's ``config.py``.
+所有模型使用 ``model_config = ConfigDict(frozen=True)`` 来保证不可变性
+(T-02-01)，与 Phase 1 的 ``config.py`` 中建立的模式一致。
 """
 
 from __future__ import annotations
@@ -18,29 +18,29 @@ from pydantic import BaseModel, ConfigDict
 
 
 class EntityRecord(BaseModel):
-    """A single entity row from the PGVector ``lightrag_vdb_entity_*`` table.
+    """PGVector ``lightrag_vdb_entity_*`` 表中的单行实体记录。
 
-    Represents a named entity stored in the vector database.  The ``source_id``
-    field is the ``VDB_ENTITY.id`` column (renamed per STOR-01).  ``file_path``
-    and ``created_at`` use COALESCE-compatible defaults (DDL allows NULL).
+    表示存储在向量数据库中的命名实体。``source_id`` 字段是 ``VDB_ENTITY.id`` 列
+    （按 STOR-01 重命名）。``file_path`` 和 ``created_at`` 使用 COALESCE 兼容的默认值
+    （DDL 允许 NULL）。
     """
 
     model_config = ConfigDict(frozen=True)
 
     entity_name: str
-    """The entity name (VARCHAR(512) in DDL)."""
+    """实体名称（DDL 中为 VARCHAR(512)）。"""
 
     content: str
-    """Full textual content of the entity."""
+    """实体的完整文本内容。"""
 
     source_id: str
-    """Entity unique identifier (VDB_ENTITY.id, renamed per STOR-01)."""
+    """实体唯一标识符（VDB_ENTITY.id，按 STOR-01 重命名）。"""
 
     file_path: str = ""
-    """Source file path (COALESCE'd from NULL)."""
+    """源文件路径（从 NULL 通过 COALESCE 转换）。"""
 
     created_at: int | None = None
-    """Epoch seconds from ``EXTRACT(EPOCH FROM create_time)::BIGINT``."""
+    """来自 ``EXTRACT(EPOCH FROM create_time)::BIGINT`` 的 epoch 秒数。"""
 
 
 # ---------------------------------------------------------------------------
@@ -49,32 +49,31 @@ class EntityRecord(BaseModel):
 
 
 class RelationshipRecord(BaseModel):
-    """A single relationship row from the PGVector ``lightrag_vdb_relation_*`` table.
+    """PGVector ``lightrag_vdb_relation_*`` 表中的单行关系记录。
 
-    The DDL does NOT contain ``keywords`` / ``weight`` columns (see RESEARCH.md
-    Open Question 1).  Those fields default to ``None`` for PGVector results;
-    real values come from AGE graph edges (Plan 02-04).
+    DDL 不包含 ``keywords`` / ``weight`` 列（参见 RESEARCH.md Open Question 1）。
+    这些字段在 PGVector 结果中默认为 ``None``；真实值来自 AGE 图边 (Plan 02-04)。
     """
 
     model_config = ConfigDict(frozen=True)
 
     src_id: str
-    """Source entity ID (VDB_RELATION.source_id)."""
+    """源实体 ID (VDB_RELATION.source_id)。"""
 
     tgt_id: str
-    """Target entity ID (VDB_RELATION.target_id)."""
+    """目标实体 ID (VDB_RELATION.target_id)。"""
 
     content: str | None = None
-    """Relation textual content."""
+    """关系文本内容。"""
 
     keywords: str | None = None
-    """Relation keywords — NULL from VDB_RELATION; real value from AGE edges."""
+    """关系关键词 — 来自 VDB_RELATION 为 NULL；真实值来自 AGE 边。"""
 
     weight: float | None = None
-    """Relation weight — NULL from VDB_RELATION; real value from AGE edges."""
+    """关系权重 — 来自 VDB_RELATION 为 NULL；真实值来自 AGE 边。"""
 
     created_at: int | None = None
-    """Epoch seconds from ``create_time``."""
+    """来自 ``create_time`` 的 epoch 秒数。"""
 
 
 # ---------------------------------------------------------------------------
@@ -83,29 +82,28 @@ class RelationshipRecord(BaseModel):
 
 
 class ChunkRecord(BaseModel):
-    """A single chunk row from the PGVector ``lightrag_vdb_chunks_*`` table.
+    """PGVector ``lightrag_vdb_chunks_*`` 表中的单行 chunk 记录。
 
-    Maps to the text chunk storage used by LightRAG for naive / mix retrieval.
-    ``full_doc_id`` and ``chunk_order_index`` correspond to the document
-    relationship and ordering the chunk belongs to.
+    映射到 LightRAG 用于 naive / mix 检索的文本 chunk 存储。
+    ``full_doc_id`` 和 ``chunk_order_index`` 对应 chunk 所属的文档关系和顺序。
     """
 
     model_config = ConfigDict(frozen=True)
 
     chunk_id: str
-    """Chunk identifier (VDB_CHUNKS.id)."""
+    """Chunk 标识符 (VDB_CHUNKS.id)。"""
 
     content: str
-    """Full textual content of the chunk."""
+    """chunk 的完整文本内容。"""
 
     full_doc_id: str | None = None
-    """Parent document identifier (VDB_CHUNKS.full_doc_id)."""
+    """父文档标识符 (VDB_CHUNKS.full_doc_id)。"""
 
     chunk_order_index: int | None = None
-    """Position in document sequence (VDB_CHUNKS.chunk_order_index)."""
+    """在文档序列中的位置 (VDB_CHUNKS.chunk_order_index)。"""
 
     file_path: str = ""
-    """Source file path (COALESCE'd from NULL)."""
+    """源文件路径（从 NULL 通过 COALESCE 转换）。"""
 
 
 # ---------------------------------------------------------------------------
@@ -114,26 +112,25 @@ class ChunkRecord(BaseModel):
 
 
 class GraphNode(BaseModel):
-    """An entity node from the Apache AGE graph under label ``base``.
+    """Apache AGE 图中 ``base`` 标签下的实体节点。
 
-    Properties (``entity_type``, ``description``, ``source_id``) come from the
-    AGE ``properties`` dict.  ``description`` and ``source_id`` may be NULL in
-    the database, defaulting to ``""`` here.
+    属性（``entity_type``、``description``、``source_id``）来自 AGE ``properties`` 字典。
+    ``description`` 和 ``source_id`` 在数据库中可能为 NULL，此处默认为 ``""``。
     """
 
     model_config = ConfigDict(frozen=True)
 
     entity_id: str
-    """Node identity from ``properties.entity_id`` on the AGE node."""
+    """AGE 节点上 ``properties.entity_id`` 的节点标识。"""
 
     entity_type: str
-    """Node type from ``properties.entity_type`` on the AGE node."""
+    """AGE 节点上 ``properties.entity_type`` 的节点类型。"""
 
     description: str = ""
-    """Entity description from ``properties.description`` (may be NULL in DB)."""
+    """来自 ``properties.description`` 的实体描述（数据库中可能为 NULL）。"""
 
     source_id: str = ""
-    """Document source from ``properties.source_id`` (may be NULL in DB)."""
+    """来自 ``properties.source_id`` 的文档来源（数据库中可能为 NULL）。"""
 
 
 # ---------------------------------------------------------------------------
@@ -142,26 +139,25 @@ class GraphNode(BaseModel):
 
 
 class GraphEdge(BaseModel):
-    """A directed edge from the Apache AGE graph under label ``DIRECTED``.
+    """Apache AGE 图中 ``DIRECTED`` 标签下的有向边。
 
-    All optional fields match the AGE ``edge_properties`` dict returned by
-    ``get_edges_batch()`` (``description``, ``keywords``, ``weight`` are all
-    nullable in the DB).
+    所有可选字段对应 ``get_edges_batch()`` 返回的 AGE ``edge_properties`` 字典
+    （``description``、``keywords``、``weight`` 在数据库中均可为 NULL）。
     """
 
     model_config = ConfigDict(frozen=True)
 
     source_id: str
-    """Source entity ID (src node's entity_id)."""
+    """源实体 ID（src 节点的 entity_id）。"""
 
     target_id: str
-    """Target entity ID (tgt node's entity_id)."""
+    """目标实体 ID（tgt 节点的 entity_id）。"""
 
     description: str | None = None
-    """Edge description from ``properties.description`` on the AGE edge."""
+    """AGE 边上 ``properties.description`` 的边描述。"""
 
     keywords: str | None = None
-    """Edge keywords from ``properties.keywords`` on the AGE edge."""
+    """AGE 边上 ``properties.keywords`` 的边关键词。"""
 
     weight: float | None = None
-    """Edge weight from ``properties.weight`` on the AGE edge."""
+    """AGE 边上 ``properties.weight`` 的边权重。"""

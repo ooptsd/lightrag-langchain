@@ -1,19 +1,18 @@
-"""Token budget truncation and calculation utilities.
+"""Token budget 截断和计算工具。
 
-Pure computation module — no I/O, no external API calls, no async by default.
-Uses tiktoken for accurate BPE tokenization matching upstream LightRAG's
-TiktokenTokenizer (gpt-4o-mini encoding).
+纯计算模块——无 I/O、无外部 API 调用、默认非异步。使用 tiktoken 进行精确的
+BPE tokenization，匹配上游 LightRAG 的 TiktokenTokenizer（gpt-4o-mini 编码）。
 
-Provides:
-  - truncate_entities_by_tokens() — entity list truncation (D-17)
-  - truncate_relations_by_tokens() — relation list truncation (D-17)
-  - compute_chunk_token_budget() — remaining token allocation (D-17)
-  - Async wrappers for Phase 4/6 pipeline compatibility (D-19)
+提供：
+  - truncate_entities_by_tokens()——实体列表截断（D-17）
+  - truncate_relations_by_tokens()——关系列表截断（D-17）
+  - compute_chunk_token_budget()——剩余 token 分配（D-17）
+  - 用于 Phase 4/6 pipeline 兼容性的异步包装器（D-19）
 
-Token budget invariant (max_entity_tokens + max_relation_tokens < max_total_tokens)
-is enforced at config validation time (Phase 1 QueryParamsConfig) — not here (D-20).
+Token budget 不变量（max_entity_tokens + max_relation_tokens < max_total_tokens）
+在配置验证时（Phase 1 QueryParamsConfig）强制执行——不在此处（D-20）。
 
-Validates: LLM-05 requirements.
+验证：LLM-05 需求。
 """
 
 from __future__ import annotations
@@ -27,22 +26,22 @@ from typing import Any
 
 
 def _get_tokenizer(model_name: str = "gpt-4o-mini"):
-    """Lazy-load tiktoken encoder for the given model.
+    """为指定模型惰性加载 tiktoken 编码器。
 
-    tiktoken is imported lazily so the module can be imported without
-    tiktoken pre-installed (only needed when functions are called).
+    tiktoken 是惰性导入的，因此模块可以在未预装 tiktoken 的情况下导入
+    （仅在调用函数时才需要）。
 
-    For unrecognised model names (e.g. DeepSeek, custom providers), falls back
-    to ``"gpt-4o-mini"`` (o200k_base encoding).
+    对于无法识别的模型名称（例如 DeepSeek、自定义 provider），回退到
+    ``"gpt-4o-mini"``（o200k_base 编码）。
 
     Args:
-        model_name: tiktoken model encoding name. Default ``"gpt-4o-mini"``.
+        model_name: tiktoken 模型编码名称。默认 ``"gpt-4o-mini"``。
 
     Returns:
-        tiktoken.Encoding instance.
+        tiktoken.Encoding 实例。
 
     Raises:
-        ImportError: If tiktoken is not installed.
+        ImportError: 如果未安装 tiktoken。
     """
     import tiktoken
 
@@ -58,17 +57,16 @@ def _get_tokenizer(model_name: str = "gpt-4o-mini"):
 
 
 def _serialize_item(item: dict[str, Any]) -> str:
-    """Serialize a single entity/relation dict for token counting.
+    """序列化单个实体/关系字典以进行 token 计数。
 
-    Format: one ``key: value`` pair per line, skipping None values.
-    Matches upstream LightRAG's typical serialization pattern for
-    context assembly.
+    格式：每行一个 ``key: value`` 对，跳过 None 值。
+    匹配上游 LightRAG 用于上下文组装的典型序列化模式。
 
     Args:
-        item: Dict with string keys and optional values.
+        item: 包含字符串键和可选值的字典。
 
     Returns:
-        Newline-joined string of ``key: value`` pairs.
+        以换行符连接的 ``key: value`` 对字符串。
     """
     return "\n".join(f"{k}: {v}" for k, v in item.items() if v is not None)
 
@@ -83,22 +81,21 @@ def truncate_entities_by_tokens(
     max_tokens: int,
     model: str = "gpt-4o-mini",
 ) -> list[dict[str, Any]]:
-    """Return a prefix of the entity list whose cumulative token count fits.
+    """返回实体列表的累积 token 计数在限制内的前缀。
 
-    Iterates entities in order, serializing each and accumulating token
-    counts via tiktoken.  Stops at the first entity that would cause the
-    cumulative count to exceed *max_tokens* and returns the slice up to
-    (but not including) that item.
+    按顺序遍历实体，通过 tiktoken 序列化每个实体并累积 token 计数。
+    在第一个会导致累积计数超过 *max_tokens* 的实体处停止，并返回到该条目
+    （但不包括）为止的切片。
 
     Args:
-        entities: Entity dicts (entity_name, content, source_id, …).
-        max_tokens: Hard token ceiling for the serialized list.
-        model: tiktoken model name (default ``"gpt-4o-mini"``).
+        entities: 实体字典（entity_name、content、source_id 等）。
+        max_tokens: 序列化列表的硬性 token 上限。
+        model: tiktoken 模型名称（默认 ``"gpt-4o-mini"``）。
 
     Returns:
-        Prefix of *entities* whose serialized token count <= *max_tokens*.
-        Empty list when *max_tokens* <= 0 or when the first entity alone
-        already exceeds the limit (no partial entities).
+        *entities* 中序列化后 token 计数 <= *max_tokens* 的前缀。
+        当 *max_tokens* <= 0 或第一个实体单独就已超过限制时，返回空列表
+        （不返回部分实体）。
 
     Example:
         ```python
@@ -134,21 +131,19 @@ def truncate_relations_by_tokens(
     max_tokens: int,
     model: str = "gpt-4o-mini",
 ) -> list[dict[str, Any]]:
-    """Return a prefix of the relation list whose cumulative token count fits.
+    """返回关系列表的累积 token 计数在限制内的前缀。
 
-    Identical algorithm to :func:`truncate_entities_by_tokens` but operating
-    on relation dicts.  Exists as a separate function for caller clarity
-    (entity vs. relation context in Phase 4/6 pipeline).
+    算法与 :func:`truncate_entities_by_tokens` 相同，但操作对象为关系字典。
+    作为独立函数存在，以便调用者在 Phase 4/6 pipeline 中清晰区分实体与关系上下文。
 
     Args:
-        relations: Relation dicts (src_id, tgt_id, content, description, …).
-        max_tokens: Hard token ceiling for the serialized list.
-        model: tiktoken model name (default ``"gpt-4o-mini"``).
+        relations: 关系字典（src_id、tgt_id、content、description 等）。
+        max_tokens: 序列化列表的硬性 token 上限。
+        model: tiktoken 模型名称（默认 ``"gpt-4o-mini"``）。
 
     Returns:
-        Prefix of *relations* whose serialized token count <= *max_tokens*.
-        Empty list when *max_tokens* <= 0 or when the first relation alone
-        already exceeds the limit.
+        *relations* 中序列化后 token 计数 <= *max_tokens* 的前缀。
+        当 *max_tokens* <= 0 或第一个关系单独就已超过限制时，返回空列表。
 
     Example:
         ```python
@@ -187,9 +182,9 @@ def compute_chunk_token_budget(
     relation_tokens_used: int,
     buffer_tokens: int = 200,
 ) -> int:
-    """Calculate remaining token capacity for chunk content.
+    """计算 chunk 内容的剩余 token 容量。
 
-    Formula (matching upstream LightRAG order):
+    公式（匹配上游 LightRAG 顺序）：
       remaining = total_tokens
                 - sys_prompt_tokens
                 - query_tokens
@@ -198,17 +193,17 @@ def compute_chunk_token_budget(
                 - buffer_tokens
 
     Args:
-        total_tokens: Maximum total tokens (from QueryParamsConfig).
-        sys_prompt_tokens: Token count of the system prompt.
-        query_tokens: Token count of the user query.
-        entity_tokens_used: Tokens consumed by truncated entity list.
-        relation_tokens_used: Tokens consumed by truncated relation list.
-        buffer_tokens: Safety buffer for prompt formatting overhead
-            (default 200, matching upstream LightRAG).
+        total_tokens: 最大总 token 数（来自 QueryParamsConfig）。
+        sys_prompt_tokens: 系统 prompt 的 token 数。
+        query_tokens: 用户查询的 token 数。
+        entity_tokens_used: 截断后实体列表消耗的 token 数。
+        relation_tokens_used: 截断后关系列表消耗的 token 数。
+        buffer_tokens: 用于 prompt 格式化开销的安全缓冲
+            （默认 200，匹配上游 LightRAG）。
 
     Returns:
-        Non-negative integer — the remaining token budget for chunk content.
-        Returns 0 when the budget is exhausted (never negative).
+        非负整数——chunk 内容的剩余 token 预算。
+        当预算耗尽时返回 0（绝不返回负数）。
 
     Example:
         ```python
@@ -239,10 +234,10 @@ async def atruncate_entities_by_tokens(
     max_tokens: int,
     model: str = "gpt-4o-mini",
 ) -> list[dict[str, Any]]:
-    """Async wrapper for :func:`truncate_entities_by_tokens`.
+    """:func:`truncate_entities_by_tokens` 的异步包装器。
 
-    Core computation is pure (no I/O); async exists only for pipeline
-    compatibility with Phase 4/6 async contexts.
+    核心计算是纯函数（无 I/O）；异步仅用于 Phase 4/6
+    异步上下文的 pipeline 兼容性。
     """
     return truncate_entities_by_tokens(entities, max_tokens, model)
 
@@ -252,7 +247,7 @@ async def atruncate_relations_by_tokens(
     max_tokens: int,
     model: str = "gpt-4o-mini",
 ) -> list[dict[str, Any]]:
-    """Async wrapper for :func:`truncate_relations_by_tokens`."""
+    """:func:`truncate_relations_by_tokens` 的异步包装器。"""
     return truncate_relations_by_tokens(relations, max_tokens, model)
 
 
@@ -264,7 +259,7 @@ async def acompute_chunk_token_budget(
     relation_tokens_used: int,
     buffer_tokens: int = 200,
 ) -> int:
-    """Async wrapper for :func:`compute_chunk_token_budget`."""
+    """:func:`compute_chunk_token_budget` 的异步包装器。"""
     return compute_chunk_token_budget(
         total_tokens,
         sys_prompt_tokens,

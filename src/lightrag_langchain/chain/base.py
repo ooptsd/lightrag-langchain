@@ -1,15 +1,14 @@
-"""Shared base class for all LightRAG QA chain pipelines.
+"""所有 LightRAG QA Chain 管线的共享基类。
 
-Provides :class:`LightRAGBaseChain` — a Pydantic ``BaseModel`` that encapsulates
-the full end-to-end chain pipeline (keyword extraction → retrieval → Document
-conversion → token budget truncation → reference list generation → context
-assembly → LLM invocation → streaming).  Subclasses only need to set ``mode``
-and optionally override ``ainvoke`` / ``astream`` (BypassChain).
+提供 :class:`LightRAGBaseChain` — 一个 Pydantic ``BaseModel``，封装了完整的
+端到端 chain 管线（关键词提取 → 检索 → Document 转换 → token 预算截断 →
+引用列表生成 → 上下文组装 → LLM 调用 → 流式输出）。子类只需设置 ``mode``，
+并可选择性地覆写 ``ainvoke`` / ``astream``（BypassChain）。
 
-The pipeline mirrors upstream LightRAG's ``_build_query_context()`` 4-stage
-flow (Search → Truncate → Merge → Build LLM Context) but composes Phase 5
-Retrievers, Phase 3 keyword extraction, and Phase 3 token budget control
-instead of LightRAG's monolithic internals.
+该管线复刻了上游 LightRAG 的 ``_build_query_context()`` 四阶段流程
+（Search → Truncate → Merge → Build LLM Context），但组合了 Phase 5 的
+Retriever、Phase 3 的关键词提取和 Phase 3 的 token 预算控制，
+而非使用 LightRAG 内部的单体实现。
 """
 
 from __future__ import annotations
@@ -39,28 +38,27 @@ if TYPE_CHECKING:
 
 
 class LightRAGBaseChain(BaseModel):
-    """Base class for all LightRAG QA chain pipelines.
+    """所有 LightRAG QA Chain 管线的基类。
 
-    Encapsulates shared infrastructure (keyword extraction, Document-to-dict
-    conversion, token budget truncation, context assembly, LLM invocation,
-    streaming) so that each mode-specific subclass only needs to provide a
-    ``mode`` value and inherits all shared logic (D-02, D-05, D-06).
+    封装了共享基础设施（关键词提取、Document 转字典转换、token 预算截断、
+    上下文组装、LLM 调用、流式输出），使每个模式特定的子类只需提供一个
+    ``mode`` 值并继承所有共享逻辑（D-02、D-05、D-06）。
 
     Parameters
     ----------
     retriever:
-        Retriever instance for document fetching (D-04 constructor injection).
+        用于文档获取的 Retriever 实例（D-04 构造器注入）。
     llm:
-        ChatOpenAI instance for keyword extraction and answer generation (D-06).
+        用于关键词提取和答案生成的 ChatOpenAI 实例（D-06）。
     keyword_language:
-        Language for keyword extraction, from settings.query_params.keyword_language.
+        关键词提取的语言，来自 settings.query_params.keyword_language。
     top_k:
-        Override global top_k. When None, uses retriever's existing top_k.
+        覆写全局 top_k。为 None 时使用 retriever 已有的 top_k。
     chunk_top_k:
-        Override chunk_top_k. When None, uses retriever's existing chunk_top_k.
+        覆写 chunk_top_k。为 None 时使用 retriever 已有的 chunk_top_k。
     mode:
-        Query mode identifier — subclasses override with a concrete string
-        (e.g. ``\"naive\"``, ``\"local\"``, ``\"bypass\"``).
+        查询模式标识符 — 子类用具体字符串覆写（例如 ``\"naive\"``、``\"local\"``、
+        ``\"bypass\"``）。
 
     Example:
         ```python
@@ -80,37 +78,36 @@ class LightRAGBaseChain(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     retriever: LightRAGBaseRetriever
-    """Retriever instance for document fetching (D-04)."""
+    """用于文档获取的 Retriever 实例（D-04）。"""
 
     llm: ChatOpenAI  # type: ignore[valid-type]
-    """ChatOpenAI for keyword extraction and answer generation (D-06)."""
+    """用于关键词提取和答案生成的 ChatOpenAI（D-06）。"""
 
     keyword_language: str = "Chinese"
-    """Language for keyword extraction."""
+    """关键词提取的语言。"""
 
     top_k: int | None = None
-    """Override global top_k. When None, uses retriever's existing top_k."""
+    """覆写全局 top_k。为 None 时使用 retriever 已有的 top_k。"""
 
     chunk_top_k: int | None = None
-    """Override chunk_top_k. When None, uses retriever's existing chunk_top_k."""
+    """覆写 chunk_top_k。为 None 时使用 retriever 已有的 chunk_top_k。"""
 
     mode: str
-    """Query mode identifier — subclasses override with a concrete string."""
+    """查询模式标识符 — 子类用具体字符串覆写。"""
 
     @field_validator("llm", mode="before")
     @classmethod
     def _unwrap_lazy_llm(cls, v: Any) -> Any:
-        """Unwrap ``_LazyLLM`` proxy before Pydantic nested model validation.
+        """在 Pydantic 嵌套模型校验前解包 ``_LazyLLM`` 代理。
 
-        When ``llm`` is a ``_LazyLLM`` proxy (from :func:`create_llm`),
-        Pydantic's nested ``ChatOpenAI`` validation runs ``validate_temperature``
-        (a ``mode="before"`` validator) on the raw proxy, which expects a dict
-        and calls ``.get()``.  Since ``_LazyLLM.__getattr__`` delegates to
-        ``ChatOpenAI`` that has no ``.get()``, the validator crashes.
+        当 ``llm`` 是 ``_LazyLLM`` 代理（来自 :func:`create_llm`）时，
+        Pydantic 嵌套的 ``ChatOpenAI`` 校验会在原始代理上运行
+        ``validate_temperature``（一个 ``mode="before"`` 校验器），该校验器期望一个
+        dict 并调用 ``.get()``。由于 ``_LazyLLM.__getattr__`` 将调用委托给没有
+        ``.get()`` 方法的 ``ChatOpenAI``，校验器会崩溃。
 
-        This hook detects the proxy, triggers lazy construction by accessing
-        ``.model_name``, and returns the inner ``ChatOpenAI`` instance so
-        Pydantic sees a real model object.
+        此钩子检测代理、通过访问 ``.model_name`` 触发延迟构建，并返回内部的
+        ``ChatOpenAI`` 实例，使 Pydantic 看到真正的模型对象。
         """
         if hasattr(v, "_config") and hasattr(v, "_instance"):
             _ = v.model_name  # trigger lazy ChatOpenAI construction
@@ -124,7 +121,7 @@ class LightRAGBaseChain(BaseModel):
     _logger: logging.Logger = PrivateAttr(
         default_factory=lambda: logging.getLogger(__name__)
     )
-    """Per-instance logger for warnings and errors."""
+    """每个实例独立的 logger，用于警告和错误记录。"""
 
     # =====================================================================
     # Public methods
@@ -139,11 +136,10 @@ class LightRAGBaseChain(BaseModel):
         ll_keywords: list[str] | None = None,
         **kwargs,
     ) -> dict:
-        """Synchronous path — bridges to async implementation.
+        """同步路径 — 桥接到异步实现。
 
-        Uses ``asyncio.run`` when no event loop is running.  Falls back to
-        a thread-pool executor when called from within a running event loop
-        (e.g. FastAPI route, Jupyter notebook).
+        当没有事件循环运行时使用 ``asyncio.run``。当从运行中的事件循环内调用时
+        （例如 FastAPI 路由、Jupyter notebook），回退到线程池执行器。
         """
         try:
             loop = asyncio.get_running_loop()
@@ -181,24 +177,24 @@ class LightRAGBaseChain(BaseModel):
         ll_keywords: list[str] | None = None,
         **kwargs,
     ) -> dict:
-        """Execute the full QA pipeline asynchronously (CHAIN-01, CHAIN-02).
+        """异步执行完整 QA 管线（CHAIN-01、CHAIN-02）。
 
-        9-step pipeline matching upstream LightRAG chain flow:
+        9 个步骤，匹配上游 LightRAG chain 流程：
 
-        1. Resolve keywords (skip LLM if pre-provided, CHAIN-03)
-        2. Retrieve documents via Phase 5 retriever
-        3. Classify and convert Documents to typed dicts
-        4. Apply token budget (entities → relations → chunk budget → truncate chunks)
-        5. Build reference list from truncated results
-        6. Assemble context string via upstream prompt template
-        7. Build system prompt (or use caller-provided override, D-08)
-        8. Call LLM with [SystemMessage, HumanMessage]
-        9. Return structured dict with answer, sources, keywords, mode
+        1. 解析关键词（如果预先提供则跳过 LLM，CHAIN-03）
+        2. 通过 Phase 5 retriever 检索文档
+        3. 分类并将 Document 转换为类型化字典
+        4. 应用 token 预算（entities → relations → chunk budget → 截断 chunks）
+        5. 从截断后的结果构建引用列表
+        6. 通过上游 prompt 模板组装上下文字符串
+        7. 构建 system prompt（或使用调用方提供的覆写，D-08）
+        8. 使用 [SystemMessage, HumanMessage] 调用 LLM
+        9. 返回包含 answer、sources、keywords、mode 的结构化字典
 
         Returns
         -------
         dict
-            ``{"answer": str, "sources": list[dict], "keywords": {"high_level": list[str], "low_level": list[str]}, "mode": str}``.
+            ``{"answer": str, "sources": list[dict], "keywords": {"high_level": list[str], "low_level": list[str]}, "mode": str}``。
         """
         # Step 1: Resolve keywords (CHAIN-03)
         keywords = await self._resolve_keywords(query, hl_keywords, ll_keywords)
@@ -254,27 +250,27 @@ class LightRAGBaseChain(BaseModel):
         ll_keywords: list[str] | None = None,
         **kwargs,
     ) -> AsyncIterator[str | dict]:
-        """Execute the full QA pipeline as a token-by-token stream (CHAIN-02, D-09, D-10).
+        """以逐 token 流式方式执行完整 QA 管线（CHAIN-02、D-09、D-10）。
 
-        Steps 1-7 are identical to :meth:`ainvoke` (keyword resolution, retrieval,
-        conversion, token budget, reference list, context assembly, system prompt).
+        步骤 1-7 与 :meth:`ainvoke` 相同（关键词解析、检索、转换、token 预算、
+        引用列表、上下文组装、system prompt）。
 
-        After context assembly (D-10: sources determined before streaming):
+        上下文组装之后（D-10：在流式输出前确定 sources）：
 
-        * Yields raw ``str`` tokens from the LLM one at a time.
-        * After the stream ends, yields a complete ``dict`` as the final chunk
-          containing ``answer``, ``sources``, ``keywords``, and ``mode``.
+        * 逐个产出 LLM 的原始 ``str`` token。
+        * 流式输出结束后，产出完整的 ``dict`` 作为最后一个数据块，包含
+          ``answer``、``sources``、``keywords`` 和 ``mode``。
 
-        Callers distinguish text chunks from the final dict via
-        ``isinstance(chunk, dict)`` (D-09).
+        调用方通过 ``isinstance(chunk, dict)`` 区分文本 token 与最终字典
+        （D-09）。
 
         Yields
         ------
         str
-            Individual tokens from the LLM stream.
+            LLM 流式输出中的单个 token。
         dict
-            Complete result (last chunk only):
-            ``{"answer": str, "sources": list[dict], "keywords": dict, "mode": str}``.
+            完整结果（仅最后一个数据块）：
+            ``{"answer": str, "sources": list[dict], "keywords": dict, "mode": str}``。
         """
         # Steps 1-7: identical to ainvoke pipeline
         keywords = await self._resolve_keywords(query, hl_keywords, ll_keywords)
@@ -326,25 +322,24 @@ class LightRAGBaseChain(BaseModel):
         hl_keywords: list[str] | None,
         ll_keywords: list[str] | None,
     ) -> KeywordsSchema:
-        """Resolve keywords — use pre-provided or extract via LLM (CHAIN-03).
+        """解析关键词 — 使用预提供的或通过 LLM 提取（CHAIN-03）。
 
-        When both *hl_keywords* and *ll_keywords* are provided, the LLM
-        extraction step is skipped entirely.  Otherwise, ``extract_keywords``
-        (Phase 3) is called with the chain's LLM instance.
+        当同时提供 *hl_keywords* 和 *ll_keywords* 时，LLM 提取步骤会被完全跳过。
+        否则，使用 chain 的 LLM 实例调用 ``extract_keywords``（Phase 3）。
 
         Parameters
         ----------
         query:
-            The user's natural-language query.
+            用户的自然语言查询。
         hl_keywords:
-            Pre-provided high-level keywords, or ``None`` to trigger extraction.
+            预提供的高层关键词，为 ``None`` 则触发提取。
         ll_keywords:
-            Pre-provided low-level keywords, or ``None`` to trigger extraction.
+            预提供的低层关键词，为 ``None`` 则触发提取。
 
         Returns
         -------
         KeywordsSchema
-            Frozen model with ``high_level_keywords`` and ``low_level_keywords``.
+            包含 ``high_level_keywords`` 和 ``low_level_keywords`` 的冻结模型。
         """
         if hl_keywords is not None and ll_keywords is not None:
             from lightrag_langchain.keywords import KeywordsSchema
@@ -365,24 +360,23 @@ class LightRAGBaseChain(BaseModel):
         chunks: list[dict],
         query: str,
     ) -> tuple[list[dict], list[dict], list[dict]]:
-        """Apply token budget truncation to entities, relations, and chunks.
+        """对 entities、relations 和 chunks 应用 token 预算截断。
 
-        Execution order (Claude's Discretion — RESEARCH.md lines 487-495):
+        执行顺序（Claude 酌情决定 — RESEARCH.md 第 487-495 行）：
 
-        a. Truncate entities by max_entity_tokens
-        b. Truncate relations by max_relation_tokens
-        c. Serialize truncated entities/relations, count their tokens
-        d. Build preliminary system prompt with empty context_data, count tokens
-        e. Compute chunk budget from remaining tokens
-        f. Truncate chunks by chunk budget (prefix truncation)
+        a. 按 max_entity_tokens 截断 entities
+        b. 按 max_relation_tokens 截断 relations
+        c. 序列化已截断的 entities/relations，计算其 token 数
+        d. 用空的 context_data 构建初步 system prompt，计算 token 数
+        e. 根据剩余 token 计算 chunk 预算
+        f. 按 chunk 预算截断 chunks（前缀截断）
 
-        All Phase 3 imports are lazy (inside method body).
+        所有 Phase 3 导入均为延迟导入（在方法体内部）。
 
         Returns
         -------
         tuple[list[dict], list[dict], list[dict]]
-            ``(entities, relations, chunks)`` — all truncated. Never mutates
-            input lists.
+            ``(entities, relations, chunks)`` — 均为已截断的。绝不修改输入列表。
         """
         from lightrag_langchain.config import settings
         from lightrag_langchain.token_budget import (
@@ -469,24 +463,24 @@ class LightRAGBaseChain(BaseModel):
         relations: list[dict],
         chunks: list[dict],
     ) -> tuple[list[dict], list[dict]]:
-        """Generate deduplicated reference list and assign reference_ids to chunks.
+        """生成去重引用列表并为 chunks 分配 reference_id。
 
-        Algorithm (D-11, D-12, RESEARCH.md lines 504-528):
+        算法（D-11、D-12、RESEARCH.md 第 504-528 行）：
 
-        1. Collect file_path from all entity/relation/chunk dicts
-        2. Filter empty strings, ``None``, ``"unknown_source"``
-        3. Count frequency per file_path
-        4. Order: first-appearance, sorted by (-frequency, first_appearance_index)
-        5. Assign sequential integer reference_ids: 1, 2, 3, …
-        6. Build reference_list: ``[{"reference_id": int, "file_path": str}, ...]``
-        7. Copy chunks, assign reference_id from fp_to_id mapping
+        1. 从所有 entity/relation/chunk 字典中收集 file_path
+        2. 过滤空字符串、``None``、``"unknown_source"``
+        3. 统计每个 file_path 的频率
+        4. 排序：按首次出现顺序，按 (-频率, 首次出现索引) 排序
+        5. 分配连续的整数 reference_id：1、2、3、…
+        6. 构建 reference_list：``[{"reference_id": int, "file_path": str}, ...]``
+        7. 复制 chunks，根据 fp_to_id 映射分配 reference_id
 
-        Never mutates input chunk dicts — always creates copies.
+        绝不修改输入的 chunk 字典——始终创建副本。
 
         Returns
         -------
         tuple[list[dict], list[dict]]
-            ``(reference_list, chunks_with_ids)``.
+            ``(reference_list, chunks_with_ids)``。
         """
         # Step 1-3: Collect file_path counts
         file_path_counts: dict[str, int] = {}
@@ -531,29 +525,29 @@ class LightRAGBaseChain(BaseModel):
         chunks: list[dict],
         reference_list: list[dict],
     ) -> str:
-        """Serialize all lists and format the appropriate upstream context template.
+        """序列化所有列表并格式化对应的上游上下文模板。
 
-        Template dispatch by ``self.mode``:
+        根据 ``self.mode`` 分发模板：
 
         * ``"naive"`` → :data:`NAIVE_QUERY_CONTEXT_TEMPLATE`
-        * ``"bypass"`` → ``""`` (empty — no context)
-        * else (local/global/hybrid/mix) → :data:`KG_QUERY_CONTEXT_TEMPLATE`
+        * ``"bypass"`` → ``""``（空 — 无上下文）
+        * else（local/global/hybrid/mix）→ :data:`KG_QUERY_CONTEXT_TEMPLATE`
 
         Parameters
         ----------
         entities:
-            Truncated entity dicts.
+            已截断的 entity 字典列表。
         relations:
-            Truncated relation dicts.
+            已截断的 relation 字典列表。
         chunks:
-            Truncated chunk dicts (with reference_ids assigned).
+            已截断的 chunk 字典列表（已分配 reference_id）。
         reference_list:
-            Generated reference list.
+            已生成的引用列表。
 
         Returns
         -------
         str
-            Formatted context string ready for system prompt assembly.
+            格式化后的上下文字符串，可直接用于 system prompt 组装。
         """
         # Serialize entities and relations
         entities_str = "\n".join(
@@ -601,29 +595,27 @@ class LightRAGBaseChain(BaseModel):
     def _build_system_prompt(
         self, context_str: str, system_prompt: str | None
     ) -> str:
-        """Build the final system prompt (D-07, D-08).
+        """构建最终的 system prompt（D-07、D-08）。
 
-        * If *system_prompt* is not ``None``, return it directly —
-          complete override (D-08).
-        * If ``self.mode == "naive"`` → :data:`NAIVE_RAG_RESPONSE_PROMPT`
-          with ``{content_data}`` placeholder (NOT ``{context_data}`` —
-          RESEARCH.md Pitfall 1).
-        * Else (KG modes + bypass) → :data:`RAG_RESPONSE_PROMPT` with
-          ``{context_data}`` placeholder.
+        * 如果 *system_prompt* 不为 ``None``，直接返回 — 完全覆写（D-08）。
+        * 如果 ``self.mode == "naive"`` → :data:`NAIVE_RAG_RESPONSE_PROMPT`
+          使用 ``{content_data}`` 占位符（不是 ``{context_data}`` —
+          RESEARCH.md Pitfall 1）。
+        * 否则（KG 模式 + bypass）→ :data:`RAG_RESPONSE_PROMPT`
+          使用 ``{context_data}`` 占位符。
 
         Parameters
         ----------
         context_str:
-            Assembled context string from :meth:`_build_context_str`.
+            来自 :meth:`_build_context_str` 的已组装的上下文字符串。
         system_prompt:
-            Complete system prompt override (D-08).  When provided, no
-            formatting is performed — the caller is fully responsible for
-            the prompt content.
+            完整的 system prompt 覆写（D-08）。提供时不执行格式化 — 调用方
+            完全负责 prompt 内容。
 
         Returns
         -------
         str
-            The system prompt ready for LLM invocation.
+            可立即用于 LLM 调用的 system prompt。
         """
         if system_prompt is not None:
             return system_prompt  # D-08: complete override, no formatting

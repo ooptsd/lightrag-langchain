@@ -160,7 +160,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/USER/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
+        <a href="https://github.com/ooptsd/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -206,7 +206,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/USER/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
+      <a href="https://github.com/ooptsd/lightrag-langchain" title="前往仓库" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -872,36 +872,37 @@
   </span>
 
 <a href="#lightrag_langchain.keywords.extract_keywords" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">extract_keywords</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">llm</span><span class="p">:</span> <span class="n">ChatOpenAI</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Chinese&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KeywordsSchema</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">extract_keywords</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">llm</span><span class="p">:</span> <span class="n">ChatOpenAI</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Chinese&quot;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KeywordsSchema</span>
 </code></pre></div>
 
     <div class="doc doc-contents first">
 
-        <p>Extract high-level and low-level keywords from a user query via LLM.</p>
-<p>Formats the upstream LightRAG prompt template with the query, examples,
-and language, then calls <code>llm.with_structured_output(KeywordsSchema,
-method="json_mode")</code> for type-safe extraction.</p>
+        <p>通过 LLM 从用户查询中提取高层和低层关键词。</p>
+<p>使用查询、示例和语言格式化上游 LightRAG prompt 模板，然后调用
+<code>llm.with_structured_output(KeywordsSchema, method="json_mode")</code>
+进行类型安全的提取。</p>
 <h4 id="lightrag_langchain.keywords.extract_keywords--parameters">Parameters<a class="headerlink" href="#lightrag_langchain.keywords.extract_keywords--parameters" title="Permanent link">&para;</a></h4>
 <p>query:
-    The user's natural-language query.
+    用户的自然语言查询。
 llm:
-    A ChatOpenAI (or compatible) instance used for extraction.  Must
-    support <code>with_structured_output()</code>.
+    用于提取的 ChatOpenAI（或兼容）实例。必须支持
+    <code>with_structured_output()</code>。
 language:
-    Target language for extracted keywords.  Defaults to <code>"Chinese"</code>
-    per D-13.  Typically sourced from
-    <code>settings.query_params.keyword_language</code>.</p>
+    提取关键词的目标语言。默认为 <code>"Chinese"</code>（根据 D-13）。
+    通常取自 <code>settings.query_params.keyword_language</code>。</p>
 <h4 id="lightrag_langchain.keywords.extract_keywords--returns">Returns<a class="headerlink" href="#lightrag_langchain.keywords.extract_keywords--returns" title="Permanent link">&para;</a></h4>
 <p>KeywordsSchema
-    Frozen model with <code>high_level_keywords</code> and <code>low_level_keywords</code>
-    extracted by the LLM.</p>
+    包含 LLM 提取的 <code>high_level_keywords</code> 和 <code>low_level_keywords</code>
+    的冻结模型。</p>
 <h4 id="lightrag_langchain.keywords.extract_keywords--notes">Notes<a class="headerlink" href="#lightrag_langchain.keywords.extract_keywords--notes" title="Permanent link">&para;</a></h4>
 <ul>
-<li>No caching (D-12) — every call invokes the LLM.</li>
-<li>No json_repair fallback (D-14) — structured output failures propagate.</li>
-<li><code>method="json_mode"</code> avoids <code>tool_choice</code> in the API request, which
-  is incompatible with DeepSeek v4-pro's thinking (reasoning) mode. The
-  keyword extraction prompt already instructs the model to output JSON.</li>
+<li>无缓存（D-12）——每次调用都会调用 LLM。</li>
+<li>无 json_repair 回退（D-14）——结构化输出失败会传播。</li>
+<li><code>method="json_mode"</code> 避免了 API 请求中的 <code>tool_choice</code>，后者与
+  DeepSeek v4-pro 的 thinking（reasoning）模式不兼容。关键词提取 prompt
+  已经指示模型输出 JSON。</li>
 </ul>
 
 
@@ -923,7 +924,9 @@ language:
 
             <details class="mkdocstrings-source">
               <summary>源代码位于： <code>src/lightrag_langchain/keywords.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-130">130</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-128">128</a></span>
+<span class="normal"><a href="#__codelineno-0-129">129</a></span>
+<span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
 <span class="normal"><a href="#__codelineno-0-132">132</a></span>
 <span class="normal"><a href="#__codelineno-0-133">133</a></span>
@@ -992,82 +995,78 @@ language:
 <span class="normal"><a href="#__codelineno-0-196">196</a></span>
 <span class="normal"><a href="#__codelineno-0-197">197</a></span>
 <span class="normal"><a href="#__codelineno-0-198">198</a></span>
-<span class="normal"><a href="#__codelineno-0-199">199</a></span>
-<span class="normal"><a href="#__codelineno-0-200">200</a></span>
-<span class="normal"><a href="#__codelineno-0-201">201</a></span>
-<span class="normal"><a href="#__codelineno-0-202">202</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">extract_keywords</span><span class="p">(</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a>    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a>    <span class="n">llm</span><span class="p">:</span> <span class="n">ChatOpenAI</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]  # duck-typed — any with_structured_output impl</span>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a>    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Chinese&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-134" name="__codelineno-0-134"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KeywordsSchema</span><span class="p">:</span>
-<a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract high-level and low-level keywords from a user query via LLM.</span>
-<a id="__codelineno-0-136" name="__codelineno-0-136"></a>
-<a id="__codelineno-0-137" name="__codelineno-0-137"></a><span class="sd">    Formats the upstream LightRAG prompt template with the query, examples,</span>
-<a id="__codelineno-0-138" name="__codelineno-0-138"></a><span class="sd">    and language, then calls ``llm.with_structured_output(KeywordsSchema,</span>
-<a id="__codelineno-0-139" name="__codelineno-0-139"></a><span class="sd">    method=&quot;json_mode&quot;)`` for type-safe extraction.</span>
-<a id="__codelineno-0-140" name="__codelineno-0-140"></a>
-<a id="__codelineno-0-141" name="__codelineno-0-141"></a><span class="sd">    Parameters</span>
-<a id="__codelineno-0-142" name="__codelineno-0-142"></a><span class="sd">    ----------</span>
-<a id="__codelineno-0-143" name="__codelineno-0-143"></a><span class="sd">    query:</span>
-<a id="__codelineno-0-144" name="__codelineno-0-144"></a><span class="sd">        The user&#39;s natural-language query.</span>
-<a id="__codelineno-0-145" name="__codelineno-0-145"></a><span class="sd">    llm:</span>
-<a id="__codelineno-0-146" name="__codelineno-0-146"></a><span class="sd">        A ChatOpenAI (or compatible) instance used for extraction.  Must</span>
-<a id="__codelineno-0-147" name="__codelineno-0-147"></a><span class="sd">        support ``with_structured_output()``.</span>
-<a id="__codelineno-0-148" name="__codelineno-0-148"></a><span class="sd">    language:</span>
-<a id="__codelineno-0-149" name="__codelineno-0-149"></a><span class="sd">        Target language for extracted keywords.  Defaults to ``&quot;Chinese&quot;``</span>
-<a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="sd">        per D-13.  Typically sourced from</span>
-<a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="sd">        ``settings.query_params.keyword_language``.</span>
-<a id="__codelineno-0-152" name="__codelineno-0-152"></a>
-<a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">    Returns</span>
-<a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="sd">    -------</span>
-<a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">    KeywordsSchema</span>
-<a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">        Frozen model with ``high_level_keywords`` and ``low_level_keywords``</span>
-<a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">        extracted by the LLM.</span>
-<a id="__codelineno-0-158" name="__codelineno-0-158"></a>
-<a id="__codelineno-0-159" name="__codelineno-0-159"></a><span class="sd">    Notes</span>
-<a id="__codelineno-0-160" name="__codelineno-0-160"></a><span class="sd">    -----</span>
-<a id="__codelineno-0-161" name="__codelineno-0-161"></a><span class="sd">    - No caching (D-12) — every call invokes the LLM.</span>
-<a id="__codelineno-0-162" name="__codelineno-0-162"></a><span class="sd">    - No json_repair fallback (D-14) — structured output failures propagate.</span>
-<a id="__codelineno-0-163" name="__codelineno-0-163"></a><span class="sd">    - ``method=&quot;json_mode&quot;`` avoids ``tool_choice`` in the API request, which</span>
-<a id="__codelineno-0-164" name="__codelineno-0-164"></a><span class="sd">      is incompatible with DeepSeek v4-pro&#39;s thinking (reasoning) mode. The</span>
-<a id="__codelineno-0-165" name="__codelineno-0-165"></a><span class="sd">      keyword extraction prompt already instructs the model to output JSON.</span>
-<a id="__codelineno-0-166" name="__codelineno-0-166"></a>
-<a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="sd">    Example:</span>
-<a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="sd">        ```python</span>
-<a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="sd">        from lightrag_langchain.config import settings</span>
-<a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">        from lightrag_langchain.llm import create_llm</span>
-<a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">        from lightrag_langchain.keywords import extract_keywords</span>
-<a id="__codelineno-0-172" name="__codelineno-0-172"></a>
-<a id="__codelineno-0-173" name="__codelineno-0-173"></a><span class="sd">        llm = create_llm(settings.llm)</span>
-<a id="__codelineno-0-174" name="__codelineno-0-174"></a><span class="sd">        result = await extract_keywords(</span>
-<a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="sd">            query=&quot;启动东莞市防风Ⅰ级应急响应&quot;,</span>
-<a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="sd">            llm=llm,</span>
-<a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">            language=settings.query_params.keyword_language,</span>
-<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">        )</span>
-<a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="sd">        print(result.high_level_keywords, result.low_level_keywords)</span>
-<a id="__codelineno-0-180" name="__codelineno-0-180"></a><span class="sd">        ```</span>
-<a id="__codelineno-0-181" name="__codelineno-0-181"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="c1"># Assemble examples into a single formatted string.</span>
-<a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="n">examples_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">KEYWORDS_EXTRACTION_EXAMPLES</span><span class="p">)</span>
-<a id="__codelineno-0-184" name="__codelineno-0-184"></a>
-<a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="c1"># Format the prompt template with all required placeholders.</span>
-<a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="n">prompt</span> <span class="o">=</span> <span class="n">KEYWORDS_EXTRACTION_PROMPT</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-<a id="__codelineno-0-187" name="__codelineno-0-187"></a>        <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
-<a id="__codelineno-0-188" name="__codelineno-0-188"></a>        <span class="n">examples</span><span class="o">=</span><span class="n">examples_str</span><span class="p">,</span>
-<a id="__codelineno-0-189" name="__codelineno-0-189"></a>        <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span>
-<a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="p">)</span>
-<a id="__codelineno-0-191" name="__codelineno-0-191"></a>
-<a id="__codelineno-0-192" name="__codelineno-0-192"></a>    <span class="c1"># Create a structured LLM with json_mode to avoid tool_choice</span>
-<a id="__codelineno-0-193" name="__codelineno-0-193"></a>    <span class="c1"># incompatibility with DeepSeek v4-pro thinking (reasoning) mode.</span>
-<a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="n">structured_llm</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">with_structured_output</span><span class="p">(</span>
-<a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">KeywordsSchema</span><span class="p">,</span>
-<a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;json_mode&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-199">199</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-128" name="__codelineno-0-128"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">extract_keywords</span><span class="p">(</span>
+<a id="__codelineno-0-129" name="__codelineno-0-129"></a>    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-130" name="__codelineno-0-130"></a>    <span class="n">llm</span><span class="p">:</span> <span class="n">ChatOpenAI</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]  # duck-typed — any with_structured_output impl</span>
+<a id="__codelineno-0-131" name="__codelineno-0-131"></a>    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Chinese&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-132" name="__codelineno-0-132"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KeywordsSchema</span><span class="p">:</span>
+<a id="__codelineno-0-133" name="__codelineno-0-133"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;通过 LLM 从用户查询中提取高层和低层关键词。</span>
+<a id="__codelineno-0-134" name="__codelineno-0-134"></a>
+<a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="sd">    使用查询、示例和语言格式化上游 LightRAG prompt 模板，然后调用</span>
+<a id="__codelineno-0-136" name="__codelineno-0-136"></a><span class="sd">    ``llm.with_structured_output(KeywordsSchema, method=&quot;json_mode&quot;)``</span>
+<a id="__codelineno-0-137" name="__codelineno-0-137"></a><span class="sd">    进行类型安全的提取。</span>
+<a id="__codelineno-0-138" name="__codelineno-0-138"></a>
+<a id="__codelineno-0-139" name="__codelineno-0-139"></a><span class="sd">    Parameters</span>
+<a id="__codelineno-0-140" name="__codelineno-0-140"></a><span class="sd">    ----------</span>
+<a id="__codelineno-0-141" name="__codelineno-0-141"></a><span class="sd">    query:</span>
+<a id="__codelineno-0-142" name="__codelineno-0-142"></a><span class="sd">        用户的自然语言查询。</span>
+<a id="__codelineno-0-143" name="__codelineno-0-143"></a><span class="sd">    llm:</span>
+<a id="__codelineno-0-144" name="__codelineno-0-144"></a><span class="sd">        用于提取的 ChatOpenAI（或兼容）实例。必须支持</span>
+<a id="__codelineno-0-145" name="__codelineno-0-145"></a><span class="sd">        ``with_structured_output()``。</span>
+<a id="__codelineno-0-146" name="__codelineno-0-146"></a><span class="sd">    language:</span>
+<a id="__codelineno-0-147" name="__codelineno-0-147"></a><span class="sd">        提取关键词的目标语言。默认为 ``&quot;Chinese&quot;``（根据 D-13）。</span>
+<a id="__codelineno-0-148" name="__codelineno-0-148"></a><span class="sd">        通常取自 ``settings.query_params.keyword_language``。</span>
+<a id="__codelineno-0-149" name="__codelineno-0-149"></a>
+<a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="sd">    Returns</span>
+<a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="sd">    -------</span>
+<a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="sd">    KeywordsSchema</span>
+<a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">        包含 LLM 提取的 ``high_level_keywords`` 和 ``low_level_keywords``</span>
+<a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="sd">        的冻结模型。</span>
+<a id="__codelineno-0-155" name="__codelineno-0-155"></a>
+<a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">    Notes</span>
+<a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">    -----</span>
+<a id="__codelineno-0-158" name="__codelineno-0-158"></a><span class="sd">    - 无缓存（D-12）——每次调用都会调用 LLM。</span>
+<a id="__codelineno-0-159" name="__codelineno-0-159"></a><span class="sd">    - 无 json_repair 回退（D-14）——结构化输出失败会传播。</span>
+<a id="__codelineno-0-160" name="__codelineno-0-160"></a><span class="sd">    - ``method=&quot;json_mode&quot;`` 避免了 API 请求中的 ``tool_choice``，后者与</span>
+<a id="__codelineno-0-161" name="__codelineno-0-161"></a><span class="sd">      DeepSeek v4-pro 的 thinking（reasoning）模式不兼容。关键词提取 prompt</span>
+<a id="__codelineno-0-162" name="__codelineno-0-162"></a><span class="sd">      已经指示模型输出 JSON。</span>
+<a id="__codelineno-0-163" name="__codelineno-0-163"></a>
+<a id="__codelineno-0-164" name="__codelineno-0-164"></a><span class="sd">    Example:</span>
+<a id="__codelineno-0-165" name="__codelineno-0-165"></a><span class="sd">        ```python</span>
+<a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="sd">        from lightrag_langchain.config import settings</span>
+<a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="sd">        from lightrag_langchain.llm import create_llm</span>
+<a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="sd">        from lightrag_langchain.keywords import extract_keywords</span>
+<a id="__codelineno-0-169" name="__codelineno-0-169"></a>
+<a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">        llm = create_llm(settings.llm)</span>
+<a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">        result = await extract_keywords(</span>
+<a id="__codelineno-0-172" name="__codelineno-0-172"></a><span class="sd">            query=&quot;启动东莞市防风Ⅰ级应急响应&quot;,</span>
+<a id="__codelineno-0-173" name="__codelineno-0-173"></a><span class="sd">            llm=llm,</span>
+<a id="__codelineno-0-174" name="__codelineno-0-174"></a><span class="sd">            language=settings.query_params.keyword_language,</span>
+<a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="sd">        )</span>
+<a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="sd">        print(result.high_level_keywords, result.low_level_keywords)</span>
+<a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">        ```</span>
+<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-179" name="__codelineno-0-179"></a>    <span class="c1"># Assemble examples into a single formatted string.</span>
+<a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="n">examples_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">KEYWORDS_EXTRACTION_EXAMPLES</span><span class="p">)</span>
+<a id="__codelineno-0-181" name="__codelineno-0-181"></a>
+<a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="c1"># Format the prompt template with all required placeholders.</span>
+<a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="n">prompt</span> <span class="o">=</span> <span class="n">KEYWORDS_EXTRACTION_PROMPT</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<a id="__codelineno-0-184" name="__codelineno-0-184"></a>        <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-0-185" name="__codelineno-0-185"></a>        <span class="n">examples</span><span class="o">=</span><span class="n">examples_str</span><span class="p">,</span>
+<a id="__codelineno-0-186" name="__codelineno-0-186"></a>        <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span>
+<a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="p">)</span>
+<a id="__codelineno-0-188" name="__codelineno-0-188"></a>
+<a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="c1"># Create a structured LLM with json_mode to avoid tool_choice</span>
+<a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="c1"># incompatibility with DeepSeek v4-pro thinking (reasoning) mode.</span>
+<a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="n">structured_llm</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">with_structured_output</span><span class="p">(</span>
+<a id="__codelineno-0-192" name="__codelineno-0-192"></a>        <span class="n">KeywordsSchema</span><span class="p">,</span>
+<a id="__codelineno-0-193" name="__codelineno-0-193"></a>        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;json_mode&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="p">)</span>
+<a id="__codelineno-0-195" name="__codelineno-0-195"></a>
+<a id="__codelineno-0-196" name="__codelineno-0-196"></a>    <span class="c1"># Extract keywords via async LLM call.</span>
+<a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="n">result</span><span class="p">:</span> <span class="n">KeywordsSchema</span> <span class="o">=</span> <span class="k">await</span> <span class="n">structured_llm</span><span class="o">.</span><span class="n">ainvoke</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
 <a id="__codelineno-0-198" name="__codelineno-0-198"></a>
-<a id="__codelineno-0-199" name="__codelineno-0-199"></a>    <span class="c1"># Extract keywords via async LLM call.</span>
-<a id="__codelineno-0-200" name="__codelineno-0-200"></a>    <span class="n">result</span><span class="p">:</span> <span class="n">KeywordsSchema</span> <span class="o">=</span> <span class="k">await</span> <span class="n">structured_llm</span><span class="o">.</span><span class="n">ainvoke</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
-<a id="__codelineno-0-201" name="__codelineno-0-201"></a>
-<a id="__codelineno-0-202" name="__codelineno-0-202"></a>    <span class="k">return</span> <span class="n">result</span>
+<a id="__codelineno-0-199" name="__codelineno-0-199"></a>    <span class="k">return</span> <span class="n">result</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1091,16 +1090,16 @@ language:
 
 
 
-        <p>Structured output for keyword extraction from user queries.</p>
-<p>Frozen to prevent accidental mutation after extraction.</p>
+        <p>用于从用户查询中提取关键词的结构化输出。</p>
+<p>冻结以防止提取后的意外修改。</p>
 
 
 <details class="example" open>
   <summary>Example</summary>
   <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">lightrag_langchain.keywords</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_keywords</span><span class="p">,</span> <span class="n">KeywordsSchema</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># result is a KeywordsSchema instance with high_level_keywords</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># and low_level_keywords fields</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># result 是一个包含 high_level_keywords 和 low_level_keywords</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># 字段的 KeywordsSchema 实例</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">result</span><span class="p">:</span> <span class="n">KeywordsSchema</span> <span class="o">=</span> <span class="k">await</span> <span class="n">extract_keywords</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">llm</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s2">&quot;Chinese&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">high_level_keywords</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">low_level_keywords</span><span class="p">)</span>
 </code></pre></div>
@@ -1137,19 +1136,17 @@ language:
 <span class="normal"><a href="#__codelineno-0-57">57</a></span>
 <span class="normal"><a href="#__codelineno-0-58">58</a></span>
 <span class="normal"><a href="#__codelineno-0-59">59</a></span>
-<span class="normal"><a href="#__codelineno-0-60">60</a></span>
-<span class="normal"><a href="#__codelineno-0-61">61</a></span>
-<span class="normal"><a href="#__codelineno-0-62">62</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="k">class</span><span class="w"> </span><span class="nc">KeywordsSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Structured output for keyword extraction from user queries.</span>
+<span class="normal"><a href="#__codelineno-0-60">60</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="k">class</span><span class="w"> </span><span class="nc">KeywordsSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;用于从用户查询中提取关键词的结构化输出。</span>
 <a id="__codelineno-0-39" name="__codelineno-0-39"></a>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    Frozen to prevent accidental mutation after extraction.</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    冻结以防止提取后的意外修改。</span>
 <a id="__codelineno-0-41" name="__codelineno-0-41"></a>
 <a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">    Example:</span>
 <a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">        ```python</span>
 <a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">        from lightrag_langchain.keywords import extract_keywords, KeywordsSchema</span>
 <a id="__codelineno-0-45" name="__codelineno-0-45"></a>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">        # result is a KeywordsSchema instance with high_level_keywords</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">        # and low_level_keywords fields</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">        # result 是一个包含 high_level_keywords 和 low_level_keywords</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">        # 字段的 KeywordsSchema 实例</span>
 <a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="sd">        result: KeywordsSchema = await extract_keywords(query, llm, language=&quot;Chinese&quot;)</span>
 <a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">        print(result.high_level_keywords, result.low_level_keywords)</span>
 <a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">        ```</span>
@@ -1158,13 +1155,11 @@ language:
 <a id="__codelineno-0-53" name="__codelineno-0-53"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <a id="__codelineno-0-54" name="__codelineno-0-54"></a>
 <a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="n">high_level_keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Overall concepts or themes — user&#39;s core intent, topic area, or</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">    emergency response level type.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a>    <span class="n">low_level_keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Specific entities or details — agencies (with city names), proper</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">    nouns, technical terms, infrastructure, disaster events, geographic</span>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">    features.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;总体概念或主题——用户的核心意图、主题领域或应急响应级别类型。&quot;&quot;&quot;</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a>    <span class="n">low_level_keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;具体实体或细节——机构（包含城市名称）、专有名词、专业术语、</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">    基础设施、灾害事件、地理特征。&quot;&quot;&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -1196,8 +1191,7 @@ language:
 
     <div class="doc doc-contents ">
 
-        <p>Overall concepts or themes — user's core intent, topic area, or
-emergency response level type.</p>
+        <p>总体概念或主题——用户的核心意图、主题领域或应急响应级别类型。</p>
 
     </div>
 
@@ -1221,9 +1215,8 @@ emergency response level type.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Specific entities or details — agencies (with city names), proper
-nouns, technical terms, infrastructure, disaster events, geographic
-features.</p>
+        <p>具体实体或细节——机构（包含城市名称）、专有名词、专业术语、
+基础设施、灾害事件、地理特征。</p>
 
     </div>
 

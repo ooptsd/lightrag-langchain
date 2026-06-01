@@ -1,22 +1,21 @@
-"""lightrag-langchain — LangChain-based query layer for LightRAG knowledge graphs.
+"""lightrag-langchain —— 基于 LangChain 的 LightRAG 知识图谱查询层。
 
-All Phase 3+ factory/utility functions are exposed via lazy ``__getattr__``
-so that ``import lightrag_langchain`` does NOT trigger:
-- Settings singleton instantiation (no .env file required at import time)
-- Any LangChain imports (ChatOpenAI, OpenAIEmbeddings, BaseDocumentCompressor)
-- Any tiktoken imports
-- Any httpx imports
+所有 Phase 3+ 工厂/工具函数通过惰性 ``__getattr__`` 暴露，
+使得 ``import lightrag_langchain`` 不会触发：
+- Settings 单例实例化（导入时无需 .env 文件）
+- 任何 LangChain 导入（ChatOpenAI、OpenAIEmbeddings、BaseDocumentCompressor）
+- 任何 tiktoken 导入
+- 任何 httpx 导入
 
-Phase 5 retriever classes (NaiveRetriever, LocalRetriever, GlobalRetriever,
-HybridRetriever, MixRetriever, BypassRetriever) are also exposed via lazy
-``__getattr__``.
+Phase 5 retriever 类（NaiveRetriever、LocalRetriever、GlobalRetriever、
+HybridRetriever、MixRetriever、BypassRetriever）也通过惰性 ``__getattr__`` 暴露。
 
-Phase 6 chain classes (NaiveChain, LocalChain, GlobalChain, HybridChain,
-MixChain, BypassChain) are also exposed via lazy ``__getattr__``.
+Phase 6 chain 类（NaiveChain、LocalChain、GlobalChain、HybridChain、
+MixChain、BypassChain）也通过惰性 ``__getattr__`` 暴露。
 
-Data-layer models (EntityRecord, RelationshipRecord, ChunkRecord, GraphNode,
-GraphEdge, PGVectorStore, PGGraphStore) remain accessible via
-``from lightrag_langchain.data import ...`` and are NOT re-exported here.
+数据层模型（EntityRecord、RelationshipRecord、ChunkRecord、GraphNode、
+GraphEdge、PGVectorStore、PGGraphStore）仍可通过
+``from lightrag_langchain.data import ...`` 访问，不在此处重新导出。
 """
 
 from __future__ import annotations
@@ -51,10 +50,9 @@ if TYPE_CHECKING:
 
 
 def __getattr__(name: str):
-    """Lazy import for all Phase 3 modules — defers import/construction until
-    the exported identifier is actually accessed.
+    """所有 Phase 3 模块的惰性导入 —— 将导入/构造推迟到导出的标识符被实际访问时。
 
-    Pattern matches :file:`data/__init__.py` (L:20-32).
+    模式与 :file:`data/__init__.py`（L:20-32）一致。
     """
     # -- LLM / Embedding factories (llm.py) -----------------------------------
     if name == "create_llm":

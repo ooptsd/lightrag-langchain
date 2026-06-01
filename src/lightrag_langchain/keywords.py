@@ -1,10 +1,10 @@
-"""Structured-output keyword extraction for lightrag-langchain.
+"""lightrag-langchain 的结构化输出关键词提取。
 
-Reuses upstream LightRAG's proven prompt templates verbatim but replaces
-the fragile json_repair parsing path with LangChain's
-``with_structured_output(KeywordsSchema)`` for type-safe extraction.
+复用上游 LightRAG 经过验证的 prompt 模板，但将脆弱的 json_repair 解析路径
+替换为 LangChain 的 ``with_structured_output(KeywordsSchema)``，以实现类型安全
+的提取。
 
-Usage::
+用法::
 
     from lightrag_langchain.config import settings
     from lightrag_langchain.llm import create_llm
@@ -35,16 +35,16 @@ if TYPE_CHECKING:
 
 
 class KeywordsSchema(BaseModel):
-    """Structured output for keyword extraction from user queries.
+    """用于从用户查询中提取关键词的结构化输出。
 
-    Frozen to prevent accidental mutation after extraction.
+    冻结以防止提取后的意外修改。
 
     Example:
         ```python
         from lightrag_langchain.keywords import extract_keywords, KeywordsSchema
 
-        # result is a KeywordsSchema instance with high_level_keywords
-        # and low_level_keywords fields
+        # result 是一个包含 high_level_keywords 和 low_level_keywords
+        # 字段的 KeywordsSchema 实例
         result: KeywordsSchema = await extract_keywords(query, llm, language="Chinese")
         print(result.high_level_keywords, result.low_level_keywords)
         ```
@@ -53,13 +53,11 @@ class KeywordsSchema(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     high_level_keywords: list[str]
-    """Overall concepts or themes — user's core intent, topic area, or
-    emergency response level type."""
+    """总体概念或主题——用户的核心意图、主题领域或应急响应级别类型。"""
 
     low_level_keywords: list[str]
-    """Specific entities or details — agencies (with city names), proper
-    nouns, technical terms, infrastructure, disaster events, geographic
-    features."""
+    """具体实体或细节——机构（包含城市名称）、专有名词、专业术语、
+    基础设施、灾害事件、地理特征。"""
 
 
 # ---------------------------------------------------------------------------
@@ -132,37 +130,36 @@ async def extract_keywords(
     llm: ChatOpenAI,  # type: ignore[valid-type]  # duck-typed — any with_structured_output impl
     language: str = "Chinese",
 ) -> KeywordsSchema:
-    """Extract high-level and low-level keywords from a user query via LLM.
+    """通过 LLM 从用户查询中提取高层和低层关键词。
 
-    Formats the upstream LightRAG prompt template with the query, examples,
-    and language, then calls ``llm.with_structured_output(KeywordsSchema,
-    method="json_mode")`` for type-safe extraction.
+    使用查询、示例和语言格式化上游 LightRAG prompt 模板，然后调用
+    ``llm.with_structured_output(KeywordsSchema, method="json_mode")``
+    进行类型安全的提取。
 
     Parameters
     ----------
     query:
-        The user's natural-language query.
+        用户的自然语言查询。
     llm:
-        A ChatOpenAI (or compatible) instance used for extraction.  Must
-        support ``with_structured_output()``.
+        用于提取的 ChatOpenAI（或兼容）实例。必须支持
+        ``with_structured_output()``。
     language:
-        Target language for extracted keywords.  Defaults to ``"Chinese"``
-        per D-13.  Typically sourced from
-        ``settings.query_params.keyword_language``.
+        提取关键词的目标语言。默认为 ``"Chinese"``（根据 D-13）。
+        通常取自 ``settings.query_params.keyword_language``。
 
     Returns
     -------
     KeywordsSchema
-        Frozen model with ``high_level_keywords`` and ``low_level_keywords``
-        extracted by the LLM.
+        包含 LLM 提取的 ``high_level_keywords`` 和 ``low_level_keywords``
+        的冻结模型。
 
     Notes
     -----
-    - No caching (D-12) — every call invokes the LLM.
-    - No json_repair fallback (D-14) — structured output failures propagate.
-    - ``method="json_mode"`` avoids ``tool_choice`` in the API request, which
-      is incompatible with DeepSeek v4-pro's thinking (reasoning) mode. The
-      keyword extraction prompt already instructs the model to output JSON.
+    - 无缓存（D-12）——每次调用都会调用 LLM。
+    - 无 json_repair 回退（D-14）——结构化输出失败会传播。
+    - ``method="json_mode"`` 避免了 API 请求中的 ``tool_choice``，后者与
+      DeepSeek v4-pro 的 thinking（reasoning）模式不兼容。关键词提取 prompt
+      已经指示模型输出 JSON。
 
     Example:
         ```python

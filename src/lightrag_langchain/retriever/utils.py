@@ -1,12 +1,10 @@
-"""Shared Document-conversion utilities for LightRAG retrievers (D-04, D-05).
+"""LightRAG Retriever 的共享 Document 转换工具函数 (D-04, D-05)。
 
-Pure functions (no I/O, no async, no side effects) that convert LightRAG
-database records and graph structures into LangChain ``Document`` instances
-with upstream-compatible JSON ``page_content`` and structured ``metadata``.
+纯函数（无 I/O、无异步、无副作用），将 LightRAG 数据库记录和图结构转换为 LangChain ``Document`` 实例，
+包含上游兼容的 JSON ``page_content`` 和结构化 ``metadata``。
 
-Page-content JSON field names match upstream LightRAG
-``convert_to_user_format()`` so that Phase 6 can directly assemble LLM
-context using the upstream ``kg_query_context`` template.
+Page-content JSON 字段名与上游 LightRAG ``convert_to_user_format()`` 匹配，
+使 Phase 6 可以直接使用上游 ``kg_query_context`` 模板组装 LLM 上下文。
 """
 
 from __future__ import annotations
@@ -40,28 +38,28 @@ def entity_to_document(
     description: str = "",
     retrieval_mode: str = "unknown",
 ) -> Document:
-    """Convert an ``EntityRecord`` into a LangChain ``Document``.
+    """将 ``EntityRecord`` 转换为 LangChain ``Document``。
 
     Parameters
     ----------
     entity:
-        The entity record from PGVector entity search.
+        来自 PGVector 实体搜索的 entity 记录。
     entity_type:
-        Entity type string from the graph node (GraphNode.entity_type).
-        Empty string when not available (default).
+        来自图节点的实体类型字符串 (GraphNode.entity_type)。
+        不可用时为空字符串（默认）。
     description:
-        Entity description from the graph node (GraphNode.description).
-        Empty string when not available (default).
+        来自图节点的实体描述 (GraphNode.description)。
+        不可用时为空字符串（默认）。
     retrieval_mode:
-        Name of the query strategy that retrieved this result
-        (e.g. ``"local"``, ``"global"``).
+        检索此结果的查询策略名称
+        （例如 ``"local"``、``"global"``）。
 
     Returns
     -------
     Document
-        A LangChain Document whose ``page_content`` is a JSON object with
-        keys matching upstream ``convert_to_user_format()`` entity output
-        and whose ``metadata`` carries retrieval provenance.
+        一个 LangChain Document，其 ``page_content`` 是一个 JSON 对象，
+        键名与上游 ``convert_to_user_format()`` 实体输出匹配，
+        ``metadata`` 携带检索来源信息。
     """
     obj = {
         "entity_name": entity.entity_name,
@@ -98,33 +96,32 @@ def relation_to_document(
     file_path: str = "",
     retrieval_mode: str = "unknown",
 ) -> Document:
-    """Convert a ``RelationshipRecord`` into a LangChain ``Document``.
+    """将 ``RelationshipRecord`` 转换为 LangChain ``Document``。
 
     Parameters
     ----------
     relation:
-        The relationship record from PGVector relation search.
+        来自 PGVector 关系搜索的 relationship 记录。
     keywords:
-        Enriched keywords from the graph edge (GraphEdge.keywords).
-        Falls back to ``relation.keywords`` when empty.
+        来自图边的丰富关键词 (GraphEdge.keywords)。
+        为空时回退到 ``relation.keywords``。
     weight:
-        Enriched weight from the graph edge (GraphEdge.weight).
-        Falls back to ``relation.weight`` when ``None``.
+        来自图边的丰富权重 (GraphEdge.weight)。
+        为 ``None`` 时回退到 ``relation.weight``。
     source_id:
-        Source document identifier from the graph edge (GraphEdge.source_id).
-        Empty string when unavailable.
+        来自图边的源文档标识符 (GraphEdge.source_id)。
+        不可用时为空字符串。
     file_path:
-        Source file path.  Empty string when unavailable (neither VDB nor
-        AGE stores file_path for relations).
+        源文件路径。不可用时为空字符串（VDB 和 AGE 都不存储关系的 file_path）。
     retrieval_mode:
-        Name of the query strategy that retrieved this result.
+        检索此结果的查询策略名称。
 
     Returns
     -------
     Document
-        A LangChain Document whose ``page_content`` is a JSON object with
-        keys matching upstream ``convert_to_user_format()`` relationship
-        output and whose ``metadata`` carries retrieval provenance.
+        一个 LangChain Document，其 ``page_content`` 是一个 JSON 对象，
+        键名与上游 ``convert_to_user_format()`` 关系输出匹配，
+        ``metadata`` 携带检索来源信息。
     """
     # Resolve enriched values — caller's GraphEdge values win over record defaults
     resolved_keywords = keywords or relation.keywords or ""
@@ -165,22 +162,22 @@ def chunk_to_document(
     *,
     retrieval_mode: str = "unknown",
 ) -> Document:
-    """Convert a ``ChunkRecord`` into a LangChain ``Document``.
+    """将 ``ChunkRecord`` 转换为 LangChain ``Document``。
 
     Parameters
     ----------
     chunk:
-        The chunk record from PGVector chunk search.
+        来自 PGVector chunk 搜索的 chunk 记录。
     retrieval_mode:
-        Name of the query strategy that retrieved this result
-        (e.g. ``"naive"``, ``"mix"``).
+        检索此结果的查询策略名称
+        （例如 ``"naive"``、``"mix"``）。
 
     Returns
     -------
     Document
-        A LangChain Document whose ``page_content`` is a JSON object with
-        keys matching upstream ``convert_to_user_format()`` chunk output
-        and whose ``metadata`` carries scalar provenance fields (D-05).
+        一个 LangChain Document，其 ``page_content`` 是一个 JSON 对象，
+        键名与上游 ``convert_to_user_format()`` chunk 输出匹配，
+        ``metadata`` 携带标量来源字段 (D-05)。
     """
     obj = {
         "reference_id": chunk.full_doc_id or "",
@@ -212,25 +209,23 @@ def graph_triple_to_document(
     *,
     retrieval_mode: str = "unknown",
 ) -> Document:
-    """Convert a ``GraphTriple`` into a LangChain ``Document``.
+    """将 ``GraphTriple`` 转换为 LangChain ``Document``。
 
-    The full structured triple data is preserved in ``metadata`` for
-    downstream programmatic access (D-05).  ``page_content`` carries a
-    compact JSON summary of the triple.
+    完整的结构化 triple 数据保留在 ``metadata`` 中，供下游程序化访问 (D-05)。
+    ``page_content`` 携带 triple 的紧凑 JSON 摘要。
 
     Parameters
     ----------
     triple:
-        The (src_entity, relation, tgt_entity) graph triple from graph
-        expansion.
+        来自图扩展的 (src_entity, relation, tgt_entity) 图三元组。
     retrieval_mode:
-        Name of the query strategy that retrieved this result.
+        检索此结果的查询策略名称。
 
     Returns
     -------
     Document
-        A LangChain Document with compact JSON ``page_content`` and
-        full structured triple ``metadata``.
+        一个 LangChain Document，具有紧凑的 JSON ``page_content`` 和
+        完整的结构化 triple ``metadata``。
     """
     page_obj = {
         "src_entity_name": triple.src_entity.entity_id,
@@ -276,26 +271,25 @@ def graph_triple_to_document(
 def build_graph_lookups(
     triples: list[GraphTriple],
 ) -> tuple[dict[str, GraphNode], dict[tuple[str, str], GraphEdge]]:
-    """Build lookup maps from a list of graph triples.
+    """从图三元组列表构建查找映射。
 
-    Constructs two dictionaries that retriever subclasses use to enrich
-    entity/relation records with graph-level properties:
+    构建两个字典，Retriever 子类使用它们来丰富 entity/relation 记录的图级属性：
 
-    - *node_lookup*: ``entity_id`` → ``GraphNode`` (from both src and tgt entities)
+    - *node_lookup*: ``entity_id`` → ``GraphNode``（来自 src 和 tgt 实体）
     - *edge_lookup*: ``(source_id, target_id)`` → ``GraphEdge``
 
-    If multiple triples carry the same entity_id or edge pair, the last one
-    wins (all triples for the same entity carry identical node data).
+    如果多个三元组携带相同的 entity_id 或边对，最后一个生效
+    （同一实体的所有三元组携带相同的节点数据）。
 
     Parameters
     ----------
     triples:
-        List of ``GraphTriple`` instances from graph expansion.
+        来自图扩展的 ``GraphTriple`` 实例列表。
 
     Returns
     -------
     tuple[dict[str, GraphNode], dict[tuple[str, str], GraphEdge]]
-        A ``(node_lookup, edge_lookup)`` tuple.
+        一个 ``(node_lookup, edge_lookup)`` 元组。
     """
     node_lookup: dict[str, GraphNode] = {}
     edge_lookup: dict[tuple[str, str], GraphEdge] = {}

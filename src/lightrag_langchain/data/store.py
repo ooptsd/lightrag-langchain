@@ -1,11 +1,10 @@
-"""PGVectorStore — read-only vector similarity search over LightRAG PGVector tables.
+"""PGVectorStore — 基于 LightRAG PGVector 表的只读向量相似度搜索。
 
-Provides entity, relationship, and chunk vector search backed by the LightRAG
-``lightrag_vdb_entity_*``, ``lightrag_vdb_relation_*``, and ``lightrag_vdb_chunks_*``
-tables.  Uses asyncpg connection pools from the data layer's pool module, with
-automatic table-name discovery via ``information_schema``.
+提供基于 LightRAG ``lightrag_vdb_entity_*``、``lightrag_vdb_relation_*`` 和 ``lightrag_vdb_chunks_*``
+表的 entity、relationship 和 chunk 向量搜索。使用数据层 pool 模块的 asyncpg 连接池，
+并通过 ``information_schema`` 自动发现表名。
 
-Usage::
+用法::
 
     from lightrag_langchain.data.store import PGVectorStore
 
@@ -27,28 +26,24 @@ from lightrag_langchain.data.pool import acquire_with_retry
 
 
 class PGVectorStore:
-    """Read-only vector similarity search over LightRAG PGVector tables.
+    """基于 LightRAG PGVector 表的只读向量相似度搜索。
 
-    Searches ``entities_vdb``, ``relationships_vdb``, and ``chunks_vdb`` using
-    pgvector's ``<=>`` (cosine distance) operator with workspace filtering (D-05),
-    parameterized queries (D-10 / D-15), and connection retry (D-06).
+    使用 pgvector 的 ``<=>``（余弦距离）运算符搜索 ``entities_vdb``、``relationships_vdb``
+    和 ``chunks_vdb``，支持 workspace 过滤 (D-05)、参数化查询 (D-10 / D-15) 和连接重试 (D-06)。
 
-    Table names are auto-discovered from ``information_schema.tables`` at first
-    query time (D-12).  Multiple suffix variants for a single namespace raise
-    ``RuntimeError`` with actionable guidance (D-13).
+    表名在首次查询时从 ``information_schema.tables`` 自动发现 (D-12)。
+    单个命名空间出现多个后缀变体会抛出 ``RuntimeError`` 并给出可操作的指导 (D-13)。
 
     Parameters
     ----------
     pool:
-        Optional asyncpg ``Pool`` for dependency injection (D-07).  When *None*
-        the module-level singleton pool from ``lightrag_langchain.data.pool`` is
-        used.
+        可选的 asyncpg ``Pool`` 用于依赖注入 (D-07)。当为 *None* 时，使用
+        ``lightrag_langchain.data.pool`` 的模块级单例池。
     workspace:
-        Workspace isolation namespace (D-05).  Defaults to
-        ``settings.pg.workspace`` when *None*.
+        Workspace 隔离命名空间 (D-05)。当为 *None* 时默认为 ``settings.pg.workspace``。
     table_prefix:
-        Prefix used to discover PGVector tables in ``information_schema``.
-        Defaults to ``"lightrag_vdb"``.
+        用于在 ``information_schema`` 中发现 PGVector 表的前缀。
+        默认为 ``"lightrag_vdb"``。
     """
 
     def __init__(
@@ -72,11 +67,10 @@ class PGVectorStore:
 
     @property
     def pool(self) -> asyncpg.Pool:
-        """Return the active connection pool.
+        """返回活跃连接池。
 
-        Returns the dependency-injected pool when available (D-07), otherwise
-        falls back to the module-level singleton pool.  Raises ``RuntimeError``
-        when neither pool is available.
+        当依赖注入的池可用时返回它 (D-07)，否则回退到模块级单例池。
+        当两者都不可用时抛出 ``RuntimeError``。
         """
         if self._pool is not None:
             return self._pool
@@ -90,23 +84,22 @@ class PGVectorStore:
     # ------------------------------------------------------------------
 
     async def _ensure_tables(self) -> dict[str, str]:
-        """Discover LightRAG PGVector table names via ``information_schema``.
+        """通过 ``information_schema`` 发现 LightRAG PGVector 表名。
 
-        Caches the result in ``self._tables`` after the first successful call
-        so that subsequent queries avoid the metadata round-trip.
+        首次成功调用后将结果缓存在 ``self._tables`` 中，
+        以便后续查询避免元数据往返。
 
         Returns
         -------
         dict[str, str]
-            Mapping of namespace name to full table name, e.g.
-            ``{"ENTITY": "lightrag_vdb_entity_text_embedding_v4_1024d", ...}``.
+            命名空间名到完整表名的映射，例如
+            ``{"ENTITY": "lightrag_vdb_entity_text_embedding_v4_1024d", ...}``。
 
         Raises
         ------
         RuntimeError
-            - No table found for a namespace (database not initialised).
-            - Multiple suffix variants exist for a single namespace (ambiguity
-              requires ``PG_TABLE_SUFFIX`` in ``.env``).
+            - 未找到某个命名空间的表（数据库未初始化）。
+            - 单个命名空间存在多个后缀变体（歧义需要 ``.env`` 中的 ``PG_TABLE_SUFFIX``）。
         """
         if self._tables is not None:
             return self._tables
@@ -182,13 +175,13 @@ class PGVectorStore:
         top_k: int,
         select_clause: str,
     ) -> list[dict[str, Any]]:
-        """Generic parameterised PGVector cosine-distance search.
+        """通用参数化 PGVector 余弦距离搜索。
 
-        Uses ``content_vector <=> $4::vector < $2`` for server-side index-
-        accelerated filtering, with ``$1`` (workspace) and ``$3`` (LIMIT).
+        使用 ``content_vector <=> $4::vector < $2`` 进行服务器端索引加速过滤，
+        配合 ``$1``（workspace）和 ``$3``（LIMIT）。
 
-        ``acquire_with_retry`` handles transient connection errors (D-06).
-        Only ``conn.fetch()`` is called — no ``execute()`` (D-15 read-only).
+        ``acquire_with_retry`` 处理瞬态连接错误 (D-06)。
+        仅调用 ``conn.fetch()`` — 不调用 ``execute()`` (D-15 只读)。
         """
         closer_than = 1.0 - self._cosine_threshold
         sql = (
@@ -220,20 +213,19 @@ class PGVectorStore:
         embedding: list[float],
         top_k: int | None = None,
     ) -> list[EntityRecord]:
-        """Vector similarity search on the LightRAG entities vector table.
+        """LightRAG 实体向量表上的向量相似度搜索。
 
         Parameters
         ----------
         embedding:
-            Pre-computed embedding vector (D-10).  PGVectorStore does NOT
-            generate embeddings — it only receives them.
+            预计算的 embedding 向量 (D-10)。PGVectorStore 不生成 embedding — 仅接收它们。
         top_k:
-            Maximum number of results.  Defaults to ``settings.query_params.top_k``.
+            最大结果数。默认为 ``settings.query_params.top_k``。
 
         Returns
         -------
         list[EntityRecord]
-            Ranked entity records, closest match first.
+            排序的实体记录，最接近的匹配排在最前。
         """
         top_k = self._default_top_k if top_k is None else top_k
         await self._ensure_tables()
@@ -257,24 +249,23 @@ class PGVectorStore:
         embedding: list[float],
         top_k: int | None = None,
     ) -> list[RelationshipRecord]:
-        """Vector similarity search on the LightRAG relationships vector table.
+        """LightRAG 关系向量表上的向量相似度搜索。
 
-        ``keywords`` and ``weight`` are returned as ``None`` because the
-        ``lightrag_vdb_relation`` DDL does not contain those columns
-        (RESEARCH.md A1).  Real values are available from AGE graph edges
-        (Plan 02-04 PGGraphStore).
+        ``keywords`` 和 ``weight`` 返回为 ``None``，因为 ``lightrag_vdb_relation`` DDL
+        不包含这些列（RESEARCH.md A1）。真实值可从 AGE 图边获取
+        (Plan 02-04 PGGraphStore)。
 
         Parameters
         ----------
         embedding:
-            Pre-computed embedding vector (D-10).
+            预计算的 embedding 向量 (D-10)。
         top_k:
-            Maximum number of results.  Defaults to ``settings.query_params.top_k``.
+            最大结果数。默认为 ``settings.query_params.top_k``。
 
         Returns
         -------
         list[RelationshipRecord]
-            Ranked relationship records, closest match first.
+            排序的关系记录，最接近的匹配排在最前。
         """
         top_k = self._default_top_k if top_k is None else top_k
         await self._ensure_tables()
@@ -298,19 +289,19 @@ class PGVectorStore:
         embedding: list[float],
         top_k: int | None = None,
     ) -> list[ChunkRecord]:
-        """Vector similarity search on the LightRAG chunks vector table.
+        """LightRAG chunks 向量表上的向量相似度搜索。
 
         Parameters
         ----------
         embedding:
-            Pre-computed embedding vector (D-10).
+            预计算的 embedding 向量 (D-10)。
         top_k:
-            Maximum number of results.  Defaults to ``settings.query_params.top_k``.
+            最大结果数。默认为 ``settings.query_params.top_k``。
 
         Returns
         -------
         list[ChunkRecord]
-            Ranked chunk records, closest match first.
+            排序的 chunk 记录，最接近的匹配排在最前。
         """
         top_k = self._default_top_k if top_k is None else top_k
         await self._ensure_tables()

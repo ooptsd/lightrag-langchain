@@ -1,17 +1,15 @@
-"""LightRAG retriever implementations — LangChain BaseRetriever subclasses.
+"""LightRAG Retriever 实现 — LangChain BaseRetriever 子类。
 
-This package provides a shared base class :class:`LightRAGBaseRetriever` and
-six mode-specific retriever subclasses (NaiveRetriever, LocalRetriever,
-GlobalRetriever, HybridRetriever, MixRetriever, BypassRetriever), each
-encapsulating one LightRAG query mode behind the standard LangChain
-``BaseRetriever`` interface.
+本包提供共享基类 :class:`LightRAGBaseRetriever` 和六个模式特定的 Retriever 子类
+（NaiveRetriever、LocalRetriever、GlobalRetriever、HybridRetriever、MixRetriever、BypassRetriever），
+每个子类将一种 LightRAG 查询模式封装在标准 LangChain ``BaseRetriever`` 接口之后。
 
-All exports use lazy ``__getattr__`` so that ``import lightrag_langchain.retriever``
-does NOT trigger:
-- Settings singleton instantiation (no .env file required at import time)
-- Any LangChain imports (BaseRetriever, Document)
-- Any database connection
-- Any network call
+所有导出均使用延迟 ``__getattr__``，确保 ``import lightrag_langchain.retriever``
+不会触发：
+- Settings 单例实例化（导入时不需要 .env 文件）
+- 任何 LangChain 导入（BaseRetriever、Document）
+- 任何数据库连接
+- 任何网络调用
 """
 
 from __future__ import annotations
@@ -28,11 +26,10 @@ __all__ = [
 
 
 def __getattr__(name: str):
-    """Lazy import for retriever classes — defers import/construction until
-    the exported identifier is actually accessed.
+    """Retriever 类的延迟导入 — 将导入/构造推迟到导出的标识符被实际访问时。
 
-    Pattern matches :file:`lightrag_langchain/query/__init__.py` and
-    :file:`lightrag_langchain/data/__init__.py`.
+    模式匹配 :file:`lightrag_langchain/query/__init__.py` 和
+    :file:`lightrag_langchain/data/__init__.py`。
     """
     if name == "LightRAGBaseRetriever":
         from lightrag_langchain.retriever.base import LightRAGBaseRetriever

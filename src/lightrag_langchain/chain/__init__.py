@@ -1,18 +1,17 @@
-"""LightRAG QA Chain implementations — LangChain-compatible query-to-answer pipelines.
+"""LightRAG QA Chain 实现 — 兼容 LangChain 的查询到答案管线。
 
-This package provides a shared base class :class:`LightRAGBaseChain` and
-six mode-specific chain subclasses (NaiveChain, LocalChain,
-GlobalChain, HybridChain, MixChain, BypassChain), each
-encapsulating one LightRAG query mode behind a standard ``invoke`` /
-``ainvoke`` / ``astream`` interface.
+此包提供一个共享基类 :class:`LightRAGBaseChain` 和六个模式特定的
+chain 子类（NaiveChain、LocalChain、GlobalChain、HybridChain、
+MixChain、BypassChain），每个子类在标准的 ``invoke`` /
+``ainvoke`` / ``astream`` 接口之下封装了一种 LightRAG 查询模式。
 
-All exports use lazy ``__getattr__`` so that ``import lightrag_langchain.chain``
-does NOT trigger:
-- Settings singleton instantiation (no .env file required at import time)
-- Any LangChain imports (ChatOpenAI)
-- Any LLM / keyword extraction call
-- Any database connection
-- Any network call
+所有导出使用延迟 ``__getattr__``，使 ``import lightrag_langchain.chain``
+不会触发：
+- Settings 单例实例化（导入时不需要 .env 文件）
+- 任何 LangChain 导入（ChatOpenAI）
+- 任何 LLM / 关键词提取调用
+- 任何数据库连接
+- 任何网络调用
 """
 
 from __future__ import annotations
@@ -29,10 +28,9 @@ __all__ = [
 
 
 def __getattr__(name: str):
-    """Lazy import for chain classes — defers import/construction until
-    the exported identifier is actually accessed.
+    """chain 类的延迟导入 — 将导入/构建推迟到实际访问导出的标识符时才执行。
 
-    Pattern matches :file:`lightrag_langchain/retriever/__init__.py`.
+    模式与 :file:`lightrag_langchain/retriever/__init__.py` 一致。
     """
     if name == "LightRAGBaseChain":
         from lightrag_langchain.chain.base import LightRAGBaseChain

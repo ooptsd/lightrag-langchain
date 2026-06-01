@@ -1,9 +1,8 @@
-"""Upstream LightRAG prompt templates for QA chain context assembly.
+"""用于 QA Chain 上下文组装的上游 LightRAG prompt 模板。
 
-Reuses upstream LightRAG's proven prompt templates verbatim.  Templates are
-embedded as module-level string constants with ``.format()``-compatible
-placeholders preserved (``{context_data}``, ``{response_type}``,
-``{user_prompt}``, ``{content_data}``, etc.).
+原样复用上游 LightRAG 久经考验的 prompt 模板。模板以模块级字符串常量嵌入，
+保留与 ``.format()`` 兼容的占位符（``{context_data}``、``{response_type}``、
+``{user_prompt}``、``{content_data}`` 等）。
 
 Usage::
 
@@ -19,10 +18,10 @@ Usage::
     )
 
 Notes:
-    * ``NAIVE_RAG_RESPONSE_PROMPT`` uses ``{content_data}`` (NOT ``{context_data}``)
-      — RESEARCH.md Pitfall 1.
-    * Templates are embedded verbatim from upstream LightRAG; no modification
-      to prompt text is allowed (would break expected LLM behavior).
+    * ``NAIVE_RAG_RESPONSE_PROMPT`` 使用 ``{content_data}``（不是 ``{context_data}``）
+      — RESEARCH.md Pitfall 1。
+    * 模板从上游 LightRAG 原样嵌入；不允许修改 prompt 文本（会破坏
+      预期的 LLM 行为）。
 """
 
 from __future__ import annotations

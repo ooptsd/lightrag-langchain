@@ -1,19 +1,18 @@
-"""LightRAG query-mode chain subclasses.
+"""LightRAG 查询模式 Chain 子类。
 
-This module provides six :class:`LightRAGBaseChain` subclasses, one per
-LightRAG query mode.  Each chain:
+此模块提供六个 :class:`LightRAGBaseChain` 子类，每个对应一种
+LightRAG 查询模式。每个 chain：
 
-1. Sets ``mode`` to the corresponding query mode string.
-2. Inherits the full QA pipeline (keyword extraction, retrieval, Document
-   conversion, token budget, context assembly, LLM invocation, streaming)
-   from :class:`LightRAGBaseChain`.
-3. Optionally overrides ``ainvoke`` / ``astream`` for special behavior
-   (BypassChain skips all pipeline steps and calls the LLM directly).
+1. 将 ``mode`` 设置为对应的查询模式字符串。
+2. 从 :class:`LightRAGBaseChain` 继承完整的 QA 管线（关键词提取、检索、
+   Document 转换、token 预算、上下文组装、LLM 调用、流式输出）。
+3. 可选择性地覆写 ``ainvoke`` / ``astream`` 以实现特殊行为
+   （BypassChain 跳过所有管线步骤，直接调用 LLM）。
 
-Template selection is handled by the base class through ``self.mode`` dispatch
-in :meth:`~LightRAGBaseChain._build_context_str` and
-:meth:`~LightRAGBaseChain._build_system_prompt` — subclasses do not need to
-override those methods.
+模板选择由基类通过 ``self.mode`` 分发在
+:meth:`~LightRAGBaseChain._build_context_str` 和
+:meth:`~LightRAGBaseChain._build_system_prompt` 中处理 — 子类无需
+覆写这些方法。
 """
 
 from __future__ import annotations
@@ -41,10 +40,10 @@ logger = logging.getLogger(__name__)
 
 
 class NaiveChain(LightRAGBaseChain):
-    """LangChain QA Chain for LightRAG **naive** query mode.
+    """LightRAG **naive** 查询模式的 LangChain QA Chain。
 
-    Uses NaiveRetriever for pure vector chunk search.
-    Context assembled with NAIVE_QUERY_CONTEXT_TEMPLATE + NAIVE_RAG_RESPONSE_PROMPT.
+    使用 NaiveRetriever 进行纯向量 chunk 搜索。
+    上下文用 NAIVE_QUERY_CONTEXT_TEMPLATE + NAIVE_RAG_RESPONSE_PROMPT 组装。
 
     Example:
         ```python
@@ -64,10 +63,10 @@ class NaiveChain(LightRAGBaseChain):
 
 
 class LocalChain(LightRAGBaseChain):
-    """LangChain QA Chain for LightRAG **local** query mode.
+    """LightRAG **local** 查询模式的 LangChain QA Chain。
 
-    Uses LocalRetriever for entity-centric graph traversal.
-    Context assembled with KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT.
+    使用 LocalRetriever 进行以 entity 为中心的图遍历。
+    上下文用 KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT 组装。
 
     Example:
         ```python
@@ -87,10 +86,10 @@ class LocalChain(LightRAGBaseChain):
 
 
 class GlobalChain(LightRAGBaseChain):
-    """LangChain QA Chain for LightRAG **global** query mode.
+    """LightRAG **global** 查询模式的 LangChain QA Chain。
 
-    Uses GlobalRetriever for relation-centric graph traversal.
-    Context assembled with KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT.
+    使用 GlobalRetriever 进行以 relation 为中心的图遍历。
+    上下文用 KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT 组装。
 
     Example:
         ```python
@@ -110,10 +109,10 @@ class GlobalChain(LightRAGBaseChain):
 
 
 class HybridChain(LightRAGBaseChain):
-    """LangChain QA Chain for LightRAG **hybrid** query mode.
+    """LightRAG **hybrid** 查询模式的 LangChain QA Chain。
 
-    Uses HybridRetriever for parallel local+global with round-robin merge.
-    Context assembled with KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT.
+    使用 HybridRetriever 进行并行 local+global 的轮询合并。
+    上下文用 KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT 组装。
 
     Example:
         ```python
@@ -133,10 +132,10 @@ class HybridChain(LightRAGBaseChain):
 
 
 class MixChain(LightRAGBaseChain):
-    """LangChain QA Chain for LightRAG **mix** query mode.
+    """LightRAG **mix** 查询模式的 LangChain QA Chain。
 
-    Uses MixRetriever for hybrid + chunk search merge.
-    Context assembled with KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT.
+    使用 MixRetriever 进行 hybrid + chunk 搜索合并。
+    上下文用 KG_QUERY_CONTEXT_TEMPLATE + RAG_RESPONSE_PROMPT 组装。
 
     Example:
         ```python
@@ -156,10 +155,10 @@ class MixChain(LightRAGBaseChain):
 
 
 class BypassChain(LightRAGBaseChain):
-    """LangChain QA Chain for LightRAG **bypass** query mode.
+    """LightRAG **bypass** 查询模式的 LangChain QA Chain。
 
-    No keyword extraction, no retrieval, no token budget.
-    Calls LLM directly with RAG_RESPONSE_PROMPT (empty context_data).
+    无关键词提取、无检索、无 token 预算。
+    直接使用 RAG_RESPONSE_PROMPT（空的 context_data）调用 LLM。
 
     Example:
         ```python
@@ -185,10 +184,10 @@ class BypassChain(LightRAGBaseChain):
         ll_keywords: list[str] | None = None,
         **kwargs,
     ) -> dict:
-        """Synchronous bypass — calls LLM directly.
+        """同步 bypass — 直接调用 LLM。
 
-        Uses ``asyncio.run`` when no event loop is running.  Falls back to
-        a thread-pool executor when called from within a running event loop.
+        当没有事件循环运行时使用 ``asyncio.run``。当从运行中的事件循环内调用时
+        回退到线程池执行器。
         """
         try:
             loop = asyncio.get_running_loop()
@@ -226,10 +225,10 @@ class BypassChain(LightRAGBaseChain):
         ll_keywords: list[str] | None = None,
         **kwargs,
     ) -> dict:  # noqa: ARG003  # hl_keywords/ll_keywords unused in bypass
-        """Bypass: skip keywords + retrieval, direct LLM call.
+        """Bypass：跳过关键词提取 + 检索，直接调用 LLM。
 
-        No keyword extraction, no retriever call, no token budget.
-        Constructs a system prompt with empty context and calls the LLM.
+        无关键词提取、无 retriever 调用、无 token 预算。
+        用空上下文构建 system prompt 并调用 LLM。
         """
         sys_prompt = system_prompt or RAG_RESPONSE_PROMPT.format(
             context_data="",
@@ -254,10 +253,10 @@ class BypassChain(LightRAGBaseChain):
         ll_keywords: list[str] | None = None,
         **kwargs,
     ) -> AsyncIterator[str | dict]:  # noqa: ARG003  # hl_keywords/ll_keywords unused in bypass
-        """Bypass streaming: skip keywords + retrieval, stream LLM tokens directly.
+        """Bypass 流式输出：跳过关键词提取 + 检索，直接流式输出 LLM token。
 
-        Yields raw ``str`` tokens then a final ``dict`` with empty sources
-        and keywords (D-09, D-10).
+        产出原始 ``str`` token，然后产出带有空 sources 和 keywords 的
+        最终 ``dict``（D-09、D-10）。
         """
         sys_prompt = system_prompt or RAG_RESPONSE_PROMPT.format(
             context_data="",

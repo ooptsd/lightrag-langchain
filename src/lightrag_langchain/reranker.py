@@ -1,11 +1,11 @@
-"""Multi-backend reranker adapter, factory, and LangChain compressor.
+"""多后端 reranker 适配器、工厂函数和 LangChain compressor。
 
-Provides a typing.Protocol-based ``Reranker`` interface, three thin HTTP adapter
-functions (``ali_rerank``, ``cohere_rerank``, ``jina_rerank``), a
-``create_reranker()`` factory dispatcher, and a ``LightRAGReranker``
-BaseDocumentCompressor wrapper for LangChain pipeline integration.
+提供基于 typing.Protocol 的 ``Reranker`` 接口、三个轻量级 HTTP 适配器函数
+（``ali_rerank``、``cohere_rerank``、``jina_rerank``）、``create_reranker()``
+工厂分发函数，以及用于 LangChain pipeline 集成的 ``LightRAGReranker``
+BaseDocumentCompressor 包装器。
 
-Usage::
+用法::
 
     from lightrag_langchain.config import RerankerConfig
     from lightrag_langchain.reranker import create_reranker, LightRAGReranker
@@ -38,10 +38,10 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
 def _is_retryable(exc: BaseException) -> bool:
-    """Retry only on 5xx HTTP errors and transport-level errors.
+    """仅在 5xx HTTP 错误和传输层错误时重试。
 
-    4xx errors propagate immediately — they indicate client-side mistakes
-    (bad API key, invalid model name, etc.) that retrying won't fix.
+    4xx 错误立即传播——它们表示客户端错误（错误的 API key、无效的模型名称等），
+    重试无法修复。
     """
     if isinstance(exc, httpx.HTTPStatusError):
         return exc.response.status_code >= 500
@@ -56,10 +56,10 @@ def _is_retryable(exc: BaseException) -> bool:
 
 
 class Reranker(Protocol):
-    """Callable interface for reranking backends.
+    """用于 reranking 后端的可调用接口。
 
-    All adapters implement this protocol so the factory and compressor
-    can work with any provider transparently.
+    所有适配器都实现此协议，以便工厂和 compressor 能够透明地与任何 provider
+    一起工作。
     """
 
     async def rerank(
@@ -80,11 +80,10 @@ class Reranker(Protocol):
 async def _post_rerank(
     base_url: str, headers: dict[str, str], payload: dict[str, Any]
 ) -> dict[str, Any]:
-    """Execute an HTTP POST with exponential-backoff retry on transient errors.
+    """在临时错误上执行带指数退避重试的 HTTP POST。
 
-    Retries up to 3 times on 5xx / transport errors.  4xx errors propagate
-    immediately — the custom ``_is_retryable`` predicate only matches 5xx
-    status codes.
+    在 5xx / 传输错误上最多重试 3 次。4xx 错误立即传播——自定义的
+    ``_is_retryable`` 断言仅匹配 5xx 状态码。
     """
     async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(base_url, headers=headers, json=payload)
@@ -106,11 +105,11 @@ async def ali_rerank(
     api_key: str,
     top_n: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Rerank documents using Aliyun DashScope API.
+    """使用阿里云 DashScope API 对文档进行重排序。
 
-    Request format: nested aliyun structure with ``input`` and ``parameters``.
-    Response format: ``output.results[...]`` → normalized to
-    ``[{index, relevance_score}]``.
+    请求格式：嵌套的阿里云结构，包含 ``input`` 和 ``parameters``。
+    响应格式：``output.results[...]`` → 标准化为
+    ``[{index, relevance_score}]``。
     """
     headers = {
         "Content-Type": "application/json",
@@ -147,11 +146,11 @@ async def cohere_rerank(
     api_key: str,
     top_n: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Rerank documents using Cohere API.
+    """使用 Cohere API 对文档进行重排序。
 
-    Request format: standard ``{model, query, documents}``.
-    Response format: ``results[...]`` → normalized to
-    ``[{index, relevance_score}]``.
+    请求格式：标准格式 ``{model, query, documents}``。
+    响应格式：``results[...]`` → 标准化为
+    ``[{index, relevance_score}]``。
     """
     headers = {
         "Content-Type": "application/json",
@@ -185,9 +184,9 @@ async def jina_rerank(
     api_key: str,
     top_n: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Rerank documents using Jina AI API.
+    """使用 Jina AI API 对文档进行重排序。
 
-    Request and response format identical to cohere (standard).
+    请求和响应格式与 cohere 相同（标准格式）。
     """
     headers = {
         "Content-Type": "application/json",
@@ -219,7 +218,7 @@ async def jina_rerank(
 
 
 class _CohereReranker:
-    """Cohere adapter — delegates to ``cohere_rerank()``."""
+    """Cohere 适配器——委托给 ``cohere_rerank()``。"""
 
     def __init__(self, config: RerankerConfig) -> None:
         self._binding = config.binding
@@ -244,7 +243,7 @@ class _CohereReranker:
 
 
 class _JinaReranker:
-    """Jina adapter — delegates to ``jina_rerank()``."""
+    """Jina 适配器——委托给 ``jina_rerank()``。"""
 
     def __init__(self, config: RerankerConfig) -> None:
         self._binding = config.binding
@@ -269,7 +268,7 @@ class _JinaReranker:
 
 
 class _AliyunReranker:
-    """Aliyun adapter — delegates to ``ali_rerank()``."""
+    """阿里云适配器——委托给 ``ali_rerank()``。"""
 
     def __init__(self, config: RerankerConfig) -> None:
         self._binding = config.binding
@@ -299,15 +298,15 @@ class _AliyunReranker:
 
 
 def create_reranker(config: RerankerConfig) -> Reranker:
-    """Create a Reranker adapter based on the ``binding`` field in config.
+    """根据配置中的 ``binding`` 字段创建 Reranker 适配器。
 
-    Dispatch table::
+    分发表::
 
         * ``"cohere"`` → ``_CohereReranker``
         * ``"jina"``   → ``_JinaReranker``
         * ``"aliyun"`` / ``"dashscope"`` → ``_AliyunReranker``
 
-    Raises ``ValueError`` for any unrecognized binding value.
+    对于任何无法识别的 binding 值，抛出 ``ValueError``。
 
     Example:
         ```python
@@ -334,16 +333,15 @@ def create_reranker(config: RerankerConfig) -> Reranker:
 
 
 class LightRAGReranker(BaseDocumentCompressor):
-    """Wraps a ``Reranker`` Protocol instance as a LangChain
-    ``BaseDocumentCompressor`` for use with ``ContextualCompressionRetriever``.
+    """将 ``Reranker`` Protocol 实例包装为 LangChain 的
+    ``BaseDocumentCompressor``，用于 ``ContextualCompressionRetriever``。
 
     Parameters
     ----------
     reranker:
-        Any object that satisfies the ``Reranker`` Protocol.
+        任何满足 ``Reranker`` Protocol 的对象。
     top_n:
-        Maximum number of documents to return after reranking (forwarded to
-        the underlying reranker call).
+        重排序后返回的最大文档数量（转发到底层 reranker 调用）。
 
     Example:
         ```python
@@ -365,11 +363,10 @@ class LightRAGReranker(BaseDocumentCompressor):
         query: str,
         **kwargs: Any,
     ) -> list[Document]:
-        """Synchronous path — uses ``asyncio.run`` to bridge async reranker.
+        """同步路径——使用 ``asyncio.run`` 桥接异步 reranker。
 
-        Extracts ``page_content`` from each Document, calls the reranker,
-        attaches ``relevance_score`` to metadata, and returns documents sorted
-        descending by score.
+        提取每个 Document 的 ``page_content``，调用 reranker，
+        将 ``relevance_score`` 附加到 metadata，并按分数降序返回排序后的文档。
         """
         texts = [doc.page_content for doc in documents]
         scores = asyncio.run(
@@ -383,7 +380,7 @@ class LightRAGReranker(BaseDocumentCompressor):
         query: str,
         **kwargs: Any,
     ) -> list[Document]:
-        """Async path — directly awaits the reranker without ``asyncio.run``."""
+        """异步路径——直接 await reranker，无需 ``asyncio.run``。"""
         texts = [doc.page_content for doc in documents]
         scores = await self._reranker.rerank(query, texts, self._top_n)
         return _sort_and_attach_scores(documents, scores)
@@ -398,7 +395,7 @@ def _sort_and_attach_scores(
     documents: list[Document] | tuple[Document, ...],
     scores: list[dict[str, Any]],
 ) -> list[Document]:
-    """Attach relevance_score to document metadata and sort descending."""
+    """将 relevance_score 附加到文档 metadata 并按降序排序。"""
     score_map: dict[int, float] = {
         item["index"]: item["relevance_score"] for item in scores
     }
