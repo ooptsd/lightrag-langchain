@@ -1,7 +1,7 @@
 """PGVectorStore — 基于 LightRAG PGVector 表的只读向量相似度搜索。
 
 提供基于 LightRAG ``lightrag_vdb_entity_*``、``lightrag_vdb_relation_*`` 和 ``lightrag_vdb_chunks_*``
-表的 entity、relationship 和 chunk 向量搜索。使用数据层 pool 模块的 asyncpg 连接池，
+表的 entity、relationship 和 chunk 向量搜索。使用数据层 pool 模块的 psycopg 连接池，
 并通过 ``information_schema`` 自动发现表名。
 
 用法::
@@ -16,20 +16,22 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import asyncpg
+from psycopg_pool import AsyncConnectionPool
 
 from lightrag_langchain.config import settings
 from lightrag_langchain.data.models import ChunkRecord, EntityRecord, RelationshipRecord
-from lightrag_langchain.data.pool import acquire_with_retry
+
+if TYPE_CHECKING:
+    pass
 
 
 class PGVectorStore:
     """基于 LightRAG PGVector 表的只读向量相似度搜索。
 
     使用 pgvector 的 ``<=>``（余弦距离）运算符搜索 ``entities_vdb``、``relationships_vdb``
-    和 ``chunks_vdb``，支持 workspace 过滤 (D-05)、参数化查询 (D-10 / D-15) 和连接重试 (D-06)。
+    和 ``chunks_vdb``，支持 workspace 过滤 (D-05)、参数化查询 (D-10 / D-15) 和连接重试。
 
     表名在首次查询时从 ``information_schema.tables`` 自动发现 (D-12)。
     单个命名空间出现多个后缀变体会抛出 ``RuntimeError`` 并给出可操作的指导 (D-13)。
@@ -37,7 +39,7 @@ class PGVectorStore:
     Parameters
     ----------
     pool:
-        可选的 asyncpg ``Pool`` 用于依赖注入 (D-07)。当为 *None* 时，使用
+        可选的 psycopg ``AsyncConnectionPool`` 用于依赖注入 (D-07)。当为 *None* 时，使用
         ``lightrag_langchain.data.pool`` 的模块级单例池。
     workspace:
         Workspace 隔离命名空间 (D-05)。当为 *None* 时默认为 ``settings.pg.workspace``。
@@ -48,7 +50,7 @@ class PGVectorStore:
 
     def __init__(
         self,
-        pool: asyncpg.Pool | None = None,
+        pool: AsyncConnectionPool | None = None,
         workspace: str | None = None,
         table_prefix: str = "lightrag_vdb",
     ) -> None:
@@ -66,7 +68,7 @@ class PGVectorStore:
     # ------------------------------------------------------------------
 
     @property
-    def pool(self) -> asyncpg.Pool:
+    def pool(self) -> AsyncConnectionPool:
         """返回活跃连接池。
 
         当依赖注入的池可用时返回它 (D-07)，否则回退到模块级单例池。
@@ -109,14 +111,16 @@ class PGVectorStore:
             SELECT table_name
             FROM information_schema.tables
             WHERE table_schema = 'public'
-              AND table_name ILIKE $1
+              AND table_name ILIKE %s
             ORDER BY table_name
         """
 
-        async for conn in acquire_with_retry(self.pool):
-            rows = await conn.fetch(sql, pattern)
+        async with self.pool.connection() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(sql, (pattern,))
+                rows = await cur.fetchall()
 
-        # Build namespace → table_name categories from the system-catalog
+        # Build namespace -> table_name categories from the system-catalog
         # whitelist (T-02-03-STORE-01: only lightrag_vdb_* prefixed tables).
         prefix = self._table_prefix
         namespaces: dict[str, list[str]] = {
@@ -144,8 +148,7 @@ class PGVectorStore:
                 f"{prefix_lower}_chunks_"
             ):
                 namespaces["CHUNKS"].append(name)
-            # Non-matching tables are silently ignored — they belong to
-            # other LightRAG subsystems (KV, doc status, etc.).
+            # Non-matching tables are silently ignored
 
         result: dict[str, str] = {}
         for ns, tables in namespaces.items():
@@ -177,30 +180,32 @@ class PGVectorStore:
     ) -> list[dict[str, Any]]:
         """通用参数化 PGVector 余弦距离搜索。
 
-        使用 ``content_vector <=> $4::vector < $2`` 进行服务器端索引加速过滤，
-        配合 ``$1``（workspace）和 ``$3``（LIMIT）。
-
-        ``acquire_with_retry`` 处理瞬态连接错误 (D-06)。
-        仅调用 ``conn.fetch()`` — 不调用 ``execute()`` (D-15 只读)。
+        使用 ``content_vector <=> %s::vector < %s`` 进行服务器端索引加速过滤，
+        配合 ``%s``（workspace）和 ``%s``（LIMIT）。
         """
         closer_than = 1.0 - self._cosine_threshold
         sql = (
             f"{select_clause} "
             f"FROM {table_name} "
-            f"WHERE workspace = $1 "
-            f"AND content_vector <=> $4::vector < $2 "
-            f"ORDER BY content_vector <=> $4::vector "
-            f"LIMIT $3"
+            f"WHERE workspace = %s "
+            f"AND content_vector <=> %s::vector < %s "
+            f"ORDER BY content_vector <=> %s::vector "
+            f"LIMIT %s"
         )
 
-        async for conn in acquire_with_retry(self.pool):
-            rows = await conn.fetch(
-                sql,
-                self._workspace,
-                closer_than,
-                top_k,
-                embedding,
-            )
+        async with self.pool.connection() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    sql,
+                    (
+                        self._workspace,
+                        embedding,
+                        closer_than,
+                        embedding,
+                        top_k,
+                    ),
+                )
+                rows = await cur.fetchall()
 
         return [dict(row) for row in rows]
 

@@ -10,7 +10,7 @@
 - ``get_edges_batch(pairs)`` → ``dict[tuple[str,str], GraphEdge]``
 - ``get_node_edges(entity_id)`` → ``list[tuple[str,str]]``
 
-所有 Cypher 查询使用 ``$1::agtype`` 参数化配合 ``json.dumps()`` —
+所有 Cypher 查询使用 ``%s::agtype`` 参数化配合 ``json.dumps()`` —
 不将用户提供的值进行字符串插值到 Cypher 中 (T-02-04-GRAPH-01)。
 
 用法::
@@ -29,13 +29,14 @@ import re
 import uuid
 from typing import TYPE_CHECKING
 
+from psycopg_pool import AsyncConnectionPool
+
 from lightrag_langchain.config import settings
 from lightrag_langchain.data import pool as _pool_module
 from lightrag_langchain.data.models import GraphEdge, GraphNode
-from lightrag_langchain.data.pool import acquire_with_retry
 
 if TYPE_CHECKING:
-    from asyncpg import Pool, Record
+    pass
 
 
 # ---------------------------------------------------------------------------
@@ -49,7 +50,7 @@ class PGGraphStore:
     Parameters
     ----------
     pool:
-        asyncpg Pool 实例。当为 *None* 时，使用 ``data/pool.py`` 的模块级池（依赖注入，D-07）。
+        psycopg AsyncConnectionPool 实例。当为 *None* 时，使用 ``data/pool.py`` 的模块级池（依赖注入，D-07）。
     graph_name:
         显式指定的 AGE 图名称。当为 *None* 时，名称在首次查询时从 ``workspace`` 延迟解析 (D-14)。
     workspace:
@@ -58,7 +59,7 @@ class PGGraphStore:
 
     def __init__(
         self,
-        pool: Pool | None = None,
+        pool: AsyncConnectionPool | None = None,
         graph_name: str | None = None,
         workspace: str | None = None,
     ) -> None:
@@ -72,7 +73,7 @@ class PGGraphStore:
     # ------------------------------------------------------------------
 
     @property
-    def pool(self) -> Pool:
+    def pool(self) -> AsyncConnectionPool:
         """返回注入的池或回退到模块级池。"""
         if self._pool is not None:
             return self._pool
@@ -150,29 +151,38 @@ class PGGraphStore:
             name = f"{sanitized}_lightrag_graph"
 
         # Verify the resolved name exists; auto-detect if not.
-        # When pool is not yet initialised (e.g. in tests), skip DB verification
-        # and use the resolved name as-is.
         try:
-            async for conn in acquire_with_retry(self.pool):
-                exists = await conn.fetchval(
-                    "SELECT EXISTS(SELECT 1 FROM ag_catalog.ag_graph WHERE name = $1)",
-                    name,
-                )
+            async with self.pool.connection() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(
+                        "SELECT EXISTS(SELECT 1 FROM ag_catalog.ag_graph WHERE name = %s)",
+                        (name,),
+                    )
+                    row = await cur.fetchone()
+                    exists = row[0] if row else False
+
                 if not exists:
                     # Auto-detect: find a graph that has a base table
-                    detected: str | None = await conn.fetchval(
-                        "SELECT g.name FROM ag_catalog.ag_graph g "
-                        "JOIN pg_tables t ON t.schemaname = g.name AND t.tablename = 'base' "
-                        "ORDER BY g.name LIMIT 1"
-                    )
+                    async with conn.cursor() as cur:
+                        await cur.execute(
+                            "SELECT g.name FROM ag_catalog.ag_graph g "
+                            "JOIN pg_tables t ON t.schemaname = g.name AND t.tablename = 'base' "
+                            "ORDER BY g.name LIMIT 1"
+                        )
+                        row = await cur.fetchone()
+                        detected: str | None = row[0] if row else None
+
                     if detected is None:
                         # Fallback: any graph
-                        detected = await conn.fetchval(
-                            "SELECT name FROM ag_catalog.ag_graph ORDER BY name LIMIT 1"
-                        )
+                        async with conn.cursor() as cur:
+                            await cur.execute(
+                                "SELECT name FROM ag_catalog.ag_graph ORDER BY name LIMIT 1"
+                            )
+                            row = await cur.fetchone()
+                            detected = row[0] if row else None
+
                     if detected is not None:
                         name = detected
-                break
         except RuntimeError:
             # Pool not initialised — use workspace-derived name without
             # DB verification (safe for tests and offline contexts).
@@ -193,7 +203,7 @@ class PGGraphStore:
     ) -> list[dict]:
         """通过 ``SELECT * FROM cypher()`` 执行参数化的 AGE Cypher 查询。
 
-        所有 Cypher 参数通过 ``json.dumps()`` 序列化并绑定为 ``$1::agtype``，
+        所有 Cypher 参数通过 ``json.dumps()`` 序列化并绑定为 ``%s::agtype``，
         防止 Cypher 注入 (T-02-04-GRAPH-01)。
 
         Parameters
@@ -212,17 +222,19 @@ class PGGraphStore:
 
         sql = (
             f"SELECT * FROM cypher({graph_quoted}::name, "
-            f"{cypher_quoted}::cstring, $1::agtype) "
+            f"{cypher_quoted}::cstring, %s::agtype) "
             f"AS ({returns})"
         )
 
         pg_params = json.dumps(params or {}, ensure_ascii=False)
 
-        async for conn in acquire_with_retry(self.pool):
-            rows: list[Record] = await conn.fetch(sql, pg_params)
-            return [dict(row) for row in rows]
+        async with self.pool.connection() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(sql, (pg_params,))
+                rows = await cur.fetchall()
+                return [dict(row) for row in rows]
 
-        # Unreachable — acquire_with_retry either yields or raises
+        # Unreachable
         return []  # pragma: no cover
 
     # ------------------------------------------------------------------
@@ -275,7 +287,7 @@ class PGGraphStore:
         sql = f"""
             WITH input(v, ord) AS (
               SELECT v, ord
-              FROM unnest($1::text[]) WITH ORDINALITY AS t(v, ord)
+              FROM unnest(%s::text[]) WITH ORDINALITY AS t(v, ord)
             ),
             ids(node_id, ord) AS (
               SELECT (to_json(v)::text)::{age_schema}.agtype AS node_id, ord
@@ -291,9 +303,10 @@ class PGGraphStore:
             ORDER BY i.ord
         """
 
-        async for conn in acquire_with_retry(self.pool):
-            rows: list[Record] = await conn.fetch(sql, node_ids)
-            break
+        async with self.pool.connection() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(sql, (node_ids,))
+                rows = await cur.fetchall()
 
         result: dict[str, GraphNode] = {}
         for row in rows:

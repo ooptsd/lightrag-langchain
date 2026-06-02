@@ -29,18 +29,29 @@ def temp_env_file(tmp_path: Path):
 
 @pytest.fixture
 def mock_pool():
-    """Return an AsyncMock wrapping asyncpg.Pool for unit testing data layer classes.
+    """Return an AsyncMock wrapping psycopg_pool.AsyncConnectionPool for unit testing.
+
+    Supports both ``pool.connection()`` (psycopg context manager pattern) and
+    ``pool.acquire()`` (legacy asyncpg pattern) for backward compatibility.
 
     Usage::
 
         async def test_something(mock_pool):
-            mock_pool.acquire.return_value.__aenter__.return_value = mock_conn
+            # psycopg pattern: pool.connection() → conn → cursor
+            mock_pool.connection.return_value.__aenter__.return_value = mock_conn
             store = PGVectorStore(pool=mock_pool)
     """
-    from unittest.mock import AsyncMock
+    from unittest.mock import AsyncMock, MagicMock
 
     pool = AsyncMock()
-    # Simulate async context manager behavior for pool.acquire()
+    # psycopg pattern: pool.connection() returns a context manager synchronously.
+    # We use MagicMock (not AsyncMock) so pool.connection() returns the CM
+    # directly (not a coroutine), satisfying ``async with`` protocol.
+    conn_cm = MagicMock()
+    conn_cm.__aenter__ = AsyncMock()
+    conn_cm.__aexit__ = AsyncMock(return_value=None)
+    pool.connection = MagicMock(return_value=conn_cm)
+    # Legacy asyncpg pattern: pool.acquire() context manager
     pool.acquire.return_value.__aenter__ = AsyncMock()
     pool.acquire.return_value.__aexit__ = AsyncMock()
     return pool
@@ -48,21 +59,52 @@ def mock_pool():
 
 @pytest.fixture
 def mock_conn():
-    """Return an AsyncMock wrapping asyncpg.Connection with configurable fetch().
+    """Return an AsyncMock wrapping a psycopg connection with cursor support.
+
+    Provides ``cursor()`` context manager (psycopg pattern) and legacy
+    ``fetch()`` / ``fetchval()`` mocks for backward compatibility.
 
     Usage::
 
-        async def test_something(mock_pool, mock_conn):
-            mock_pool.acquire.return_value.__aenter__.return_value = mock_conn
-            mock_conn.fetch.return_value = [{"col": "val"}]
+        async def test_something(mock_pool, mock_conn, mock_cursor):
+            mock_pool.connection.return_value.__aenter__.return_value = mock_conn
+            mock_conn.cursor.return_value.__aenter__.return_value = mock_cursor
+            mock_cursor.fetchall.return_value = [{"col": "val"}]
     """
-    from unittest.mock import AsyncMock
+    from unittest.mock import AsyncMock, MagicMock
 
     conn = AsyncMock()
+    # psycopg pattern: conn.cursor() returns a context manager synchronously
+    cursor_cm = MagicMock()
+    cursor_cm.__aenter__ = AsyncMock()
+    cursor_cm.__aexit__ = AsyncMock(return_value=None)
+    conn.cursor = MagicMock(return_value=cursor_cm)
+    # Legacy asyncpg pattern
     conn.fetch = AsyncMock()
     conn.fetchrow = AsyncMock()
     conn.fetchval = AsyncMock()
+    # execute on connection (for _configure_connection SET statements)
+    conn.execute = AsyncMock()
     return conn
+
+
+@pytest.fixture
+def mock_cursor():
+    """Return an AsyncMock wrapping a psycopg cursor with execute/fetchall/fetchone.
+
+    Usage::
+
+        async def test_something(mock_pool, mock_conn, mock_cursor):
+            mock_conn.cursor.return_value.__aenter__.return_value = mock_cursor
+            mock_cursor.fetchall.return_value = [{"col": "val"}]
+    """
+    from unittest.mock import AsyncMock
+
+    cursor = AsyncMock()
+    cursor.execute = AsyncMock()
+    cursor.fetchall = AsyncMock()
+    cursor.fetchone = AsyncMock()
+    return cursor
 
 
 # ---------------------------------------------------------------------------
