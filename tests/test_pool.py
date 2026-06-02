@@ -1,33 +1,27 @@
-"""Comprehensive test suite for the asyncpg connection pool manager.
+"""测试套件：psycopg 连接池管理器的完整单元测试。
 
-Tests cover pool initialization, lazy access, idempotency, dependency injection,
-pgvector codec registration, pool close lifecycle, and transient error retry.
+覆盖：池初始化、惰性访问、幂等性、依赖注入、pgvector 编解码注册、
+configure 回调、池关闭生命周期、以及 acquire_with_retry 已移除的验证。
 
-All asyncpg calls are mocked — no real database connection is made.
+所有 psycopg 调用均被 mock —— 无真实数据库连接。
 """
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
-import asyncpg
 import pytest
-
-# Aliases for transient exception types
-ConnectionDoesNotExistError = asyncpg.exceptions.ConnectionDoesNotExistError
-ConnectionFailureError = asyncpg.exceptions.ConnectionFailureError
 
 
 # ---------------------------------------------------------------------------
-# Shortcut for pool module access
+# 获取 pool 模块引用
 # ---------------------------------------------------------------------------
 
 
 def _pool_mod():
-    """Return a fresh reference to the pool module.
+    """返回 pool 模块的引用。
 
-    Call this inside test bodies (not at module level) so the fixture has
-    already set env vars before Settings instantiation.
+    在测试体内部调用（不在模块级别），以确保 fixture 已先设置环境变量。
     """
     import lightrag_langchain.data.pool as mod
 
@@ -35,23 +29,16 @@ def _pool_mod():
 
 
 # ---------------------------------------------------------------------------
-# Auto-use fixture: reset module-level state between tests
+# Auto-use fixture: 每次测试前重置模块级状态
 # ---------------------------------------------------------------------------
 
 
 @pytest.fixture(autouse=True)
 def _reset_module_state(monkeypatch):
-    """Reset module-level singletons and set required env vars before each test.
+    """每次测试前重置模块级单例并设置所需环境变量。
 
-    This ensures every test starts with a clean slate — the cached Settings
-    singleton and pool singleton are cleared, and all required env vars are
-    available via monkeypatch.
-
-    When a different test module (e.g. test_store) loads ``pool.py`` first in
-    the same pytest session, Python's module cache hands back the stale module
-    whose ``settings`` reference still points to the original Settings instance.
-    We must rebind ``pool.settings`` after clearing the config singleton so
-    that ``init_pool()`` picks up the monkeypatched env values.
+    确保每个测试从干净状态开始——缓存的 Settings 单例和 pool 单例被清除，
+    所有必需环境变量通过 monkeypatch 可用。
     """
     required_vars = {
         "lightrag_pg__host": "localhost",
@@ -71,82 +58,106 @@ def _reset_module_state(monkeypatch):
     for k, v in required_vars.items():
         monkeypatch.setenv(k, v)
 
-    # Reset Settings singleton BEFORE importing pool — pool's module-level
-    # ``from lightrag_langchain.config import settings`` triggers the lazy
-    # __getattr__ which will return the cached instance if _settings is set.
+    # 重置 Settings 单例
     import lightrag_langchain.config as config_module
     config_module._settings = None
 
-    # Now import pool (triggers fresh Settings creation with our env vars)
+    # 导入 pool 并重绑定
     import lightrag_langchain.data.pool as pool_module
-    # Rebind pool.settings in case the pool module was already cached from a
-    # previous test module — Python's import cache would return the stale
-    # module without re-executing its body, so its settings reference would
-    # still point to the original Settings instance.
     pool_module.settings = config_module.__getattr__("settings")
     pool_module._pool = None
 
 
 # ---------------------------------------------------------------------------
-# TestPoolInit — pool creation and dependency injection
+# TestPoolInit — 池创建和依赖注入
 # ---------------------------------------------------------------------------
 
 
 class TestPoolInit:
-    """Pool creation, idempotency, dependency injection, and register_vector."""
+    """池创建、幂等性、依赖注入和 configure 回调。"""
 
     @pytest.mark.asyncio
     async def test_init_creates_pool_with_config(self):
-        """init_pool() calls asyncpg.create_pool with keyword args from settings."""
+        """init_pool() 使用 settings 中的配置创建 AsyncConnectionPool。"""
         pm = _pool_mod()
 
         mock_pool = AsyncMock()
-        with patch("asyncpg.create_pool", new=AsyncMock(return_value=mock_pool)) as cp:
+        mock_pool.open = AsyncMock()
+        mock_pool.close = AsyncMock()
+
+        with patch(
+            "lightrag_langchain.data.pool.AsyncConnectionPool",
+            return_value=mock_pool,
+        ) as mock_acp:
             result = await pm.init_pool()
 
-        # Verify pool was returned
+        # 验证返回的是 mock_pool
         assert result is mock_pool
-        # Verify _pool module-level state is set
+        # 验证 _pool 模块级状态已设置
         assert pm._pool is mock_pool
 
-        # Verify create_pool kwargs
-        cp.assert_awaited_once()
-        call_kwargs = cp.call_args.kwargs
-        assert call_kwargs["host"] == "localhost"
-        assert call_kwargs["port"] == 5432
-        assert call_kwargs["user"] == "test"
-        assert isinstance(call_kwargs["password"], str)
-        assert call_kwargs["password"] == "secret"
-        assert call_kwargs["database"] == "testdb"
+        # 验证 AsyncConnectionPool 的构造参数
+        mock_acp.assert_called_once()
+        call_kwargs = mock_acp.call_args.kwargs
+
+        # conninfo 字符串验证
+        assert "conninfo" in call_kwargs
+        conninfo = call_kwargs["conninfo"]
+        assert "postgresql://" in conninfo
+        assert "localhost" in conninfo
+        assert "5432" in conninfo
+        assert "test" in conninfo
+        assert "secret" in conninfo
+        assert "testdb" in conninfo
+
+        # min_size / max_size
         assert call_kwargs["min_size"] == 2
         assert call_kwargs["max_size"] == 10
-        assert call_kwargs["command_timeout"] == 30.0
-        assert callable(call_kwargs["init"])
-        assert call_kwargs["server_settings"]["application_name"] == "lightrag_langchain"
-        assert call_kwargs["server_settings"]["default_transaction_read_only"] == "on"
+
+        # kwargs 中的 autocommit 和 row_factory
+        assert "kwargs" in call_kwargs
+        assert call_kwargs["kwargs"]["autocommit"] is True
+        from psycopg.rows import dict_row
+        assert call_kwargs["kwargs"]["row_factory"] is dict_row
+
+        # configure 回调
+        assert "configure" in call_kwargs
+        assert callable(call_kwargs["configure"])
+
+        # open=False
+        assert call_kwargs["open"] is False
+
+        # 验证 _pool.open() 被调用
+        mock_pool.open.assert_awaited_once()
 
         await pm.close_pool()
 
     @pytest.mark.asyncio
     async def test_init_pool_idempotent(self):
-        """Calling init_pool() twice returns the same pool object (reference equality)."""
+        """两次调用 init_pool() 返回相同的池对象（引用相等）。"""
         pm = _pool_mod()
 
         mock_pool = AsyncMock()
-        with patch("asyncpg.create_pool", new=AsyncMock(return_value=mock_pool)) as cp:
+        mock_pool.open = AsyncMock()
+        mock_pool.close = AsyncMock()
+
+        with patch(
+            "lightrag_langchain.data.pool.AsyncConnectionPool",
+            return_value=mock_pool,
+        ) as mock_acp:
             p1 = await pm.init_pool()
             p2 = await pm.init_pool()
 
-        # Same object returned both times
+        # 两次返回同一个对象
         assert p1 is p2 is mock_pool
-        # create_pool called only once
-        cp.assert_awaited_once()
+        # AsyncConnectionPool 仅构造一次
+        mock_acp.assert_called_once()
 
         await pm.close_pool()
 
     @pytest.mark.asyncio
     async def test_init_with_custom_pool(self):
-        """init_pool(custom_pool=mock) sets _pool to the custom mock (D-07)."""
+        """init_pool(custom_pool=mock) 将 _pool 设置为自定义 mock（D-07）。"""
         pm = _pool_mod()
 
         custom = AsyncMock()
@@ -158,163 +169,202 @@ class TestPoolInit:
         await pm.close_pool()
 
     @pytest.mark.asyncio
-    async def test_register_vector_called_on_init(self):
-        """The init callback passed to create_pool calls register_vector on connection."""
+    async def test_configure_callback_registers_pgvector(self):
+        """传递给 AsyncConnectionPool 的 configure 回调注册 pgvector 并设置 search_path 和 read_only。"""
         pm = _pool_mod()
 
         mock_pool = AsyncMock()
-        with patch("asyncpg.create_pool", new=AsyncMock(return_value=mock_pool)) as cp:
+        mock_pool.open = AsyncMock()
+        mock_pool.close = AsyncMock()
+
+        with patch(
+            "lightrag_langchain.data.pool.AsyncConnectionPool",
+            return_value=mock_pool,
+        ) as mock_acp:
             await pm.init_pool()
 
-        # Extract the init callback
-        init_cb = cp.call_args.kwargs["init"]
-        assert callable(init_cb)
+        # 提取 configure 回调
+        configure_cb = mock_acp.call_args.kwargs["configure"]
+        assert callable(configure_cb)
 
-        # Now call the init callback with a mock connection
+        # 使用 mock connection 调用 configure 回调
         mock_conn = AsyncMock()
-        with patch("pgvector.asyncpg.register_vector", new=AsyncMock()) as rv:
-            await init_cb(mock_conn)
+        mock_conn.execute = AsyncMock()
+        with patch(
+            "pgvector.psycopg.register_vector_async", new=AsyncMock()
+        ) as rv:
+            await configure_cb(mock_conn)
 
+        # 验证 register_vector_async 已调用
         rv.assert_awaited_once_with(mock_conn)
+
+        # 验证 SET search_path 和 SET default_transaction_read_only
+        # execute 被调用了 3 次（register_vector_async 后两次 SET）
+        assert mock_conn.execute.await_count >= 2
 
         await pm.close_pool()
 
 
 # ---------------------------------------------------------------------------
-# TestPoolAccess — lazy accessor behaviors
+# TestPoolAccess — 惰性访问器行为
 # ---------------------------------------------------------------------------
 
 
 class TestPoolAccess:
-    """Module-level __getattr__ access control — before/after init."""
+    """模块级 __getattr__ 访问控制 — 初始化前后的行为。"""
 
     @pytest.mark.asyncio
     async def test_access_before_init_raises(self):
-        """Accessing pool before init_pool() raises RuntimeError."""
+        """在 init_pool() 之前访问 pool 应抛出 RuntimeError。"""
         pm = _pool_mod()
-        # Ensure pool is not initialized (auto-use fixture handles this)
         with pytest.raises(RuntimeError, match="not initialized"):
             _ = pm.pool
 
     @pytest.mark.asyncio
     async def test_access_unknown_attribute_raises(self):
-        """Accessing a non-existent attribute on pool module raises AttributeError."""
+        """访问 pool 模块上不存在的属性应抛出 AttributeError。"""
         pm = _pool_mod()
         with pytest.raises(AttributeError):
             _ = pm.nonexistent_attr
 
 
 # ---------------------------------------------------------------------------
-# TestPoolClose — explicit pool shutdown
+# TestPoolClose — 显式池关闭
 # ---------------------------------------------------------------------------
 
 
 class TestPoolClose:
-    """close_pool() lifecycle — release and idempotent close."""
+    """close_pool() 生命周期 — 释放和幂等关闭。"""
 
     @pytest.mark.asyncio
     async def test_close_releases_pool(self):
-        """close_pool() calls pool.close() and sets _pool = None."""
+        """close_pool() 调用 pool.close() 并设置 _pool = None。"""
         pm = _pool_mod()
 
         mock_pool = AsyncMock()
+        mock_pool.open = AsyncMock()
         mock_pool.close = AsyncMock()
-        with patch("asyncpg.create_pool", new=AsyncMock(return_value=mock_pool)):
+        with patch(
+            "lightrag_langchain.data.pool.AsyncConnectionPool",
+            return_value=mock_pool,
+        ):
             await pm.init_pool()
 
         assert pm._pool is mock_pool
         await pm.close_pool()
 
-        # Verify pool.close() was called
+        # 验证 pool.close() 被调用
         mock_pool.close.assert_awaited_once()
-        # Verify _pool is reset to None
+        # 验证 _pool 被重置为 None
         assert pm._pool is None
 
     @pytest.mark.asyncio
     async def test_close_idempotent(self):
-        """Calling close_pool() twice does not raise — close called exactly once."""
+        """两次调用 close_pool() 不抛异常 — close 只调用一次。"""
         pm = _pool_mod()
 
         mock_pool = AsyncMock()
+        mock_pool.open = AsyncMock()
         mock_pool.close = AsyncMock()
-        with patch("asyncpg.create_pool", new=AsyncMock(return_value=mock_pool)):
+        with patch(
+            "lightrag_langchain.data.pool.AsyncConnectionPool",
+            return_value=mock_pool,
+        ):
             await pm.init_pool()
 
         await pm.close_pool()
-        await pm.close_pool()  # second call should be a no-op
+        await pm.close_pool()  # 第二次调用应为 no-op
 
-        # close() called exactly once
+        # close() 只调用一次
         mock_pool.close.assert_awaited_once()
         assert pm._pool is None
 
 
 # ---------------------------------------------------------------------------
-# TestPoolRetry — transient error retry with exponential backoff
+# TestAcquireWithRetryRemoved — acquire_with_retry 已移除
 # ---------------------------------------------------------------------------
 
 
-class TestPoolRetry:
-    """acquire_with_retry() — retry on transient errors, skip on permanent."""
+class TestAcquireWithRetryRemoved:
+    """验证 acquire_with_retry 函数已从 pool 模块中移除。"""
 
-    @pytest.mark.asyncio
-    async def test_retry_on_transient_error(self):
-        """Retries on ConnectionDoesNotExistError, succeeds on 3rd attempt."""
+    def test_acquire_with_retry_not_in_module(self):
+        """pool 模块不应再包含 acquire_with_retry 函数。"""
         pm = _pool_mod()
+        assert not hasattr(pm, "acquire_with_retry"), (
+            "acquire_with_retry should be removed from pool.py"
+        )
 
-        mock_pool = AsyncMock()
-        mock_pool.release = AsyncMock()
-        mock_conn = AsyncMock()
+    def test_acquire_with_retry_not_in_source(self):
+        """pool.py 源代码不应包含 acquire_with_retry 定义。"""
+        with open("src/lightrag_langchain/data/pool.py") as f:
+            source = f.read()
+        assert "acquire_with_retry" not in source, (
+            "acquire_with_retry should not appear in pool.py source"
+        )
 
-        # First two calls raise, third succeeds
-        mock_pool.acquire.side_effect = [
-            ConnectionDoesNotExistError("fail 1"),
-            ConnectionDoesNotExistError("fail 2"),
-            mock_conn,
-        ]
 
-        with patch("asyncio.sleep", new=AsyncMock()) as sleep_mock:
-            async for conn in pm.acquire_with_retry(mock_pool, max_retries=3):
-                assert conn is mock_conn
+# ---------------------------------------------------------------------------
+# TestConfigureCallback — _configure_connection 函数签名和行为
+# ---------------------------------------------------------------------------
 
-        # acquire called 3 times (initial + 2 retries)
-        assert mock_pool.acquire.call_count == 3
-        # Connection released after use
-        mock_pool.release.assert_awaited_once_with(mock_conn)
-        # sleep called twice: 1s, then 2s
-        assert sleep_mock.await_count == 2
-        sleep_mock.assert_any_await(1)
-        sleep_mock.assert_any_await(2)
 
-    @pytest.mark.asyncio
-    async def test_no_retry_on_permanent_error(self):
-        """ValueError propagates immediately — no retry on non-transient errors."""
+class TestConfigureCallback:
+    """_configure_connection 函数的签名和行为验证。"""
+
+    def test_configure_connection_exists(self):
+        """pool 模块应包含 _configure_connection 函数。"""
         pm = _pool_mod()
+        assert hasattr(pm, "_configure_connection"), (
+            "_configure_connection should exist in pool.py"
+        )
 
-        mock_pool = AsyncMock()
-        mock_pool.acquire.side_effect = ValueError("permanent error")
+    def test_configure_connection_signature(self):
+        """_configure_connection 应接受单个 conn 参数。"""
+        import inspect
 
-        with patch("asyncio.sleep", new=AsyncMock()) as sleep_mock:
-            with pytest.raises(ValueError):
-                async for _conn in pm.acquire_with_retry(mock_pool):
-                    pass
-
-        # acquire called exactly once — no retry
-        assert mock_pool.acquire.call_count == 1
-        # No sleep — no retry at all
-        sleep_mock.assert_not_awaited()
-
-    @pytest.mark.asyncio
-    async def test_retry_exhaustion_raises(self):
-        """ConnectionFailureError raised after max_retries+1 attempts exhausted."""
         pm = _pool_mod()
+        sig = inspect.signature(pm._configure_connection)
+        assert len(sig.parameters) == 1, (
+            "configure callback must take exactly one conn argument"
+        )
 
-        mock_pool = AsyncMock()
-        mock_pool.acquire.side_effect = ConnectionFailureError("always fail")
 
-        with patch("asyncio.sleep", new=AsyncMock()):
-            with pytest.raises(ConnectionFailureError):
-                async for _conn in pm.acquire_with_retry(mock_pool, max_retries=2):
-                    pass
+# ---------------------------------------------------------------------------
+# TestAsyncpgRemoved — asyncpg 导入已完全移除
+# ---------------------------------------------------------------------------
 
-        # 3 total attempts: initial + 2 retries
-        assert mock_pool.acquire.call_count == 3
+
+class TestAsyncpgRemoved:
+    """验证 pool.py 源代码中不存在任何 asyncpg 导入。"""
+
+    def test_no_asyncpg_imports(self):
+        """pool.py 不应包含任何 asyncpg 导入。"""
+        import ast
+
+        with open("src/lightrag_langchain/data/pool.py") as f:
+            source = f.read()
+        tree = ast.parse(source)
+        imports = []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imports.extend(n.name for n in node.names)
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                imports.append(node.module)
+        assert "asyncpg" not in imports, f"asyncpg still imported: {imports}"
+
+
+# ---------------------------------------------------------------------------
+# TestDataLayerErrorRemoved — DataLayerError 已移除
+# ---------------------------------------------------------------------------
+
+
+class TestDataLayerErrorRemoved:
+    """验证 DataLayerError 异常类已从 pool 模块中移除。"""
+
+    def test_data_layer_error_not_in_module(self):
+        """pool 模块不应再包含 DataLayerError。"""
+        pm = _pool_mod()
+        assert not hasattr(pm, "DataLayerError"), (
+            "DataLayerError should be removed from pool.py"
+        )
