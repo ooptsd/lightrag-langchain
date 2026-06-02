@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lightrag-langchain"
-version = "0.3.0"
+version = "0.3.1"
 description = "LangChain-based read-only query layer for LightRAG knowledge graph"
 readme = "README.md"
 license = "MIT"
