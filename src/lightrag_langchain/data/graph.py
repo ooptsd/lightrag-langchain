@@ -159,7 +159,7 @@ class PGGraphStore:
                         (name,),
                     )
                     row = await cur.fetchone()
-                    exists = row[0] if row else False
+                    exists = row["exists"] if row else False
 
                 if not exists:
                     # Auto-detect: find a graph that has a base table
@@ -170,7 +170,7 @@ class PGGraphStore:
                             "ORDER BY g.name LIMIT 1"
                         )
                         row = await cur.fetchone()
-                        detected: str | None = row[0] if row else None
+                        detected: str | None = row["name"] if row else None
 
                     if detected is None:
                         # Fallback: any graph
@@ -179,7 +179,7 @@ class PGGraphStore:
                                 "SELECT name FROM ag_catalog.ag_graph ORDER BY name LIMIT 1"
                             )
                             row = await cur.fetchone()
-                            detected = row[0] if row else None
+                            detected = row["name"] if row else None
 
                     if detected is not None:
                         name = detected
