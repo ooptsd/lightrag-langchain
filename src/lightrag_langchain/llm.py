@@ -55,6 +55,7 @@ class _LazyLLM:
                 api_key=self._config.binding_api_key.get_secret_value(),
                 temperature=self._config.temperature,
                 max_tokens=self._config.max_tokens,
+                disable_streaming=True,  # 禁用流式输出，防止内部 LLM 调用（关键词提取、答案生成）污染 LangGraph 前端展示
             )
         return getattr(self._instance, name)
 

@@ -238,7 +238,7 @@ class Settings(BaseSettings):
         env_prefix="LIGHTRAG_",
         env_nested_delimiter="__",
         nested_model_default_partial_update=True,
-        extra="forbid",
+        extra="ignore",
         case_sensitive=False,
         frozen=True,
     )
